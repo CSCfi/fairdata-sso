@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve Fairdata SSO service
+After=network.target
+
+[Service]
+User=root
+Group=nginx
+WorkingDirectory=/opt/fairdata/fairdata-sso
+ExecStart=/opt/fairdata/fairdata-sso/fairdata-sso.sh
+
+[Install]
+WantedBy=multi-user.target

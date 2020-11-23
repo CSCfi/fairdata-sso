@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Fairdata SSO Logout</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="/fairdata.css">
+    <link rel="stylesheet" href="/fairdata-sso.css">
+    <link rel="stylesheet" href="/notification.css">
+    <script type="text/javascript" src="/notification.js"></script>
+</head>
+
+<body>
+    <div class="fd-card logout">
+        <h1>
+            {% if language == "fi" %}
+            Kirjaudu ulos
+            {% elif language == "sv" %}
+            Logga ut
+            {% else %}
+            Logout
+            {% endif %}
+        </h1>
+        <hr>
+        <p>
+            {% if language == "fi" %}
+            Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain {{ service_short_name }}-palvelusta
+            {% elif language == "sv" %}
+            Detta avslutar den aktiva sessionen för <strong>ALL</strong> Fairdata Services, inte bara för {{ service_short_name }}
+            {% else %}
+            This will end the active session for <strong>ALL</strong> Fairdata Services, not only for {{ service_short_name }}
+            {% endif %}
+        </p>
+        <div class="actions">
+            <a href="{{ redirect_url }}"><button class="fd-button fd-success">
+                    {% if language == "fi" %}
+                    Peruuta
+                    {% elif language == "sv" %}
+                    Avbryt
+                    {% else %}
+                    Cancel
+                    {% endif %}
+                </button></a>
+            <form method="POST" action="{{ sso_api }}/terminate">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
+                <button type="submit" class="fd-button fd-outline-success">
+                    {% if language == "fi" %}
+                    Kirjaudu ulos
+                    {% elif language == "sv" %}
+                    Logga ut
+                    {% else %}
+                    Logout
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

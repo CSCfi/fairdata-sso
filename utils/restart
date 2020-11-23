@@ -1,0 +1,7 @@
+systemctl daemon-reload
+systemctl stop nginx
+systemctl stop fairdata-sso
+systemctl start fairdata-sso
+systemctl start nginx
+systemctl status fairdata-sso
+systemctl status nginx

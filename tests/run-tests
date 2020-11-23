@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# See the file README for general information regarding tests.
+#
+# This is a helper script for executing tests, ensuring the python environment
+# is initialized and active, and default parameters are used.
+#
+# If no arguments are provided, then all behavioral tests are executed, in
+# logical order by component; else, the arguments provided are passed to python
+# unittests as-is. This allows the script to also be used to run either unit or
+# behavioral tests for a specific component conveniently.
+#
+# Examples:
+#
+# run-tests                             (run all behavioral tests)
+# run-tests tests.service_integration   (run all service integration tests)
+
+#--------------------------------------------------------------------------------
+# Load service constants and configuration settings
+
+PARENT_FOLDER=`dirname "$(realpath $0)"`
+PARENT_BASENAME=`basename "$PARENT_FOLDER"`
+
+while [ "$PARENT_BASENAME" != "fairdata-sso" -a "$PARENT_BASENAME" != "fairdata-sso-dev" -a "$PARENT_BASENAME" != "" ]; do
+    PARENT_FOLDER=`dirname "$PARENT_FOLDER"`
+    PARENT_BASENAME=`basename "$PARENT_FOLDER"`
+done
+
+SSO_ROOT="$PARENT_FOLDER"
+TEST_LOG="$SSO_ROOT/tests/test.log"
+
+#--------------------------------------------------------------------------------
+# Verify that we are in a test environment or debug mode is active
+
+TEST_ENVIRONMENT=`cat "$SSO_ROOT/config.json" | grep '"ENVIRONMENT"' | grep '"TEST"'`
+DEMO_ENVIRONMENT=`cat "$SSO_ROOT/config.json" | grep '"ENVIRONMENT"' | grep '"DEMO"'`
+DEBUG=`cat "$SSO_ROOT/config.json" | grep '"DEBUG"' | grep 'true'`
+
+if [ "${TEST_ENVIRONMENT}${DEMO_ENVIRONMENT}${DEBUG}" == "" ]; then
+    echo "This script can only be run in a test or demo environment or if debug mode is active. Aborting." >&2
+    exit 1
+fi
+
+#--------------------------------------------------------------------------------
+# Ensure python environment is properly configured and active
+
+if [ ! -d $SSO_ROOT/venv ]; then
+    echo "Error: The python environment does not exist"
+    exit 1
+fi
+
+source $SSO_ROOT/venv/bin/activate
+
+#--------------------------------------------------------------------------------
+# Execute tests per the provided command line arguments
+
+cd $SSO_ROOT
+
+export SSO_ROOT
+
+if [[ "$DEBUG" ]]; then
+    echo "SSO_ROOT: $SSO_ROOT"
+fi
+
+if [ $# -ge 1 ]; then
+
+    python -W ignore -m unittest discover -f -q $*
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+else
+
+    python -W ignore -m unittest discover -f -q tests.internal_operations
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+    python -W ignore -m unittest discover -f -q tests.service_integration
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+    python -W ignore -m unittest discover -f -q tests.security
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+fi
+
+echo ""                                       | tee -a $TEST_LOG
+echo "======================================" | tee -a $TEST_LOG
+echo "=== ALL EXECUTED TESTS SUCCESSFUL  ===" | tee -a $TEST_LOG
+echo "======================================" | tee -a $TEST_LOG
+echo ""                                       | tee -a $TEST_LOG
+

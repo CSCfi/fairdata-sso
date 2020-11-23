@@ -1,0 +1,37 @@
+This subdirectory contains behavioral, integration, and end-to-end tests, and
+their related utilities and resources, used to validate proper behavior and
+functionality of the Fairdata SSO service in a manner agnostic to its underlying 
+implementation.
+
+
+RUNNING TESTS
+
+The root /fairdata-sso/tests folder contains a script 'run-tests' which will locate
+and run all tests, or a subset of tests, depending on the arguments provided.
+
+Further details and examples are provided in the comments of the script.
+
+
+RECOMMENDATIONS FOR WRITING TESTS
+
+Each logical suite of tests should be executable by providing the package path
+as a single parameter to the 'run-tests' script.
+
+During execution of the tests, each set of logically related tests should be
+indicated by outputting a status line containing a heading matching the pattern
+"--- Heading" (typically output as part of the setup).
+
+Prior to each specific test assertion, operation, action, a status line should be
+output containing a brief summary, describing the behavioral action being executed.
+(e.g. "Retrieve login page", "Record user acceptance of cookies and tracking", etc.)
+If the action should not be allowed or possible, the summary should start with
+the "Attempt to", e.g "Attempt to retrieve session details without token", etc.)
+
+When setting up for tests, output a status message "(initializing)". When cleaning
+up after tests, output a status message "(cleaning)".
+
+See the existing test execution for examples.
+
+The summary of all test set headings and summaries should serve as documentation of
+the functional test coverage provided by the implemented tests.
+

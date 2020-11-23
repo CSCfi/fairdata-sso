@@ -1,0 +1,144 @@
+#!/bin/bash
+#--------------------------------------------------------------------------------
+# This file is part of the Fairdata services
+#
+# Copyright (C) 2020 Ministry of Education and Culture, Finland
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author   CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# @license  GNU Affero General Public License, version 3
+# @link     https://research.csc.fi/
+#--------------------------------------------------------------------------------
+
+ROOT="/var/fairdata-sso"
+
+#--------------------------------------------------------------------------------
+
+if [ ! -d $ROOT ]; then
+    echo "Error: Cannot find the specified root directory \"$ROOT\"" >&2
+    exit 1
+fi
+
+#--------------------------------------------------------------------------------
+
+for NEEDS_PROG in rpmbuild md5sum
+do
+    PROG_LOCATION=`/usr/bin/which $NEEDS_PROG 2>/dev/null`
+    if [ ! -e "$PROG_LOCATION" ]; then
+        echo "Error: Can't find $NEEDS_PROG in your \$PATH" >&2
+        exit 1
+    fi
+done
+
+#--------------------------------------------------------------------------------
+
+SCRIPT_DIR=`dirname $0`
+
+if [ "$SCRIPT_DIR" = "." ]; then
+    SCRIPT_DIR=`pwd`
+fi
+
+if [ ! -e $SCRIPT_DIR/rpmbuild/ ]; then
+    echo "Creating rpmbuild tree \"$SCRIPT_DIR/rpmbuild/\""
+    mkdir -p $SCRIPT_DIR/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
+fi
+
+VERSION=`grep '^Version: ' "$SCRIPT_DIR/fairdata-sso.rpmspec" | sed -e 's/^Version: //' | sed -e 's/[ \t]*$//'`
+
+if [ -z "$VERSION" ]; then
+    echo "Error: Can't find version in \"$SCRIPT_DIR/fairdata-sso.rpmspec\"!" >&2
+    exit 1
+else
+    echo "Version: $VERSION"
+fi
+
+RELEASE=`grep '^Release: ' "$SCRIPT_DIR/fairdata-sso.rpmspec" | sed -e 's/^Release: //' | sed -e 's/[ \t]*$//'`
+
+if [ -z "$RELEASE" ]; then
+    echo "Error: Can't find release in \"$SCRIPT_DIR/fairdata-sso.rpmspec\"!" >&2
+    exit 1
+else
+    echo "Release: $RELEASE"
+fi
+
+if [ -f "${SCRIPT_DIR}/packages/fairdata-sso-${VERSION}-${RELEASE}.x86_64.rpm" ]; then
+    echo "Version and release must be updated first in \"$SCRIPT_DIR/fairdata-sso.rpmspec\"!" >&2
+    exit 1
+fi
+
+cp "$SCRIPT_DIR/fairdata-sso.rpmspec" "$SCRIPT_DIR/rpmbuild/SPECS/fairdata-sso.rpmspec"
+
+#--------------------------------------------------------------------------------
+
+cd $ROOT;
+
+echo "Generating tar package \"fairdata-sso-${VERSION}.${RELEASE}.tar\"..."
+
+tar \
+    --exclude ./.git \
+    --exclude ./.gitignore \
+    --exclude ./.gitsecret \
+    --exclude ./.vscode \
+    --exclude ./config \
+    --exclude ./config.tgz \
+    --exclude ./config.tgz.secret \
+    --exclude ./config.json \
+    --exclude ./saml.json \
+    --exclude ./sso.sock \
+    --exclude ./venv \
+    --exclude ./rpm \
+    --exclude ./tmp \
+    --transform "s:^\./:fairdata-sso/:" \
+    -cvf "${SCRIPT_DIR}/rpmbuild/SOURCES/fairdata-sso-${VERSION}.${RELEASE}.tar" .
+
+#--------------------------------------------------------------------------------
+
+cd $SCRIPT_DIR
+
+tar --transform "s:^\./:fairdata-sso/utils/rpm/:" \
+    -rvf "${SCRIPT_DIR}/rpmbuild/SOURCES/fairdata-sso-${VERSION}.${RELEASE}.tar" ./postinstall
+
+gzip -f "${SCRIPT_DIR}/rpmbuild/SOURCES/fairdata-sso-${VERSION}.${RELEASE}.tar"
+
+#--------------------------------------------------------------------------------
+
+cd $SCRIPT_DIR/rpmbuild
+
+rpmbuild \
+    --define "%_topdir %(echo $SCRIPT_DIR)/rpmbuild" \
+    --define "%_tmppath  %{_topdir}/tmp" \
+    --define "_version $VERSION" \
+    --define "_release $RELEASE" \
+    -bb "SPECS/fairdata-sso.rpmspec"
+
+#--------------------------------------------------------------------------------
+
+cd $SCRIPT_DIR
+
+PACKAGE=`find rpmbuild/RPMS/x86_64 -name '*.rpm' -print`
+BASENAME=`basename $PACKAGE`
+
+if [ "$PACKAGE" != "" ]; then
+    mkdir $SCRIPT_DIR/packages 2>/dev/null
+    mv $PACKAGE $SCRIPT_DIR/packages/$BASENAME
+    cd $SCRIPT_DIR/packages
+    md5sum $BASENAME > $BASENAME.md5
+    cd $SCRIPT_DIR
+fi
+
+rm -fr $SCRIPT_DIR/rpmbuild
+
+echo "Generated package \"$PACKAGE\""
+

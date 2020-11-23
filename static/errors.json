@@ -1,0 +1,70 @@
+{
+    "no_csc_account": {
+        "en": {
+            "text": "Logging into this service requires a CSC account.",
+            "link": "Create a CSC user account",
+            "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+        },
+        "fi": {
+            "text": "Palveluun kirjautuminen vaatii CSC-tunnuksen.",
+            "link": "Luo CSC-tunnus",
+            "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+        },
+        "sv": {
+            "text": "För att logga in på den här tjänsten krävs ett CSC-användarkonto.",
+            "link": "Skapa ett CSC-användarkonto (på engelska)",
+            "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+        }
+    },
+    "csc_account_locked": {
+        "en": {
+            "text": "The CSC user account is locked.",
+            "link": "Unlock your account by contacting the service desk",
+            "href": "mailto:servicedesk@csc.fi"
+        },
+        "fi": {
+            "text": "CSC-tunnuksesi on lukittu.",
+            "link": "Avaa tunnus ottamalla yhteyttä asiakaspalveluun",
+            "href": "mailto:servicedesk@csc.fi"
+        },
+        "sv": {
+            "text": "Ditt CSC-användarkonto är låst.",
+            "link": "Lås upp ditt konto genom att kontakta servicedisken",
+            "href": "mailto:servicedesk@csc.fi"
+        }
+    },
+    "no_service_rights": {
+        "en": {
+            "text": "You do not have sufficient rights to use the requested service.",
+            "link": "Please contact the service desk for assistance",
+            "href": "mailto:servicedesk@csc.fi"
+        },
+        "fi": {
+            "text": "Sinulla ei ole riittäviä oikeuksia palvelun käyttämiseen.",
+            "link": "Saat apua ottamalla yhteyttä asiakaspalveluun",
+            "href": "mailto:servicedesk@csc.fi"
+        },
+        "sv": {
+            "text": "Du har inte tillräckliga rättigheter för att använda tjänsten.",
+            "link": "Var god, kontakta vår kundtjänst",
+            "href": "mailto:servicedesk@csc.fi"
+        }
+    },
+    "no_ida_projects": {
+        "en": {
+            "text": "You are not a member of any project in IDA or you have not yet accepted the IDA terms of use in MyCSC.",
+            "link": "Apply for IDA storage space or join an existing project and approve the terms of use",
+            "href": "https://www.fairdata.fi/en/ida/apply-for-ida-storage-space/"
+        },
+        "fi": {
+            "text": "Et kuulu yhteenkään projektiin IDA-palvelussa tai et ole vielä hyväksynyt palvelun käyttöehtoja MyCSC:ssä.",
+            "link": "Hae IDA-säilytystilaa projektillesi tai liity olemassa olevaan projektiin ja hyväksy IDA-käyttöehdot",
+            "href": "https://www.fairdata.fi/palvelut/ida/hae-sailytystilaa/"
+        },
+        "sv": {
+            "text": "Du är inte ännu medlem i något projekt eller så har du inte godkänt användarvillkoren i MyCSC.",
+            "link": "Ansök om IDA-lagringsutrymme eller gå med i ett befintligt projekt och godkänn användarvillkoren (på engelska)",
+            "href": "https://www.fairdata.fi/en/ida/apply-for-ida-storage-space/"
+        }
+    }
+}

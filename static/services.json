@@ -1,0 +1,204 @@
+{
+    "IDA": {
+        "short_name": "IDA",
+        "name": {
+            "en": "IDA - Research Data Storage Service",
+            "fi": "IDA - Tutkimusdatan säilytyspalvelu",
+            "sv": "IDA - Lagringstjänst för forskningsdata"
+        },
+        "home": "https://ida.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use the IDA service, you must have a CSC user account and be a member of a project with use rights for the IDA service.",
+            "fi": "Jotta voit käyttää IDA-palvelua, sinulla on oltava CSC-käyttäjätunnus ja sinun tulee kuulua IDA-käyttöoikeudet omaavaan projektiin.",
+            "sv": "För att använda IDA måste du ha ett CSC-användarkonto och vara medlem i ett projekt som har tillgång till IDA."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "Applying for IDA storage space and joining a project",
+                    "href": "https://www.fairdata.fi/en/ida/apply-for-ida-storage-space/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "IDA-tilan hakeminen ja projektiin liittyminen",
+                    "href": "https://www.fairdata.fi/ida/hae-sailytystilaa/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "Hur man ansöker om IDA-lagringsutrymme och går med i ett projekt (på engelska)",
+                    "href": "https://www.fairdata.fi/en/ida/apply-for-ida-storage-space/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "cscid_required": true,
+        "cscid_locked_ok": false,
+        "cscid_supported_profiles": [ "IDA01" ]
+    },
+    "ETSIN": {
+        "short_name": "Etsin",
+        "name": {
+            "en": "Etsin - Research Data Finder",
+            "fi": "Etsin – Tutkimusaineistojen hakupalvelu",
+            "sv": "Etsin - Söktjänst för forskningsdata"
+        },
+        "home": "https://etsin.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use the Etsin service, you must have a CSC user account.",
+            "fi": "Jotta voit käyttää Etsin-palvelua, sinulla on oltava CSC-käyttäjätunnus.",
+            "sv": "För att använda Etsin måste du ha ett CSC-användarkonto."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "cscid_required": true,
+        "cscid_locked_ok": false,
+        "cscid_supported_profiles": [ "IDA01" ]
+    },
+    "QVAIN": {
+        "short_name": "Qvain",
+        "name": {
+            "en": "Qvain - Research Dataset Description Tool",
+            "fi": "Qvain – Tutkimusaineiston metatietotyökalu",
+            "sv": "Qvain - Metadataverktyg för forskningsdata"
+        },
+        "home": "https://qvain.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use the Qvain tool, you must have a CSC user account.",
+            "fi": "Jotta voit käyttää Qvain-työkalua, sinulla on oltava CSC-käyttäjätunnus.",
+            "sv": "För att använda Qvain måste du ha ett CSC-användarkonto."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "cscid_required": true,
+        "cscid_locked_ok": false,
+        "cscid_supported_profiles": [ "IDA01" ]
+    },
+    "AVAA": {
+        "short_name": "AVAA",
+        "name": {
+            "en": "AVAA - ...",
+            "fi": "AVAA - ...",
+            "sv": "AVAA - ..."
+        },
+        "home": "https://avaa.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use the AVAA service, ...",
+            "fi": "Jotta voit käyttää AVAA-palvelua, ...",
+            "sv": "För att använda AVAA ..."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "cscid_required": false,
+        "cscid_locked_ok": true,
+        "cscid_supported_profiles": [ ]
+    },
+    "PAS": {
+        "short_name": "PAS",
+        "name": {
+            "en": "PAS - ...",
+            "fi": "PAS - ...",
+            "sv": "PAS - ..."
+        },
+        "home": "https://manage.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use the PAS service, ...",
+            "fi": "Jotta voit käyttää PAS-palvelua, ...",
+            "sv": "För att använda PAS ..."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "cscid_required": false,
+        "cscid_locked_ok": false,
+        "cscid_supported_profiles": [ "FPAS-MGMT" ]
+    }
+}

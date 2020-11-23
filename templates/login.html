@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Fairdata SSO Login</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="/fairdata.css">
+    <link rel="stylesheet" href="/fairdata-sso.css">
+    <link rel="stylesheet" href="/notification.css">
+    <script type="text/javascript" src="/notification.js"></script>
+</head>
+<body class="fd-content container">
+        {% if errors %}
+        {% for error in errors %}
+        <div class="row no-gutters errors-container">
+            <div class="col-12">
+                <div class="fd-alert fd-danger">
+                    {{ error[language].text }}
+                    {% if error[language].link and error[language].href %}
+                    <br><a href="{{ error[language].href}}" target="_blank">{{ error[language].link }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <div class="row content">
+            <div class="col-lg-6 col-md-12 padding">
+                <p class="guidance-heading">
+                    {% if language == "fi" %}
+                    Sisäänkirjautumisvaatimukset {{ service_short_name }}lle:
+                    {% elif language == "sv" %}
+                    Inloggningskrav för {{ service_short_name }}:
+                    {% else %}
+                    Login requirements for {{ service_short_name }}:
+                    {% endif %}
+                </p>
+                <p>
+                    {{ service_object.guidance_text[language]|safe }}
+                </p>
+            {% if service_object.guidance_links[language] %}
+            <ul>
+            {% for guidance_link in service_object.guidance_links[language] %}
+            <li><a href="{{ guidance_link['href'] }}" target="_blank">{{ guidance_link['text'] }}</a></li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+
+            </div>
+            <div class="col-lg-6 col-md-12 center-content">
+                <div class="fd-card login">
+                    <h1>
+                        {% if language == "fi" %}
+                        Kirjaudu {{ service_short_name }}-palveluun
+                        {% elif language == "sv" %}
+                        Logga in på {{ service_short_name }}
+                        {% else %}
+                        Login to {{ service_short_name }}
+                        {% endif %}
+                    </h1>
+                    <hr>
+                    <p>
+                        {% if language == "fi" %}
+                        Valitse kirjautumistapa:
+                        {% elif language == "sv" %}
+                        Välj autentiseringsmetod:
+                        {% else %}
+                        Select authentication method:
+                        {% endif %}
+                    </p>
+                    <div class="login-buttons">
+                        {% for idp in allowed_idps %}
+                        <a href="/auth?service={{ service }}&redirect_url={{ redirect_url }}&idp={{ idp }}">
+                            {% if language == "fi" %}
+                            <img src="{{ idp }}.png" alt="Kirjaudu sisään {{ idp }}lla" />
+                            {% elif language == "sv" %}
+                            <img src="{{ idp }}.png" alt="Logga in med {{ idp }}" />
+                            {% else %}
+                            <img src="{{ idp }}.png" alt="Login using {{ idp }}" />
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+</html>

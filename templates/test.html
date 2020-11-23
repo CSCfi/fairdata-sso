@@ -1,0 +1,133 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Fairdata SSO Test Page</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="/fairdata-sso-test.css">
+    <link rel="stylesheet" href="/notification.css">
+    <script type="text/javascript" src="/notification.js"></script>
+</head>
+
+<body>
+    <div>
+        <table align="left">
+            <tr>
+                <td>
+                    <a href="/">Online&nbsp;SSO&nbsp;API&nbsp;documentation</a>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/saml_metadata/">Retrieve&nbsp;SAML&nbsp;metadata</a>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/robots.txt">Retrieve&nbsp;<tt>robots.txt</tt></a>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <form action="/login" method="get">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <td>
+                        Execute&nbsp;Login&nbsp;from&nbsp;<select name="service" id="service">
+                            <option value="IDA" default>IDA</option>
+                            <option value="ETSIN">Etsin</option>
+                            <option value="QVAIN">Qvain</option>
+                            <option value="AVAA">AVAA</option>
+                            <option value="PAS">PAS</option>
+                        </select>
+                    </td>
+                    <td class="td-note">
+                        (successsful&nbsp;login&nbsp;will&nbsp;populate&nbsp;the&nbsp;relevant&nbsp;cookies)
+                    </td>
+                    <td>
+                        <select name="language" id="language">
+                            <option value="en" default>English</option>
+                            <option value="fi">Finnish</option>
+                            <option value="sv">Swedish</option>
+                        </select>
+                        &nbsp;&nbsp;&nbsp;
+                        <select name="errors" id="errors">
+                            <option value="" default>No errors</option>
+                            <option value="no_csc_account">No CSC account</option>
+                            <option value="csc_account_locked">CSC account locked</option>
+                            <option value="no_ida_projects">No IDA projects</option>
+                            <option value="no_service_rights">No service rights</option>
+                        </select>
+                    </td>
+                    <td align="left" class="td-submit">
+                        <input name="service" type="hidden" value="IDA">
+                        <input name="redirect_url" type="hidden" value="{{ sso_api }}/test">
+                        <input name="submit" type="submit" value="Login">
+                    </td>
+                </form>
+            </tr>
+            <tr>
+                <form action="/logout" method="get">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <td>
+                        Execute&nbsp;Logout&nbsp;from&nbsp;<select name="service" id="service">
+                            <option value="IDA" default>IDA</option>
+                            <option value="ETSIN">Etsin</option>
+                            <option value="QVAIN">Qvain</option>
+                            <option value="AVAA">AVAA</option>
+                            <option value="PAS">PAS</option>
+                        </select>
+                    </td>
+                    <td class="td-note">
+                        (successsful&nbsp;logout&nbsp;will&nbsp;purge&nbsp;the&nbsp;relevant&nbsp;cookies)
+                    </td>
+                    <td>
+                        <select name="language" id="language">
+                            <option value="en" default>English</option>
+                            <option value="fi">Finnish</option>
+                            <option value="sv">Swedish</option>
+                        </select>
+                    </td>
+                    <td align="left" class="td-submit">
+                        <input name="service" type="hidden" value="IDA">
+                        <input name="redirect_url" type="hidden" value="{{ sso_api }}/test">
+                        <input name="submit" type="submit" value="Logout">
+                    </td>
+                </form>
+            </tr>
+            <tr>
+                <td align="left" class="td-heading" colspan="4">
+                    <div class="td-hr">
+                        <hr>
+                    </div>
+                    <strong>SSO&nbsp;Cookies:</strong>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" class="td-cookie-name">
+                    <tt>{{ prefix }}_fd_sso_session_id</tt>
+                </td>
+                <td align="left" class="td-cookie-value" colspan="3">
+                    <tt>{{ fd_sso_session_id }}</tt>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" class="td-cookie-name">
+                    <tt>{{ prefix }}_fd_sso_session</tt>
+                </td>
+                <td align="left" class="td-cookie-value" colspan="3">
+                    <pre>{{ fd_sso_session }}</pre>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

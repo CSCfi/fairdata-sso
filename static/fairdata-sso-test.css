@@ -1,0 +1,47 @@
+
+body {
+    padding: 20px;
+}
+
+tr {
+    padding-bottom: 30px;   
+}
+
+td {
+    padding-bottom: 30px;
+    vertical-align: middle;
+}
+
+.td-note {
+    padding-right: 30px;
+}
+
+.td-submit {
+    padding-left: 10px;
+}
+
+.td-hr {
+    padding-top: 20px;
+    padding-bottom: 50px;
+}
+
+.td-heading {
+    vertical-align: top;
+}
+
+.td-cookie-name {
+    padding-left: 50px;
+    padding-right: 20px;
+    padding-bottom: 10;
+    vertical-align: top;
+}
+
+.td-cookie-value {
+    vertical-align: top;
+    padding-bottom: 10;
+}
+
+a {
+    color: #007FAD;
+    text-decoration: none;
+}

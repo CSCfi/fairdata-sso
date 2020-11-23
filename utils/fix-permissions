@@ -1,0 +1,48 @@
+#!/bin/bash
+#--------------------------------------------------------------------------------
+# This file is part of the Fairdata research data storage services
+#
+# Copyright (C) 2018 Ministry of Education and Culture, Finland
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author   CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# @license  GNU Affero General Public License, version 3
+# @link     https://research.csc.fi/
+#--------------------------------------------------------------------------------
+# Ensure script is run as root
+
+ID=`id -u -n`
+if [ "$ID" != "root" ]; then
+    echo "You must execute this script as root"
+    exit 1
+fi
+
+#--------------------------------------------------------------------------------
+
+PARENT_FOLDER=`dirname "$(realpath $0)"`
+PARENT_BASENAME=`basename "$PARENT_FOLDER"`
+
+while [ "$PARENT_BASENAME" != "fairdata-sso" -a "$PARENT_BASENAME" != "" ]; do
+    PARENT_FOLDER=`dirname "$PARENT_FOLDER"`
+    PARENT_BASENAME=`basename "$PARENT_FOLDER"`
+done
+
+SSO_ROOT="$PARENT_FOLDER"
+
+PERMS="g+rwX,o-rwx"
+
+chown -R root:nginx $SSO_ROOT
+chmod -R $PERMS $SSO_ROOT
+

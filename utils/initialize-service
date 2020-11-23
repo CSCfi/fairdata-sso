@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+SCRIPT="$(realpath $0)"
+UTILS=`dirname "$SCRIPT"`
+ROOT=`dirname "$UTILS"`
+
+$UTILS/initialize-venv
+
+if [ ! -d /var/log/fairdata-sso ]; then
+    mkdir -p /var/log/fairdata-sso
+fi
+
+ln -s $ROOT/sso.service /usr/lib/systemd/system/sso.service
+
+systemctl daemon-reload
+systemctl enable sso
+systemctl start sso
+systemctl status sso

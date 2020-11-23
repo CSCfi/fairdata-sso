@@ -1,0 +1,20 @@
+
+Steps to build a new RPM:
+
+1. Ensure that the ROOT variable is defined correctly at the top of the 'build_rpm' script such that
+   it points to the root of the cloned fairdata-sso git repository. E.g.
+
+   ROOT="/var/fairdata-sso"
+
+2. Update the 'rpmspec' file to define the new version and release of the new package.
+
+   The version should be in the form Major.Minor.Patch and the release should correspond
+   to the release date in the form YYYYMMDD with no hyphens.
+
+3. Execute the script build_rpm. The generated package (if no errors are encountered)
+   will be located in the /packages subdirectory.
+
+4. After a successful build, commit all changes, including the newly generated
+   package, and push to GitHub for preservation.
+
+

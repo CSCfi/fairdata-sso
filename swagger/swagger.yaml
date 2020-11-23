@@ -1,0 +1,290 @@
+swagger: "2.0"
+info:
+  title: "Fairdata SSO"
+  version: 1.0.0
+  description: |
+    This page describes the behavior of the Fairdata SSO service, which provides all of the essential SSO functionality in a manner that satisfies the requirements and desired UX for all Fairdata services employing a web UI as the primary means of user interaction (excluding Metax).
+
+    *NOTE: This page is only available in a test environment and/or when debugging is enabled. It normally is not available in production.*
+
+    The Fairdata SSO provides a REST API for use by all Fairdata services utilizing the SSO.
+
+    The Fairdata SSO service utilizes the Fairdata AAI proxy for federated authentication, and also queries the CSC IdM LDAP and other sources as needed to aggregate all essential user details based on the authenticated user identity returned by the Fairdata AAI proxy, providing the Fairdata services with a complete, normalized, and unified representation of all user details associated with each successfully initiated session. The Fairdata SSO also manages active sessions, providing single sign-on and sign-off functionality across all Fairdata services for the same user agent.
+
+    The Fairdata SSO employs SAML2 to interact with the Fairdata AAI proxy; however, integration of the Fairdata services with the Fairdata SSO employs this simple and efficient REST API and shared domain cookies.
+
+    ![Fairdata SSO Architecture](/Fairdata_SSO_Architecture.png)
+
+    ![Fairdata SSO New Session Process](/Fairdata_SSO_new_session.png)
+
+    # Integration Requirements
+
+    Each Fairdata service which integrates with the Fairdata SSO must share the same domain as the SSO instance (e.g. `ida.fairdata.fi + sso.fairdata.fi`) and must use the wildcard TLS certificate for that shared domain.
+
+    # Domain Cookies
+
+    During authentication via the Fairdata AAI proxy, the SSO will define the following temporary domain cookies with a prefix derived from the domain of the SSO instance, where all non-alphanumeric characters are replaced with underscores (i.e. the prefix will be one of fairdata_fi, demo_fairdata_fi, fd_stable_csc_fi, fd_test_csc_fi, or fd_dev_csc_fi):
+
+    `PREFIX_fd_sso_redirect_url`: JWT encoded URL to be redirected back to upon successful authentication
+
+    `PREFIX_fd_sso_initiating_service`: JWT encoded canonical identifier of the service via which login was initiated
+
+    `PREFIX_fd_sso_idp`: JWT encoded canonical identifier of the identity provider via which authentication was attempted
+
+    Upon successful authentication and initiation of a session, the SSO will define the following domain cookies with a prefix derived from the domain of the SSO instance:
+
+    `PREFIX_fd_sso_session_id`: The unique identifier of the current session
+
+    `PREFIX_fd_sso_session`: JWT encoded JSON session object containing complete details of the current session
+
+    The service will be able to access the above cookies to obtain all necessary session details, and by which the service can determine whether particular user actions should be permitted and which options and functionality to present to the user.
+
+    # SSO Session Validation by Fairdata services
+    
+    Upon request for a resource from a user agent, the Fairdata service should check for a valid SSO session cookie `PREFIX_fd_sso_session`, and if there is no valid SSO session, it should redirect the user agent to the SSO `/login` endpoint with the appropriate parameters, such that the user agent will be redirected back to the service after successful authentication, and session validation can again be performed per the original request. 
+
+    If there is a valid session the service can decode the JWT encoded session object (using the HS256 algorithm and the private TLS wildcard key for its domain) and respond appropriately to the request, and may also initiate a temporary local service-specific session within the service itself so that full SSO session validation does not have to be performed for every request, for a limited period of time.
+
+    If a local service-specific session is employed, it should store as part of the local service-specific session data the session id defined in the decrypted session object, and it should be configured to expire after a period of at most 5 minutes, after which validation of the SSO session validation should again be performed, initiating a new local session if still valid.
+    
+    Ideally, the service should ensure the PREFIX_fd_sso_session_id cookie still exists for every request, and that the cookie value matches the session id from the decrypted session object when the local session was initiated, terminating any local service-specific session if it does not.
+
+    Each Fairdata service should offer users the option to log out of the SSO session, redirecting the user agent to the `/logout` endpoint with the appropriate parameters.
+
+    # SSO Session Expiration
+
+    The JWT encoded SSO session object and SSO session cookies will be set to expire after 24 hours. They also will be cleared if the user explicitly logs out from the SSO session.
+
+    # Cookies and Tracking Notification
+
+    The SSO provides a consistent means to notify users regarding the use of cookies and tracking by Fairdata services. Each Fairdata service should include the following snippet in the &lt;head> element of every page:
+
+    <pre><code>&lt;link rel="stylesheet" href="https://sso.fairdata.fi/notification.css"&gt;
+    &lt;script type="text/javascript" src="https://sso.fairdata.fi/notification.js"&gt;&lt;/script&gt;</code></pre>
+
+    where `https://sso.fairdata.fi` is replaced, as appropriate, with the root URL of the particular SSO instance being used (e.g. `sso.demo.fairdata.fi`, `sso.fd-stable.csc.fi`, etc). 
+
+    It is recommended that the root URL of the SSO API be stored in a configuration variable and inserted into the snippet at both locations, so that the service code is configurable for each particular domain (i.e. `SSO_API="https://sso.fairdata.csc.fi"`).
+
+    The Javascript snippet will check if the user has been notified yet regarding use of cookies and tracking, by checking if the `PREFIX_fd_sso_notifiction shown` domain cookie exists, and if not, will present the notification accordingly. When the user closes the notification, the snippet will create the `PREFIX_fd_sso_notification_shown` domain cookie which will expire after one year.
+schemes:
+  - https
+basepath: /
+tags:
+  - name: Integration
+    description: "For Fairdata Service Integration"
+  - name: AAI Proxy
+    description: "For SAML Integration with the AAI Proxy"
+  - name: Internal
+    description: "For SSO Internal Functions"
+paths:
+  /login:
+    get:
+      summary: "Log in to the Fairdata SSO"
+      tags:
+        - Integration
+      parameters:
+      - name: "service"
+        in: query
+        type: string
+        description: "The canonical identifier of the service from which login is being initiated"
+        required: true
+        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+      - name: "redirect_url"
+        in: query
+        type: string
+        description: "The url to be redirected back to upon successful authentication"
+        required: true
+      - name: "idp"
+        in: query
+        type: string
+        description: "The canonical identifier of the identity provider via which authentication was last attempted"
+        required: false
+        enum: [ "CSCID", "HAKA", "VIRTU" ]
+      - name: "language"
+        in: query
+        type: string
+        description: "A two letter language code, overrides any browser or cookie defined language setting"
+        required: false
+        enum: [ "en", "fi", "sv" ]
+      - name: "errors"
+        in: query
+        type: string
+        description: "A comma separated list of one or more predefined error tokens indicating reasons for authentication failure"
+        required: false
+      produces:
+      - "text/html"
+      responses:
+        '200':
+            description: "Returns the service specific login page presenting authentication guidance and the supported identity providers"
+        '400':
+            description: "Required parameter missing"
+  /logout:
+    get:
+      summary: "Log out of the Fairdata SSO"
+      tags:
+        - Integration
+      parameters:
+      - name: "service"
+        in: query
+        type: string
+        description: "The canonical identifier of the service from which logout is being initiated"
+        required: true
+        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+      - name: "redirect_url"
+        in: query
+        type: string
+        description: "The URL to be redirected back to upon successful logout"
+        required: true
+      - name: "language"
+        in: query
+        type: string
+        description: "A two letter language code, overrides any browser or cookie defined language setting"
+        required: false
+        enum: [ "en", "fi", "sv" ]
+      produces:
+      - "text/html"
+      responses:
+        '200':
+            description: "Returns a logout confirmation page warning that the current session will be terminated for all Fairdata services"
+        '400':
+            description: "Required parameter missing"
+  /:
+    get:
+      summary: "When in a test environment, returns a web page for manually testing SSO functionality"
+      tags:
+        - Internal
+      parameters:
+      produces:
+      - "text/html"
+      responses:
+        '200':
+            description: "OK"
+        '400':
+            description: "Bad request (when queried in production environment)"
+  /swagger:
+    get:
+      summary: "Returns the online Swagger API documentation page"
+      tags:
+        - Internal
+      parameters:
+      produces:
+      - "text/html"
+      responses:
+        '200':
+            description: "OK"
+  /auth:
+    get:
+      summary: "Initiate authentication via a selected identity provider"
+      tags:
+        - Internal
+      parameters:
+      - name: "service"
+        in: query
+        type: string
+        description: "The canonical identifier of the service via which login is being initiated"
+        required: true
+        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+      - name: "redirect_url"
+        in: query
+        type: string
+        description: "The URL to be redirected back to upon successful authentication"
+        required: true
+      - name: "idp"
+        in: query
+        type: string
+        description: "The canonical identifier of the identity provider via which authentication should be attempted"
+        required: true
+        enum: [ "CSCID", "HAKA", "VIRTU" ]
+      - name: "errors"
+        in: query
+        type: string
+        description: "(internal) A comma delimited list of tokens indicating any errors detected from a prior authentication attempt"
+        required: false
+      produces:
+      - "text/html"
+      responses:
+        '302':
+            description: "Redirection to the AAI proxy for authentication via the selected identity provider"
+        '400':
+            description: "Required parameter missing"
+  /acs/:
+    post:
+      summary: "The endpoint used by the SAML library on auth.login call from the AAI proxy after successful authentication"
+      tags:
+        - AAI Proxy
+      parameters:
+      - name: "fd_sso_initiating_service"
+        in: cookie
+        type: string
+        description: "The canonical identifier of the service via which login is being initiated (cookie set by SSO before redirecting to AAI proxy)"
+        required: true
+      - name: "fd_sso_redirect_url"
+        in: cookie
+        type: string
+        description: "The URL to be redirected back to upon successful authentication (cookie set by SSO before redirecting to AAI proxy)"
+        required: true
+      - name: "fd_sso_idp"
+        in: cookie
+        type: string
+        description: "The canonical identifier of the identity provider via which authentication should be attempted (cookie set by SSO before redirecting to AAI proxy)"
+        required: true
+      produces:
+      - "text/html"
+      responses:
+        '302':
+            description: "Redirection to the redirection URL after initiating session"
+        '400':
+            description: "Required parameter missing"
+  /sls/:
+    post:
+      summary: "The endpoint used by the SAML library on auth.logout call from the AAI proxy (not used, but required by SAML library)"
+      tags:
+        - AAI Proxy
+      parameters:
+      - name: "fd_sso_session_id"
+        in: cookie
+        type: string
+        description: "The identifier of the current session (cookie set by SSO as part of session initiation)"
+        required: false
+      - name: "fd_sso_redirect_url"
+        in: cookie
+        type: string
+        description: "The URL to be redirected back to upon successful authentication (cookie set by SSO before redirecting to AAI proxy)"
+        required: false
+        default: "https://fairdata.fi"
+      produces:
+      - "text/html"
+      responses:
+        '302':
+            description: "Redirection to the redirection URL after terminating session"
+        '400':
+            description: "Required parameter missing"
+  /saml_metadata/:
+    get:
+      summary: "Returns the public SAML XML metadata for the SSO service"
+      tags:
+        - Internal
+      produces:
+      - "text/xml"
+      responses:
+        '200':
+            description: "OK"
+  /terminate:
+    post:
+      summary: "Terminate the active Fairdata SSO session, if any"
+      tags:
+        - Internal
+      parameters:
+      - name: "redirect_url"
+        in: query
+        type: string
+        description: "The URL to be redirected back to"
+        required: true
+      produces:
+      - "text/html"
+      responses:
+        '200':
+            description: "Terminates the active session, if any, and redirects to the specified redirection URL"
+        '400':
+            description: "Required parameter missing"

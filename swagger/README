@@ -1,0 +1,2 @@
+To re-generate the online swagger documentation after updating swagger.yaml, execute
+the script generate.sh in this subdirectory.

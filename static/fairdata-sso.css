@@ -1,0 +1,66 @@
+body {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+}
+
+.container {
+    margin-top: 4rem;
+}
+
+.fd-alert {
+    max-width: 600px;
+    margin-bottom: 0;
+}
+
+.fd-card {
+    text-align: center;
+    padding: 3rem 4rem;
+    margin-bottom: 1rem;
+}
+
+.fd-card.login {
+    max-width: 400px;
+    margin-top: 2rem;
+}
+
+.fd-card.logout {
+    margin-top: 5rem;
+    width: 750px;
+    max-width: 95%;
+}
+
+.login-buttons a {
+    display: block;
+}
+
+.login-buttons img {
+    width: 250px;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+.padding {
+    padding: 2rem;
+}
+
+.fd-alert {
+    max-width: 100%;
+}
+
+.errors-container {
+    width: calc(100% + 30px);
+    margin: 0 0 1rem 0;
+}
+
+.center-content {
+    display: flex;
+    justify-content: center;
+}
+
+.guidance-heading {
+    font-weight: bold;
+    font-size: larger;
+}

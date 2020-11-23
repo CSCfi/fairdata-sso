@@ -1,0 +1,38 @@
+{
+    "initiating_service": "IDA",
+    "initiated": "2020-03-30T11:56:03Z",
+    "expiration": "2020-03-31T11:56:03Z",
+    "authenticated_user": {
+        "id": "researcher@yliopisto.fi",
+        "identity_provider": "HAKA",
+        "organization": {
+            "id": "yliopisto.fi",
+            "name": "Suomen Yliopisto"
+        }
+    },
+    "fairdata_user": {
+        "id": "test_user",
+        "locked": false
+    },
+    "projects": {
+        "test_project": {
+            "services": [ "IDA", "QVAIN", "PAS" ]
+        },
+        "31234567": {
+            "services": [ "QVAIN" ]
+        }
+    },
+    "services": {
+        "IDA": {
+            "projects": [ "test_project" ]
+        },
+        "QVAIN": {
+            "projects": [ "test_project", "31234567" ]
+        },
+        "ETSIN": {},
+        "PAS": {
+            "projects": [ "test_project" ]
+        },
+        "AVAA": {}
+    }
+}

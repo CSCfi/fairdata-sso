@@ -1,0 +1,50 @@
+#!/bin/bash
+#--------------------------------------------------------------------------------
+# This file is part of the Fairdata services
+#
+# Copyright (C) 2020 Ministry of Education and Culture, Finland
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author   CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# @license  GNU Affero General Public License, version 3
+# @link     https://research.csc.fi/
+#--------------------------------------------------------------------------------
+
+if [ "$1" = "" ]; then
+	echo "usage: $0 root_path" >&2
+	exit 1
+fi
+
+if [ ! -d "$1" ]; then
+	echo "$0: not a directory: $1" >&2
+	exit 1
+fi
+
+path="$1"
+
+chown -R root:nginx "${path}"
+chmod -R g+rwX "${path}"
+chmod -R o-rwx "${path}"
+
+rm -f /usr/lib/systemd/system/fairdata-sso.service >/dev/null
+cp /opt/fairdata/fairdata-sso/fairdata-sso.service /usr/lib/systemd/system/fairdata-sso.service
+
+systemctl daemon-reload
+systemctl enable fairdata-sso
+
+/opt/fairdata/fairdata-sso/utils/initialize-venv
+/opt/fairdata/fairdata-sso/utils/fix-permissions
+/opt/fairdata/fairdata-sso/utils/restart
+
