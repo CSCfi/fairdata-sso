@@ -131,7 +131,7 @@ class TestSecurity(unittest.TestCase):
         self.assertTrue('_csrf_token=' in headers.get('Set-Cookie'))
 
         print ("Verify correct security headers for /login")
-        response = requests.get("%s/login?service=IDA&redirect_url=https://localhost/&errors=csc_account_locked&language=en" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/login?service=IDA&redirect_url=%s&errors=csc_account_locked&language=en" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 200)
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Login</title>", output)
@@ -148,7 +148,7 @@ class TestSecurity(unittest.TestCase):
         self.assertTrue('_csrf_token=' in headers.get('Set-Cookie'))
 
         print ("Verify correct security headers for /logout")
-        response = requests.get("%s/logout?service=IDA&redirect_url=https://localhost/&language=en" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/logout?service=IDA&redirect_url=%s&language=en" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 200)
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Logout</title>", output)
@@ -169,7 +169,7 @@ class TestSecurity(unittest.TestCase):
         print ("Verify correct security headers for /acs")
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -189,7 +189,7 @@ class TestSecurity(unittest.TestCase):
         self.assertFalse('_csrf_token=' in headers.get('Set-Cookie'))
 
         print ("Verify correct security headers for /terminate")
-        data = {"redirect_url": 'https://localhost/'}
+        data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 302)
         headers = dict(response.headers)
@@ -207,7 +207,7 @@ class TestSecurity(unittest.TestCase):
         print ("Verify correct security headers for /sls")
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -247,14 +247,20 @@ class TestSecurity(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
+        print ("Attempt login with invalid domain for redirect URL parameter")
+        response = requests.get("%s/login?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
+
         print ("Attempt login with injection into language parameter")
-        response = requests.get("%s/login?service=IDA&redirect_url=https://foo.bar.com&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/login?service=IDA&redirect_url=%s&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'language': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt logout with injection into service name parameter")
-        response = requests.get("%s/logout?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=https://foo.bar.com" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/logout?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=%s" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'service': javascript:alert(document.domain)//foo", output)
@@ -265,14 +271,20 @@ class TestSecurity(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
+        print ("Attempt logout with invalid domain for redirect URL parameter")
+        response = requests.get("%s/logout?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
+
         print ("Attempt logout with injection into language parameter")
-        response = requests.get("%s/logout?service=IDA&redirect_url=https://foo.bar.com&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/logout?service=IDA&redirect_url=%s&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'language': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt authentication initiation with injection into service name parameter")
-        response = requests.get("%s/auth?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=https://foo.bar.com" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/auth?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=%s" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'service': javascript:alert(document.domain)//foo", output)
@@ -283,8 +295,14 @@ class TestSecurity(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
+        print ("Attempt authentication initiation with invalid domain for redirect URL parameter")
+        response = requests.get("%s/auth?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
+
         print ("Attempt authentication initiation with injection into IDP parameter")
-        response = requests.get("%s/auth?service=IDA&redirect_url=https://foo.bar.com&idp=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
+        response = requests.get("%s/auth?service=IDA&redirect_url=%s&idp=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'idp': javascript:alert(document.domain)//foo", output)
@@ -292,7 +310,7 @@ class TestSecurity(unittest.TestCase):
         print ("Attempt mock proxy response with injection into service name parameter")
         data = {
             "fd_sso_initiating_service": "javascript:alert(document.domain)//foo",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -318,7 +336,7 @@ class TestSecurity(unittest.TestCase):
         print ("Attempt mock proxy response with injection into IDP parameter")
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "javascript:alert(document.domain)//foo",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -331,7 +349,7 @@ class TestSecurity(unittest.TestCase):
         print ("Attempt mock proxy response with injection into mockauthfile parameter")
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "javascript:alert(document.domain)//foo", 
             "testing": "true"

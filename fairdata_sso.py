@@ -36,7 +36,8 @@ domain = config['DOMAIN']
 prefix = re.sub(r'[^a-zA-Z0-9]', '_', domain)
 debug = config.get('DEBUG')
 test_environment = config.get('ENVIRONMENT') == 'TEST'
-demo_environment = config.get('ENVIRONMENT') == 'DEMO'
+nemo_environment = config.get('ENVIRONMENT') == 'DEMO'
+
 
 class localFlask(Flask):
     def process_response(self, response):
@@ -50,6 +51,14 @@ class localFlask(Flask):
 app = Flask(__name__, static_folder='static', static_url_path='')
 
 app.secret_key = saml['sp']['privateKey']
+
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Strict'
+
+app.config['CSRF_COOKIE_HTTPONLY'] = True
+app.config['CSRF_COOKIE_SECURE'] = True
+app.config['CSRF_COOKIE_SAMESITE'] = 'Strict'
 
 csrf = SeaSurf(app)
 
@@ -748,10 +757,11 @@ def swagger():
 
         response = make_response(content)
         response.mimetype = "text/html"
-
         return response
 
-    return "Bad request", 400
+    response = make_response("Bad request", 400)
+    response.mimetype = "text/plain"
+    return response
 
 
 @app.route('/test', methods=['GET'])
@@ -788,7 +798,9 @@ def test():
 
         return render_template('test.html', **context)
 
-    return "Bad request", 400
+    response = make_response("Bad request", 400)
+    response.mimetype = "text/plain"
+    return response
 
 
 @app.route('/login', methods=['GET'])
@@ -800,20 +812,36 @@ def login():
     service = request.values.get('service')
 
     if not service:
-        return 'Required parameter \'service\' missing', 400
+        response = make_response("Required parameter 'service' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     service = html.escape(service)
 
     if not service in AVAILABLE_SERVICES:
-        return "Invalid value for parameter \'service\': %s" % service, 400
+        response = make_response("Invalid value for parameter \'service\': %s" % service, 400)
+        response.mimetype = "text/plain"
+        return response
 
     redirect_url = request.values.get('redirect_url')
 
     if not redirect_url:
-        return 'Required parameter \'redirect_url\' missing', 400
+        response = make_response("Required parameter 'redirect_url' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     if not validators.url(redirect_url):
-        return "Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400
+        response = make_response("Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
+
+    parsed_url = urllib.parse.urlparse(redirect_url)
+    url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+    if not url_domain == domain:
+        response = make_response("Invalid domain for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
 
     idps = services[service]["allowed_identity_providers"]
 
@@ -830,7 +858,9 @@ def login():
     if language:
         language = html.escape(language)
         if not language in AVAILABLE_LANGUAGES:
-            return "Invalid value for parameter \'language\': %s" % language, 400
+            response = make_response("Invalid value for parameter \'language\': %s" % language, 400)
+            response.mimetype = "text/plain"
+            return response
 
     if not language:
         language = get_language(request)
@@ -859,27 +889,45 @@ def logout():
     service = request.values.get('service')
 
     if not service:
-        return 'Required parameter \'service\' missing', 400
+        response = make_response("Required parameter 'service' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     service = html.escape(service)
 
     if not service in AVAILABLE_SERVICES:
-        return "Invalid value for parameter \'service\': %s" % service, 400
+        response = make_response("Invalid value for parameter \'service\': %s" % service, 400)
+        response.mimetype = "text/plain"
+        return response
 
     redirect_url = request.values.get('redirect_url')
 
     if not redirect_url:
-        return 'Required parameter \'redirect_url\' missing', 400
+        response = make_response("Required parameter 'redirect_url' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     if not validators.url(redirect_url):
-        return "Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400
+        response = make_response("Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
+
+    parsed_url = urllib.parse.urlparse(redirect_url)
+    url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+    if not url_domain == domain:
+        response = make_response("Invalid domain for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
 
     language = request.values.get('language')
 
     if language:
         language = html.escape(language)
         if not language in AVAILABLE_LANGUAGES:
-            return "Invalid value for parameter \'language\': %s" % language, 400
+            response = make_response("Invalid value for parameter \'language\': %s" % language, 400)
+            response.mimetype = "text/plain"
+            return response
 
     if not language:
         language = get_language(request)
@@ -905,30 +953,50 @@ def authentication():
     service = request.values.get('service')
 
     if not service:
-        return 'Required parameter \'service\' missing', 400
+        response = make_response("Required parameter 'service' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     service = html.escape(service)
 
     if not service in AVAILABLE_SERVICES:
-        return "Invalid value for parameter \'service\': %s" % service, 400
+        response = make_response("Invalid value for parameter \'service\': %s" % service, 400)
+        response.mimetype = "text/plain"
+        return response
 
     redirect_url = request.values.get('redirect_url')
 
     if not redirect_url:
-        return 'Required parameter \'redirect_url\' missing', 400
+        response = make_response("Required parameter 'redirect_url' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     if not validators.url(redirect_url):
-        return "Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400
+        response = make_response("Invalid value for parameter \'redirect_url\': %s" % html.escape(redirect_url), 400)
+        response.mimetype = "text/plain"
+        return response
+
+    parsed_url = urllib.parse.urlparse(redirect_url)
+    url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+    if not url_domain == domain:
+        response = make_response("Invalid domain for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
 
     idp = request.values.get('idp')
 
     if not idp:
-        return 'Required parameter \'idp\' missing', 400
+        response = make_response("Required parameter 'idp' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     idp = html.escape(idp)
 
     if not idp in AVAILABLE_IDENTITY_PROVIDERS:
-        return "Invalid value for parameter \'idp\': %s" % idp, 400
+        response = make_response("Invalid value for parameter \'idp\': %s" % idp, 400)
+        response.mimetype = "text/plain"
+        return response
 
     log.debug("authentication: IDP: %s" % idp)
 
@@ -971,6 +1039,7 @@ def saml_metadata():
         response.headers['Content-Type'] = 'text/xml'
     else:
         response = make_response(', '.join(errors), 500)
+        response.headers['Content-Type'] = 'text/plain'
 
     return response
 
@@ -987,30 +1056,50 @@ def saml_attribute_consumer_service():
         service = request.values.get("fd_sso_initiating_service")
 
         if not service:
-            return "Required parameter 'fd_sso_initiating_service' missing", 400
+            response = make_response("Required parameter 'fd_sso_initiating_service' missing", 400)
+            response.mimetype = "text/plain"
+            return response
 
         service = html.escape(service)
 
         if not service in AVAILABLE_SERVICES:
-            return "Invalid value for parameter \'fd_sso_initiating_service\': %s" % service, 400
+            response = make_response("Invalid value for parameter \'fd_sso_initiating_service\': %s" % service, 400)
+            response.mimetype = "text/plain"
+            return response
 
         redirect_url = request.values.get("fd_sso_redirect_url")
     
         if not redirect_url:
-            return "Required parameter 'fd_sso_redirect_url' missing", 400
+            response = make_response("Required parameter 'fd_sso_redirect_url' missing", 400)
+            response.mimetype = "text/plain"
+            return response
 
         if not validators.url(redirect_url):
-            return "Invalid value for parameter \'fd_sso_redirect_url\': %s" % redirect_url, 400
+            response = make_response("Invalid value for parameter \'fd_sso_redirect_url\': %s" % redirect_url, 400)
+            response.mimetype = "text/plain"
+            return response
+
+        parsed_url = urllib.parse.urlparse(redirect_url)
+        url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+        if not url_domain == domain:
+            response = make_response("Invalid domain for parameter \'redirect_url\': %s" % redirect_url, 400)
+            response.mimetype = "text/plain"
+            return response
 
         idp = request.values.get("fd_sso_idp")
 
         if not idp:
-            return "Required parameter 'fd_sso_idp' missing", 400
+            response = make_response("Required parameter 'fd_sso_idp' missing", 400)
+            response.mimetype = "text/plain"
+            return response
 
         idp = html.escape(idp)
 
         if not idp in AVAILABLE_IDENTITY_PROVIDERS:
-            return "Invalid value for parameter \'fd_sso_idp\': %s" % idp, 400
+            response = make_response("Invalid value for parameter \'fd_sso_idp\': %s" % idp, 400)
+            response.mimetype = "text/plain"
+            return response
 
         # mockauthfile corresponds to the full pathname of a mock SAML result dict,
         # simulating the dict constructed below based on the results of the call to
@@ -1021,50 +1110,76 @@ def saml_attribute_consumer_service():
         mockauthfile = request.values.get('mockauthfile')
 
         if not mockauthfile:
-            return "Required parameter 'mockauthfile' missing", 400
+            response = make_response("Required parameter 'mockauthfile' missing", 400)
+            response.mimetype = "text/plain"
+            return response
 
         # Use the URL validator to check for well formed pathname by constructing bogus URL
         file_url = "https://sso.%s%s" % (domain, mockauthfile)
 
         if not validators.url(file_url):
-            return "Invalid value for parameter \'mockauthfile\': %s" % mockauthfile, 400
+            response = make_response("Invalid value for parameter \'mockauthfile\': %s" % mockauthfile, 400)
+            response.mimetype = "text/plain"
+            return response
 
         try:
             saml = json.load(open(mockauthfile))
         except:
-            return "Failed to load the specified \'mockauthfile\': %s" % mockauthfile, 400
+            response = make_response("Failed to load the specified \'mockauthfile\': %s" % mockauthfile, 400)
+            response.mimetype = "text/plain"
+            return response
 
     else:
 
         service = request.cookies.get("%s_fd_sso_initiating_service" % prefix)
 
         if not service:
-            return "Required cookie '%s_fd_sso_initiating_service' missing or has expired" % prefix, 400
+            response = make_response("Required cookie '%s_fd_sso_initiating_service' missing or has expired" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
 
         try:
             service = jwt.decode(service, app.secret_key, algorithms=['HS256']).get('service')
         except:
-            return "Failed to decode cookie '%s_fd_sso_initiating_service'" % prefix, 400
+            response = make_response("Failed to decode cookie '%s_fd_sso_initiating_service'" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
 
         redirect_url = request.cookies.get("%s_fd_sso_redirect_url" % prefix)
     
         if not redirect_url:
-            return "Required cookie '%s_fd_sso_redirect_url' missing or has expired" % prefix, 400
+            response = make_response("Required cookie '%s_fd_sso_redirect_url' missing or has expired" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
 
         try:
             redirect_url = jwt.decode(redirect_url, app.secret_key, algorithms=['HS256']).get('redirect_url')
         except:
-            return "Failed to decode cookie '%s_fd_sso_redirect_url'" % prefix, 400
+            response = make_response("Failed to decode cookie '%s_fd_sso_redirect_url'" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
+
+        parsed_url = urllib.parse.urlparse(redirect_url)
+        url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+        if not url_domain == domain:
+            response = make_response("Invalid domain for cookie '%s_fd_sso_redirect_url': %s" % (prefix, redirect_url), 400)
+            response.mimetype = "text/plain"
+            return response
 
         idp = request.cookies.get("%s_fd_sso_idp" % prefix)
 
         if not idp:
-            return "Required cookie '%s_fd_sso_idp' missing or has expired" % prefix, 400
+            response = make_response("Required cookie '%s_fd_sso_idp' missing or has expired" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
 
         try:
             idp = jwt.decode(idp, app.secret_key, algorithms=['HS256']).get('idp')
         except:
-            return "Failed to decode cookie '%s_fd_sso_idp'" % prefix, 400
+            response = make_response("Failed to decode cookie '%s_fd_sso_idp'" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
 
         req = prepare_flask_request_for_saml(request)
         auth = init_saml_auth(req)
@@ -1214,10 +1329,22 @@ def terminate():
     redirect_url = request.values.get('redirect_url')
 
     if not redirect_url:
-        return 'Required parameter \'redirect_url\' missing', 400
+        response = make_response("Required parameter 'redirect_url' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     if not validators.url(redirect_url):
-        return "Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400
+        response = make_response("Invalid value for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
+
+    parsed_url = urllib.parse.urlparse(redirect_url)
+    url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
+
+    if not url_domain == domain:
+        response = make_response("Invalid domain for parameter \'redirect_url\': %s" % redirect_url, 400)
+        response.mimetype = "text/plain"
+        return response
 
     response = make_response(redirect(redirect_url))
 

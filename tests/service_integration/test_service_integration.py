@@ -76,7 +76,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 print ("Request login from %s service (language=%s)" % (service['short_name'], language))
 
-                response = requests.get("%s/login?service=%s&redirect_url=https://localhost/&errors=csc_account_locked&language=%s" % (self.config["SSO_API"], service_key, language), verify=False)
+                response = requests.get("%s/login?service=%s&redirect_url=%s&errors=csc_account_locked&language=%s" % (self.config["SSO_API"], service_key, self.config["SSO_API"], language), verify=False)
                 self.assertEqual(response.status_code, 200)
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Login</title>", output)
@@ -115,7 +115,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 for idp in idps:
                     print ("     %s should be present" % idp)
-                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=https://localhost/&idp=%s\">" % (service_key, idp), output)
+                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=%s&idp=%s\">" % (service_key, self.config["SSO_API"], idp), output)
                     if (language == 'fi'):
                         self.assertIn("<img src=\"%s.png\" alt=\"Kirjaudu sisään %slla\" />" % (idp, idp), output)
                     elif (language == 'sv'):
@@ -146,14 +146,14 @@ class TestServiceIntegration(unittest.TestCase):
 
                 print ("Request logout from %s service (language=%s)" % (service['short_name'], language))
 
-                response = requests.get("%s/logout?service=%s&redirect_url=https://localhost/&language=%s" % (self.config["SSO_API"], service_key, language), verify=False)
+                response = requests.get("%s/logout?service=%s&redirect_url=%s&language=%s" % (self.config["SSO_API"], service_key, self.config["SSO_API"], language), verify=False)
                 self.assertEqual(response.status_code, 200)
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Logout</title>", output)
 
                 print ("- verify redirection URL")
 
-                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"https://localhost/\" />", output)
+                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"%s\" />" % self.config["SSO_API"], output)
 
                 print ("- verify guidance heading and text")
 
@@ -171,7 +171,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -212,7 +212,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertIn("Required parameter 'redirect_url' missing", output)
 
         print ("Terminate current session")
-        data = {"redirect_url": 'https://localhost/'}
+        data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
@@ -224,7 +224,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
             "mockauthfile": "%s/tests/mock/fd_non_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -243,7 +243,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "ETSIN",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
             "mockauthfile": "%s/tests/mock/fd_non_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -271,7 +271,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session")
-        data = {"redirect_url": 'https://localhost/'}
+        data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
@@ -283,7 +283,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_logindisabled_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -310,7 +310,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session")
-        data = {"redirect_url": 'https://localhost/'}
+        data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
@@ -322,7 +322,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "IDA",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
             "mockauthfile": "%s/tests/mock/fd_non_csc_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -342,7 +342,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "ETSIN",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
             "mockauthfile": "%s/tests/mock/fd_non_csc_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -362,7 +362,7 @@ class TestServiceIntegration(unittest.TestCase):
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "PAS",
-            "fd_sso_redirect_url": "https://localhost/",
+            "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
             "mockauthfile": "%s/tests/mock/fd_pas_user_propose.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
@@ -389,7 +389,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session using /sls endpoint")
-        data = {"redirect_url": 'https://localhost/'}
+        data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/sls/" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
