@@ -38,6 +38,10 @@ chown -R root:nginx "${path}"
 chmod -R g+rwX "${path}"
 chmod -R o-rwx "${path}"
 
+if [ ! -d /var/log/fairdata-sso ]; then
+    mkdir -p /var/log/fairdata-sso
+fi
+
 rm -f /usr/lib/systemd/system/fairdata-sso.service >/dev/null
 cp /opt/fairdata/fairdata-sso/fairdata-sso.service /usr/lib/systemd/system/fairdata-sso.service
 

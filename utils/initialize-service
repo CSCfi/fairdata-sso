@@ -10,9 +10,9 @@ if [ ! -d /var/log/fairdata-sso ]; then
     mkdir -p /var/log/fairdata-sso
 fi
 
-ln -s $ROOT/sso.service /usr/lib/systemd/system/sso.service
+ln -s $ROOT/fairdata-sso.service /usr/lib/systemd/system/fairdata-sso.service
 
 systemctl daemon-reload
-systemctl enable sso
-systemctl start sso
-systemctl status sso
+systemctl enable fairdata-sso
+systemctl start fairdata-sso
+systemctl status fairdata-sso
