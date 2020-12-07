@@ -36,7 +36,7 @@ domain = config['DOMAIN']
 prefix = re.sub(r'[^a-zA-Z0-9]', '_', domain)
 debug = config.get('DEBUG')
 test_environment = config.get('ENVIRONMENT') == 'TEST'
-nemo_environment = config.get('ENVIRONMENT') == 'DEMO'
+demo_environment = config.get('ENVIRONMENT') == 'DEMO'
 
 
 class localFlask(Flask):
