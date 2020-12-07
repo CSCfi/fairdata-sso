@@ -31,18 +31,12 @@ fi
 
 #--------------------------------------------------------------------------------
 
-PARENT_FOLDER=`dirname "$(realpath $0)"`
-PARENT_BASENAME=`basename "$PARENT_FOLDER"`
-
-while [ "$PARENT_BASENAME" != "fairdata-sso-dev" -a "$PARENT_BASENAME" != "" ]; do
-    PARENT_FOLDER=`dirname "$PARENT_FOLDER"`
-    PARENT_BASENAME=`basename "$PARENT_FOLDER"`
-done
-
-SSO_ROOT="$PARENT_FOLDER"
+SCRIPT="$(realpath $0)"
+UTILS=`dirname "$SCRIPT"`
+ROOT=`dirname "$UTILS"`
 
 PERMS="g+rwX,o-rwx"
 
-chown -R root:nginx $SSO_ROOT
-chmod -R $PERMS $SSO_ROOT
+chown -R root:nginx $ROOT
+chmod -R $PERMS $ROOT
 
