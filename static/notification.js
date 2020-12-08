@@ -41,9 +41,9 @@ function fdSSODismissNotification() {
 }
 
 function fdSSOGetNotificationContent(lang) {
-    if(lang === "fi") return 'Fairdata-palvelut käyttävät evästeitä ja seurantaa turvallisuuden ja laadun varmistamiseksi.<br><a href="https://www.fairdata.fi/sopimukset/" target="_blank">Katso Fairdatan tietosuojakäytäntö</a>'
-    else if (lang === "sv") return 'Fairdata-tjänsterna använder cookies och spårning för att säkerställa säkerhet och kvalitet.<br><a href="https://www.fairdata.fi/en/contracts-and-privacy/" target="_blank">Se Fairdata sekretesspolicy (på engelska)</a>'
-    return 'The Fairdata services use cookies and tracking to ensure security and quality.<br><a href="https://www.fairdata.fi/en/contracts-and-privacy/" target="_blank">View the Fairdata Privacy Policy</a>'
+    if(lang === "fi") return 'Fairdata-palvelut käyttävät evästeitä turvallisuuden ja laadun varmistamiseksi.<br><a href="https://www.fairdata.fi/sopimukset/" target="_blank">Katso Fairdatan tietosuojakäytäntö</a>'
+    else if (lang === "sv") return 'Fairdata-tjänsterna använder cookies för att säkerställa säkerhet och kvalitet.<br><a href="https://www.fairdata.fi/en/contracts-and-privacy/" target="_blank">Se Fairdata sekretesspolicy (på engelska)</a>'
+    return 'The Fairdata services use cookies to ensure security and quality.<br><a href="https://www.fairdata.fi/en/contracts-and-privacy/" target="_blank">View the Fairdata Privacy Policy</a>'
 }
 
 function fdSSOGetUserLanguage() {

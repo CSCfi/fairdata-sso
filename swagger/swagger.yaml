@@ -55,9 +55,9 @@ info:
 
     The JWT encoded SSO session object and SSO session cookies will be set to expire after 24 hours. They also will be cleared if the user explicitly logs out from the SSO session.
 
-    # Cookies and Tracking Notification
+    # Cookies Notification
 
-    The SSO provides a consistent means to notify users regarding the use of cookies and tracking by Fairdata services. Each Fairdata service should include the following snippet in the &lt;head> element of every page:
+    The SSO provides a consistent means to notify users regarding the use of cookies by Fairdata services. Each Fairdata service should include the following snippet in the &lt;head> element of every page:
 
     <pre><code>&lt;link rel="stylesheet" href="https://sso.fairdata.fi/notification.css"&gt;
     &lt;script type="text/javascript" src="https://sso.fairdata.fi/notification.js"&gt;&lt;/script&gt;</code></pre>
@@ -66,7 +66,7 @@ info:
 
     It is recommended that the root URL of the SSO API be stored in a configuration variable and inserted into the snippet at both locations, so that the service code is configurable for each particular domain (i.e. `SSO_API="https://sso.fairdata.csc.fi"`).
 
-    The Javascript snippet will check if the user has been notified yet regarding use of cookies and tracking, by checking if the `PREFIX_fd_sso_notifiction shown` domain cookie exists, and if not, will present the notification accordingly. When the user closes the notification, the snippet will create the `PREFIX_fd_sso_notification_shown` domain cookie which will expire after one year.
+    The Javascript snippet will check if the user has been notified yet regarding use of cookies, by checking if the `PREFIX_fd_sso_notifiction shown` domain cookie exists, and if not, will present the notification accordingly. When the user closes the notification, the snippet will create the `PREFIX_fd_sso_notification_shown` domain cookie which will expire after one year.
 schemes:
   - https
 basepath: /

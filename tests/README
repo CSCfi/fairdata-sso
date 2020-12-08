@@ -23,9 +23,9 @@ indicated by outputting a status line containing a heading matching the pattern
 
 Prior to each specific test assertion, operation, action, a status line should be
 output containing a brief summary, describing the behavioral action being executed.
-(e.g. "Retrieve login page", "Record user acceptance of cookies and tracking", etc.)
-If the action should not be allowed or possible, the summary should start with
-the "Attempt to", e.g "Attempt to retrieve session details without token", etc.)
+(e.g. "Retrieve login page", etc.) If the action should not be allowed or possible,
+the summary should start with the "Attempt to", e.g "Attempt to retrieve session
+details without token", etc.)
 
 When setting up for tests, output a status message "(initializing)". When cleaning
 up after tests, output a status message "(cleaning)".
