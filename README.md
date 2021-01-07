@@ -1,3 +1,4 @@
+[![pipeline status](https://gitlab.ci.csc.fi/fairdata/fairdata-sso-dev/badges/test/pipeline.svg)](https://gitlab.ci.csc.fi/fairdata/fairdata-sso-dev/-/commits/test)
 
 This is the implementation of the Fairdata SSO service.
 

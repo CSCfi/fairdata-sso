@@ -21,7 +21,7 @@
 PARENT_FOLDER=`dirname "$(realpath $0)"`
 PARENT_BASENAME=`basename "$PARENT_FOLDER"`
 
-while [ "$PARENT_BASENAME" != "fairdata-sso" -a "$PARENT_BASENAME" != "fairdata-sso-dev" -a "$PARENT_BASENAME" != "" ]; do
+while [[ "$PARENT_BASENAME" != "fairdata-sso" && "$PARENT_BASENAME" != fairdata-sso-* && "$PARENT_BASENAME" != "" ]]; do
     PARENT_FOLDER=`dirname "$PARENT_FOLDER"`
     PARENT_BASENAME=`basename "$PARENT_FOLDER"`
 done
