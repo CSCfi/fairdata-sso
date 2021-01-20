@@ -870,7 +870,7 @@ def login():
         "service_object": services[service],
         "service_short_name": services[service]["short_name"],
         "allowed_idps": services[service]["allowed_identity_providers"],
-        "redirect_url": redirect_url,
+        "redirect_url": urllib.parse.quote(redirect_url),
         "errors": errors_data,
         "language": language
     }
@@ -936,7 +936,7 @@ def logout():
         "service": service,
         "service_object": services[service],
         "service_short_name": services[service]["short_name"],
-        "redirect_url": redirect_url,
+        "redirect_url": urllib.parse.quote(redirect_url),
         "sso_api": config['SSO_API'],
         "language": language
     }
@@ -1199,7 +1199,7 @@ def saml_attribute_consumer_service():
 
     if len(authentication_errors) > 0 or not is_authenticated:
         errorList = ",".join(authentication_errors)
-        url = "%s/login?service=%s&redirect_url=%s&idp=%s&errors=%s" % (config['SSO_API'], service, urllib.parse.quote_plus(redirect_url), idp, urllib.parse.quote_plus(errorList))
+        url = "%s/login?service=%s&redirect_url=%s&idp=%s&errors=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, urllib.parse.quote(errorList))
         response = make_response(redirect(url))
         response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
         response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
@@ -1222,9 +1222,9 @@ def saml_attribute_consumer_service():
     errors = session.get('errors')
 
     if (errors):
-        messages = ''.join(f'&errors={urllib.parse.quote_plus(error)}' for error in errors)
+        messages = ''.join(f'&errors={urllib.parse.quote(error)}' for error in errors)
         log.debug("acs: errors: %s" % messages)
-        url = "%s/login?service=%s&redirect_url=%s&idp=%s&%s" % (config['SSO_API'], service, urllib.parse.quote_plus(redirect_url), idp, messages)
+        url = "%s/login?service=%s&redirect_url=%s&idp=%s&%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, messages)
         response = make_response(redirect(url))
         response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
         response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)

@@ -76,7 +76,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 print ("Request login from %s service (language=%s)" % (service['short_name'], language))
 
-                response = requests.get("%s/login?service=%s&redirect_url=%s&errors=csc_account_locked&language=%s" % (self.config["SSO_API"], service_key, self.config["SSO_API"], language), verify=False)
+                response = requests.get("%s/login?service=%s&redirect_url=%s&errors=csc_account_locked&language=%s" % (self.config["SSO_API"], service_key, urllib.parse.quote(self.config["SSO_API"]), language), verify=False)
                 self.assertEqual(response.status_code, 200)
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Login</title>", output)
@@ -115,7 +115,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 for idp in idps:
                     print ("     %s should be present" % idp)
-                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=%s&idp=%s\">" % (service_key, self.config["SSO_API"], idp), output)
+                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=%s&idp=%s\">" % (service_key, urllib.parse.quote(self.config["SSO_API"]), idp), output)
                     if (language == 'fi'):
                         self.assertIn("<img src=\"%s.png\" alt=\"Kirjaudu sisään %slla\" />" % (idp, idp), output)
                     elif (language == 'sv'):
@@ -146,14 +146,14 @@ class TestServiceIntegration(unittest.TestCase):
 
                 print ("Request logout from %s service (language=%s)" % (service['short_name'], language))
 
-                response = requests.get("%s/logout?service=%s&redirect_url=%s&language=%s" % (self.config["SSO_API"], service_key, self.config["SSO_API"], language), verify=False)
+                response = requests.get("%s/logout?service=%s&redirect_url=%s&language=%s" % (self.config["SSO_API"], service_key, urllib.parse.quote(self.config["SSO_API"]), language), verify=False)
                 self.assertEqual(response.status_code, 200)
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Logout</title>", output)
 
                 print ("- verify redirection URL")
 
-                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"%s\" />" % self.config["SSO_API"], output)
+                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"%s\" />" % urllib.parse.quote(self.config["SSO_API"]), output)
 
                 print ("- verify guidance heading and text")
 
