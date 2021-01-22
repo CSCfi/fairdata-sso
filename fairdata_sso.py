@@ -936,7 +936,7 @@ def logout():
         "service": service,
         "service_object": services[service],
         "service_short_name": services[service]["short_name"],
-        "redirect_url": urllib.parse.quote(redirect_url),
+        "redirect_url": redirect_url,
         "sso_api": config['SSO_API'],
         "language": language
     }

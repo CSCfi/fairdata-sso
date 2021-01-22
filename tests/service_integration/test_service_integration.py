@@ -153,7 +153,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 print ("- verify redirection URL")
 
-                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"%s\" />" % urllib.parse.quote(self.config["SSO_API"]), output)
+                self.assertIn("<input type=\"hidden\" name=\"redirect_url\" value=\"%s\" />" % self.config["SSO_API"], output)
 
                 print ("- verify guidance heading and text")
 
