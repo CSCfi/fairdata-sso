@@ -63,7 +63,11 @@ app.config['CSRF_COOKIE_SAMESITE'] = 'Strict'
 csrf = SeaSurf(app)
 
 csp = {
-    'default-src': "'self'",
+    'default-src': [
+        "'self'",
+        'matomo.fairdata.fi',
+        'matomo.fd-test.csc.fi'
+    ],
     'img-src': '* data:'
 }
 
@@ -793,7 +797,8 @@ def test():
             "sso_api": config.get('SSO_API', "https://sso.%s" % domain),
             "prefix": prefix,
             "fd_sso_session_id": fd_sso_session_id,
-            "fd_sso_session": fd_sso_session
+            "fd_sso_session": fd_sso_session,
+            "fdwe_url": config.get('FDWE_URL')
         }
 
         return render_template('test.html', **context)
@@ -846,6 +851,7 @@ def login():
     idps = services[service]["allowed_identity_providers"]
 
     errors_data = []
+    error_codes = request.args.get('errors')
 
     try:
         for error in request.args.getlist('errors'):
@@ -872,7 +878,9 @@ def login():
         "allowed_idps": services[service]["allowed_identity_providers"],
         "redirect_url": urllib.parse.quote(redirect_url),
         "errors": errors_data,
-        "language": language
+        "error_codes": error_codes,
+        "language": language,
+        "fdwe_url": config.get('FDWE_URL')
     }
 
     log.debug("login: context: %s" % json.dumps(context))
@@ -938,7 +946,8 @@ def logout():
         "service_short_name": services[service]["short_name"],
         "redirect_url": redirect_url,
         "sso_api": config['SSO_API'],
-        "language": language
+        "language": language,
+        "fdwe_url": config.get('FDWE_URL')
     }
 
     return render_template('logout.html', **context)

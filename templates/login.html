@@ -2,6 +2,12 @@
 <html>
 
 <head>
+    <meta name="fdwe-service" content="SSO">
+    {% if errors %}
+    <meta name="fdwe-scope" content="LOGIN / {{ service }} / ERROR / {{ error_codes.upper() }}">
+    {% else %}
+    <meta name="fdwe-scope" content="LOGIN / {{ service }}">
+    {% endif %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
     <title>Fairdata SSO Login</title>
@@ -9,6 +15,10 @@
     <link rel="stylesheet" href="/fairdata.css">
     <link rel="stylesheet" href="/fairdata-sso.css">
     <link rel="stylesheet" href="/notification.css">
+    {% if fdwe_url %}
+    <script type="text/javascript" src="{{ fdwe_url }}"></script>
+    <script type="text/javascript" src="/sso-fdwe.js"></script>
+    {% endif %}
     <script type="text/javascript" src="/notification.js"></script>
 </head>
 <body class="fd-content container">
@@ -72,15 +82,17 @@
                     </p>
                     <div class="login-buttons">
                         {% for idp in allowed_idps %}
-                        <a href="/auth?service={{ service }}&redirect_url={{ redirect_url }}&idp={{ idp }}">
-                            {% if language == "fi" %}
-                            <img src="{{ idp }}.png" alt="Kirjaudu sisään {{ idp }}lla" />
-                            {% elif language == "sv" %}
-                            <img src="{{ idp }}.png" alt="Logga in med {{ idp }}" />
-                            {% else %}
-                            <img src="{{ idp }}.png" alt="Login using {{ idp }}" />
-                            {% endif %}
-                        </a>
+                        <div name="fdsso-click-action" data-scope="LOGIN / {{ service }} / {{ idp }}">
+                            <a href="/auth?service={{ service }}&redirect_url={{ redirect_url }}&idp={{ idp }}">
+                                {% if language == "fi" %}
+                                <img src="{{ idp }}.png" alt="Kirjaudu sisään {{ idp }}lla" />
+                                {% elif language == "sv" %}
+                                <img src="{{ idp }}.png" alt="Logga in med {{ idp }}" />
+                                {% else %}
+                                <img src="{{ idp }}.png" alt="Login using {{ idp }}" />
+                                {% endif %}
+                            </a>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>

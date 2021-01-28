@@ -28,7 +28,7 @@ function fdSSOSetCookie(name, value) {
     var expiryDate = new Date();
     expiryDate.setTime(expiryDate.getTime() + (7*24*60*60*1000));
     var expires = "; expires=" + expiryDate.toUTCString();
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + "; domain=." + fdSSOGetDomainName();
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + "; domain=." + fdSSOGetDomainName() + ";sameSite=Lax";
 }
 
 function fdSSOIsNotificationDismissed() {

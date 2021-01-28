@@ -2,6 +2,8 @@
 <html>
 
 <head>
+    <meta name="fdwe-service" content="SSO">
+    <meta name="fdwe-scope" content="LOGOUT / {{ service }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
     <title>Fairdata SSO Logout</title>
@@ -9,6 +11,10 @@
     <link rel="stylesheet" href="/fairdata.css">
     <link rel="stylesheet" href="/fairdata-sso.css">
     <link rel="stylesheet" href="/notification.css">
+    {% if fdwe_url %}
+    <script type="text/javascript" src="{{ fdwe_url }}"></script>
+    <script type="text/javascript" src="/sso-fdwe.js"></script>
+    {% endif %}
     <script type="text/javascript" src="/notification.js"></script>
 </head>
 
@@ -34,27 +40,33 @@
             {% endif %}
         </p>
         <div class="actions">
-            <a href="{{ redirect_url }}"><button class="fd-button fd-success">
-                    {% if language == "fi" %}
-                    Peruuta
-                    {% elif language == "sv" %}
-                    Avbryt
-                    {% else %}
-                    Cancel
-                    {% endif %}
-                </button></a>
+            <a href="{{ redirect_url }}">
+                <div name="fdsso-click-action" data-scope="LOGOUT / {{ service }} / CANCEL">
+                    <button class="fd-button fd-success">
+                        {% if language == "fi" %}
+                        Peruuta
+                        {% elif language == "sv" %}
+                        Avbryt
+                        {% else %}
+                        Cancel
+                        {% endif %}
+                    </button>
+                </div>
+            </a>
             <form method="POST" action="{{ sso_api }}/terminate">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
-                <button type="submit" class="fd-button fd-outline-success">
-                    {% if language == "fi" %}
-                    Kirjaudu ulos
-                    {% elif language == "sv" %}
-                    Logga ut
-                    {% else %}
-                    Logout
-                    {% endif %}
-                </button>
+                <div name="fdsso-click-action" data-scope="LOGOUT / {{ service }} / CONFIRM">
+                    <button type="submit" class="fd-button fd-outline-success">
+                        {% if language == "fi" %}
+                        Kirjaudu ulos
+                        {% elif language == "sv" %}
+                        Logga ut
+                        {% else %}
+                        Logout
+                        {% endif %}
+                    </button>
+                </div>
             </form>
         </div>
     </div>

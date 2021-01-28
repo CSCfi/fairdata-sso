@@ -1,11 +1,16 @@
 <html>
 
 <head>
+    <meta name="fdwe-service" content="SSO">
     <meta charset="utf-8">
     <title>Fairdata SSO Test Page</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="/fairdata-sso-test.css">
     <link rel="stylesheet" href="/notification.css">
+    {% if fdwe_url %}
+    <script type="text/javascript" src="{{ fdwe_url }}"></script>
+    <script type="text/javascript" src="/sso-fdwe.js"></script>
+    {% endif %}
     <script type="text/javascript" src="/notification.js"></script>
 </head>
 
