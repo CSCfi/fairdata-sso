@@ -1,0 +1,12 @@
+{
+    "ENVIRONMENT": "TEST",
+    "DEBUG": true,
+    "MAX_AGE": 86400,
+    "DOMAIN": "example.org",
+    "LOG_ROOT": "/var/log/sso",
+    "SSO_HOST": "0.0.0.0",
+    "SSO_PORT": 443,
+    "SSO_API": "https://sso.example.org",
+    "AAI_PROXY": "aai.example.org",
+    "NO_HAKA": false
+}

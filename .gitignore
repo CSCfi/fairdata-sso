@@ -16,8 +16,8 @@ __pycache__/
 /tmp
 /venv
 /TODO
-saml.json
-config.json
+/saml.json
+/config.json
 /config.tgz
 /config
 !/.gitignore

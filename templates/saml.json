@@ -1,0 +1,61 @@
+{
+    "strict": true,
+    "debug": true,
+    "sp": {
+        "entityId": "https://sso.example.org/saml_metadata/",
+        "assertionConsumerService": {
+            "url": "https://sso.example.org/acs/",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        },
+        "singleLogoutService": {
+            "url": "https://sso.example.org/sls/",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+        "x509cert": "DEFINE",
+        "privateKey": "DEFINE"
+    },
+    "idp": {
+        "entityId": "https://aai.example.org/idp/shibboleth",
+        "singleSignOnService": {
+            "url": "https://aai.example.org/idp/profile/SAML2/Redirect/SSO",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "singleLogoutService": {
+            "url": "https://aai.example.org/idp/profile/SAML2/Redirect/SLO",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "x509cert": "DEFINE"
+    },
+    "security": {
+        "nameIdEncrypted": false,
+        "authnRequestsSigned": true,
+        "logoutRequestSigned": true,
+        "logoutResponseSigned": true,
+        "signMetadata": false,
+        "wantMessagesSigned": false,
+        "wantAssertionsSigned": false,
+        "wantNameId" : true,
+        "wantNameIdEncrypted": false,
+        "wantAssertionsEncrypted": false,
+        "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+        "digestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+    },
+    "contactPerson": {
+        "technical": {
+            "givenName": "DEFINE",
+            "emailAddress": "DEFINE"
+        },
+        "support": {
+            "givenName": "DEFINE",
+            "emailAddress": "DEFINE"
+        }
+    },
+    "organization": {
+        "en-US": {
+            "name": "DEFINE",
+            "displayname": "DEFINE",
+            "url": "DEFINE"
+        }
+    }
+}
