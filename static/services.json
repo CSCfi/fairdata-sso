@@ -9,7 +9,7 @@
         "home": "https://ida.fairdata.fi/",
         "guidance_text": {
             "en": "To use the IDA service, you must have a CSC user account and be a member of a project with use rights for the IDA service.",
-            "fi": "Jotta voit käyttää IDA-palvelua, sinulla on oltava CSC-käyttäjätunnus ja sinun tulee kuulua IDA-käyttöoikeudet omaavaan projektiin.",
+            "fi": "Jotta voit käyttää IDA-palvelua, sinulla on oltava CSC-käyttäjätunnus ja sinun tulee kuulua CSC-projektiin, jolla on IDA-käyttöoikeus.",
             "sv": "För att använda IDA måste du ha ett CSC-användarkonto och vara medlem i ett projekt som har tillgång till IDA."
         },
         "guidance_links": {
@@ -25,7 +25,7 @@
             ],
             "fi": [
                 {
-                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
                 },
                 {
@@ -58,8 +58,8 @@
         },
         "home": "https://etsin.fairdata.fi/",
         "guidance_text": {
-            "en": "To use the Etsin service, you must have a CSC user account.",
-            "fi": "Jotta voit käyttää Etsin-palvelua, sinulla on oltava CSC-käyttäjätunnus.",
+            "en": "To be able to download data from Etsin that require you to log in, you must have a CSC user account.",
+            "fi": "Jotta voit ladata sisäänkirjautumista vaativia aineistoja Etsimestä, sinulla on oltava CSC-käyttäjätunnus.",
             "sv": "För att använda Etsin måste du ha ett CSC-användarkonto."
         },
         "guidance_links": {
@@ -71,7 +71,7 @@
             ],
             "fi": [
                 {
-                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
                 }
             ],
@@ -109,7 +109,7 @@
             ],
             "fi": [
                 {
-                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
                 }
             ],
@@ -147,7 +147,7 @@
             ],
             "fi": [
                 {
-                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
                 }
             ],
@@ -185,7 +185,7 @@
             ],
             "fi": [
                 {
-                    "text": "Kuinka luoda CSC-käyttäjätunnus (englanniksi)",
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
                 }
             ],

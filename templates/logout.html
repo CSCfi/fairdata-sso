@@ -32,7 +32,11 @@
         <hr>
         <p>
             {% if language == "fi" %}
-            Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain {{ service_short_name }}-palvelusta
+                {% if service_short_name == "Qvain" %}
+                Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain {{ service_short_name }}-työkalusta
+                {% else %}
+                Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain {{ service_short_name }}-palvelusta
+                {% endif %}
             {% elif language == "sv" %}
             Detta avslutar den aktiva sessionen för <strong>ALL</strong> Fairdata Services, inte bara för {{ service_short_name }}
             {% else %}

@@ -93,7 +93,8 @@ class TestServiceIntegration(unittest.TestCase):
                 print ("- verify guidance heading and text")
 
                 if (language == 'fi'):
-                    self.assertIn("Sisäänkirjautumisvaatimukset %slle:" % service_short_name, output)
+                    self.assertIn("%s-" % service_short_name, output)
+                    self.assertIn("sisäänkirjautumisvaatimukset", output)
                 elif (language == 'sv'):
                     self.assertIn("Inloggningskrav för %s:" % service_short_name, output)
                 else:
@@ -158,7 +159,7 @@ class TestServiceIntegration(unittest.TestCase):
                 print ("- verify guidance heading and text")
 
                 if (language == 'fi'):
-                    self.assertIn("Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain %s-palvelusta" % service_short_name, output)
+                    self.assertIn("Jatkamalla kirjaudut ulos <strong>kaikista</strong> Fairdata-palveluista, et vain %s-" % service_short_name, output)
                     self.assertIn("Kirjaudu ulos", output)
                 elif (language == 'sv'):
                     self.assertIn("Detta avslutar den aktiva sessionen för <strong>ALL</strong> Fairdata Services, inte bara för %s" % service_short_name, output)
@@ -356,7 +357,7 @@ class TestServiceIntegration(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Login</title>", output)
         self.assertIn("Logging into this service requires a CSC account.", output)
-        self.assertIn("To use the Etsin service, you must have a CSC user account.", output)
+        self.assertIn("To be able to download data from Etsin that require you to log in, you must have a CSC user account.", output)
 
         print ("Initiate mock session for PAS using CSCID for account fd_pas_user_propose")
         session = requests.Session()

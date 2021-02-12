@@ -40,7 +40,11 @@
             <div class="col-lg-6 col-md-12 padding">
                 <p class="guidance-heading">
                     {% if language == "fi" %}
-                    Sisäänkirjautumisvaatimukset {{ service_short_name }}lle:
+                        {% if service_short_name == "Qvain" %}
+                        Qvain-työkalun sisäänkirjautumisvaatimukset:
+                        {% else %}
+                        {{ service_short_name }}-palvelun sisäänkirjautumisvaatimukset:
+                        {% endif %}
                     {% elif language == "sv" %}
                     Inloggningskrav för {{ service_short_name }}:
                     {% else %}
@@ -63,7 +67,11 @@
                 <div class="fd-card login">
                     <h1>
                         {% if language == "fi" %}
-                        Kirjaudu {{ service_short_name }}-palveluun
+                            {% if service_short_name == "Qvain" %}
+                            Kirjaudu {{ service_short_name }}-työkaluun:
+                            {% else %}
+                            Kirjaudu {{ service_short_name }}-palveluun:
+                            {% endif %}
                         {% elif language == "sv" %}
                         Logga in på {{ service_short_name }}
                         {% else %}
