@@ -5,7 +5,7 @@ SCRIPT=`basename "$0"`
 USAGE="Usage: $SCRIPT branch [ test | stable | demo ]"
 
 if [ "$1" == "-h" ]; then
-    echo "$USAGE" >&2
+    echo "$USAGE"
     exit
 fi
 
@@ -14,7 +14,7 @@ TARGET="$2"
 
 if [ "$SOURCE" == "" ]; then
     echo "Missing source branch"
-    echo "$USAGE" >&2
+    echo "$USAGE"
     exit 1
 fi
 
