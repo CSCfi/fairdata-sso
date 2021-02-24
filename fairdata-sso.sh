@@ -8,7 +8,7 @@ source $SSO_ROOT/venv/bin/activate
 
 cd $SSO_ROOT
 
-DEBUG=`cat $SSO_ROOT/config.json | grep "DEBUG" | grep "true"`
+DEBUG=`cat $SSO_CONFIG | grep "DEBUG" | grep "true"`
 
 if [ "$DEBUG" ]; then
     export FLASK_ENV=development

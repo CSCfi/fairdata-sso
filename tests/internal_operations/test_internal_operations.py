@@ -28,7 +28,7 @@ class TestInternalOperations(unittest.TestCase):
 
         print("(initializing)")
 
-        self.config = json.load(open("%s/config.json" % os.environ.get('SSO_ROOT')))
+        self.config = json.load(open(os.environ.get('SSO_CONFIG')))
         self.services = json.load(open("%s/static/services.json" % os.environ.get('SSO_ROOT')))
         self.errors = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
         self.success = False

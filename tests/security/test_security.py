@@ -37,10 +37,10 @@ class TestSecurity(unittest.TestCase):
 
         print("(initializing)")
 
-        self.config = json.load(open("%s/config.json" % os.environ.get('SSO_ROOT')))
+        self.config = json.load(open(os.environ.get('SSO_CONFIG')))
         self.services = json.load(open("%s/static/services.json" % os.environ.get('SSO_ROOT')))
         self.errors = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
-        self.saml = json.load(open("%s/saml.json" % os.environ.get('SSO_ROOT')))
+        self.saml = json.load(open(os.environ.get('SSO_SAML_CONFIG')))
         self.domain = self.config['DOMAIN']
         self.prefix = re.sub(r'[^a-zA-Z0-9]', '_', self.domain)
         self.key = self.saml['sp']['privateKey']

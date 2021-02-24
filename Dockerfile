@@ -11,6 +11,8 @@ RUN ln -s /usr/local/bin/python /opt/fairdata/python3/bin/python3.8
 RUN groupadd nginx
 
 ENV SSO_ROOT="/app"
+ENV SSO_CONFIG="/etc/fairdata-sso/config.json"
+ENV SSO_SAML_CONFIG="/etc/fairdata-sso/saml.json"
 
 WORKDIR /app
 

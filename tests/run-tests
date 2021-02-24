@@ -27,14 +27,16 @@ while [[ "$PARENT_BASENAME" != "fairdata-sso" && "$PARENT_BASENAME" != fairdata-
 done
 
 SSO_ROOT="$PARENT_FOLDER"
+SSO_CONFIG="$SSO_ROOT/config.json"
+SSO_SAML_CONFIG="$SSO_ROOT/saml.json"
 TEST_LOG="$SSO_ROOT/tests/test.log"
 
 #--------------------------------------------------------------------------------
 # Verify that we are in a test environment or debug mode is active
 
-TEST_ENVIRONMENT=`cat "$SSO_ROOT/config.json" | grep '"ENVIRONMENT"' | grep '"TEST"'`
-DEMO_ENVIRONMENT=`cat "$SSO_ROOT/config.json" | grep '"ENVIRONMENT"' | grep '"DEMO"'`
-DEBUG=`cat "$SSO_ROOT/config.json" | grep '"DEBUG"' | grep 'true'`
+TEST_ENVIRONMENT=`cat "$SSO_CONFIG" | grep '"ENVIRONMENT"' | grep '"TEST"'`
+DEMO_ENVIRONMENT=`cat "$SSO_CONFIG" | grep '"ENVIRONMENT"' | grep '"DEMO"'`
+DEBUG=`cat "$SSO_CONFIG" | grep '"DEBUG"' | grep 'true'`
 
 if [ "${TEST_ENVIRONMENT}${DEMO_ENVIRONMENT}${DEBUG}" == "" ]; then
     echo "This script can only be run in a test or demo environment or if debug mode is active. Aborting." >&2
@@ -57,6 +59,8 @@ source $SSO_ROOT/venv/bin/activate
 cd $SSO_ROOT
 
 export SSO_ROOT
+export SSO_CONFIG
+export SSO_SAML_CONFIG
 
 if [[ "$DEBUG" ]]; then
     echo "SSO_ROOT: $SSO_ROOT"

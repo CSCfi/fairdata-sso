@@ -10,9 +10,9 @@ services:
       - .:/app
     configs:
       - source: sso-server-config
-        target: /app/config.json
+        target: /etc/fairdata-sso/config.json
       - source: sso-saml-config
-        target: /app/saml.json
+        target: /etc/fairdata-sso/saml.json
 
   fairdata-nginx:
     image: nginx

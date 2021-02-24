@@ -24,9 +24,9 @@ from flask_talisman import Talisman
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from subprocess import Popen, PIPE
 
-config = json.load(open("%s/config.json" % os.environ.get('SSO_ROOT')))
+config = json.load(open(os.environ.get('SSO_CONFIG')))
 errorMessages = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
-saml = json.load(open("%s/saml.json" % os.environ.get('SSO_ROOT')))
+saml = json.load(open(os.environ.get('SSO_SAML_CONFIG')))
 
 services = json.load(open("%s/static/services.json" % os.environ.get('SSO_ROOT')))
 AVAILABLE_SERVICES = services.keys()
@@ -295,7 +295,7 @@ def get_saml_auth(flask_request):
         [] -- []
     """
 
-    pathname = "%s/saml.json" % os.environ.get('SSO_ROOT')
+    pathname = os.environ.get('SSO_SAML_CONFIG')
     json_data_file = open(pathname, 'r')
     settings = json.load(json_data_file)
     json_data_file.close()
@@ -324,7 +324,7 @@ def init_saml_auth(saml_prepared_flask_request):
         [] -- []
     """
 
-    pathname = "%s/saml.json" % os.environ.get('SSO_ROOT')
+    pathname = os.environ.get('SSO_SAML_CONFIG')
     json_data_file = open(pathname, 'r')
     settings = json.load(json_data_file)
     json_data_file.close()
