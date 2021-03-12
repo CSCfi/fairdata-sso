@@ -295,22 +295,17 @@ def get_saml_auth(flask_request):
         [] -- []
     """
 
-    pathname = os.environ.get('SSO_SAML_CONFIG')
-    json_data_file = open(pathname, 'r')
-    settings = json.load(json_data_file)
-    json_data_file.close()
-
     idp = flask_request.values.get('idp')
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
-        settings['security']['requestedAuthnContext'] = [IDP[env][idp]]
-        settings['security']['requestedAuthnContextComparison'] = 'exact'
-        settings['security']['failOnAuthnContextMismatch'] = True
+        saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
+        saml['security']['requestedAuthnContextComparison'] = 'exact'
+        saml['security']['failOnAuthnContextMismatch'] = True
 
-    log.debug("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % settings)
+    log.debug("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % saml)
 
-    return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), settings)
+    return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), saml)
 
 
 def init_saml_auth(saml_prepared_flask_request):
@@ -324,20 +319,15 @@ def init_saml_auth(saml_prepared_flask_request):
         [] -- []
     """
 
-    pathname = os.environ.get('SSO_SAML_CONFIG')
-    json_data_file = open(pathname, 'r')
-    settings = json.load(json_data_file)
-    json_data_file.close()
-
     idp = saml_prepared_flask_request.get('idp')
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
-        settings['security']['requestedAuthnContext'] = [IDP[env][idp]]
-        settings['security']['requestedAuthnContextComparison'] = 'exact'
-        settings['security']['failOnAuthnContextMismatch'] = True
+        saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
+        saml['security']['requestedAuthnContextComparison'] = 'exact'
+        saml['security']['failOnAuthnContextMismatch'] = True
 
-    return OneLogin_Saml2_Auth(saml_prepared_flask_request, settings)
+    return OneLogin_Saml2_Auth(saml_prepared_flask_request, saml)
 
 
 def prepare_flask_request_for_saml(request):
