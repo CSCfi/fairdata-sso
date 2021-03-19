@@ -207,13 +207,21 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Attempt to terminate current session without specifying redirect URL")
-        response = session.post("%s/terminate" % self.config["SSO_API"], verify=False)
+        data = {"service": "IDA"}
+        response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 400)
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("Required parameter 'redirect_url' missing", output)
 
-        print ("Terminate current session")
+        print ("Attempt to terminate current session without specifying service")
         data = {"redirect_url": self.config["SSO_API"]}
+        response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertIn("Required parameter 'service' missing", output)
+
+        print ("Terminate current session")
+        data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
@@ -272,7 +280,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session")
-        data = {"redirect_url": self.config["SSO_API"]}
+        data = {"redirect_url": self.config["SSO_API"], "service": "ETSIN"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
@@ -311,7 +319,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session")
-        data = {"redirect_url": self.config["SSO_API"]}
+        data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))

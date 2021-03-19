@@ -6,6 +6,7 @@ import time
 import uuid
 import re
 import urllib.parse
+import requests
 import base64
 import socket
 import ssl
@@ -732,6 +733,7 @@ def get_services(projects):
 
     return services
 
+
 def get_language(request):
     try:
         lang_from_cookies = request.cookies.get("%s_fd_language" % prefix)
@@ -743,6 +745,29 @@ def get_language(request):
         return lang_from_request if lang_from_request else 'en'
     except:
         return 'en'
+
+
+def fdweGetEnvironment():
+    # TODO
+    environment = "DEV"
+    log.debug("fdweGetEnvironment: environment=%s" % environment)
+    return environment
+
+
+def fdweRecordEvent(scope):
+    log.debug("fdweRecordEvent: scope=%s" % scope)
+    session = requests.Session()
+    data = {
+       "idsite": config['FDWE_SITE_ID'],
+       "rec": 1,
+       "action_name": "%s / SSO / %s" % (fdweGetEnvironment(), scope),
+       "rand": generate_token(),
+       "apiv": 1
+    }
+    log.debug("fdweRecordEvent: title=%s" % data['action_name'])
+    response = session.post("%s" % config['FDWE_MATOMO_API'], data=data, verify=False)
+    if response.status_code != 200:
+        log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name']), resonse.status_code, response.content)
 
 
 @talisman(content_security_policy=csp_swagger)
@@ -1299,6 +1324,8 @@ def saml_attribute_consumer_service():
 
     log.info("acs: session=%s" % json.dumps(session))
 
+    fdweRecordEvent("LOGIN / %s / SUCCESS" % service)
+
     return response
 
 
@@ -1314,6 +1341,8 @@ def saml_single_logout_service():
     session was initiated. If there is no active session, it will redirect to fairdata.fi.
     """
 
+    service = request.cookies.get("%s_fd_sso_initiating_service" % prefix)
+
     redirect_url = "https://fairdata.fi"
 
     response = make_response(redirect(redirect_url))
@@ -1325,6 +1354,8 @@ def saml_single_logout_service():
 
     log.info("sls: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
 
+    fdweRecordEvent("LOGOUT / AAI / SUCCESS")
+
     return response
 
 
@@ -1334,6 +1365,13 @@ def terminate():
     """
     Terminate the current session, if any.
     """
+
+    service = request.values.get('service')
+
+    if not service:
+        response = make_response("Required parameter 'service' missing", 400)
+        response.mimetype = "text/plain"
+        return response
 
     redirect_url = request.values.get('redirect_url')
 
@@ -1365,6 +1403,8 @@ def terminate():
 
     log.info("terminate: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
     
+    fdweRecordEvent("LOGOUT / %s / SUCCESS" % service)
+
     return response
 
 

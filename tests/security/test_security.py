@@ -189,7 +189,7 @@ class TestSecurity(unittest.TestCase):
         self.assertFalse('_csrf_token=' in headers.get('Set-Cookie'))
 
         print ("Verify correct security headers for /terminate")
-        data = {"redirect_url": self.config["SSO_API"]}
+        data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 302)
         headers = dict(response.headers)

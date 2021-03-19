@@ -59,6 +59,7 @@
             </a>
             <form method="POST" action="{{ sso_api }}/terminate">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="service" value="{{ service }}">
                 <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
                 <div name="fdsso-click-action" data-scope="LOGOUT / {{ service }} / CONFIRM">
                     <button type="submit" class="fd-button fd-outline-success">
