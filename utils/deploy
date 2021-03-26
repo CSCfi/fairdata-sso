@@ -2,7 +2,7 @@
 
 SCRIPT=`basename "$0"`
 
-USAGE="Usage: $SCRIPT branch [ test | stable | demo ]"
+USAGE="Usage: $SCRIPT branch [ dev | test | stable | demo ]"
 
 if [ "$1" == "-h" ]; then
     echo "$USAGE"
@@ -24,7 +24,7 @@ if [ "$TARGET" == "" ]; then
     exit 1
 fi
 
-CHECK=`echo "$TARGET" | grep -e "^test$" -e "^stable$" -e "^demo$"`
+CHECK=`echo "$TARGET" | grep -e "^dev$" -e "^test$" -e "^stable$" -e "^demo$"`
 
 if [ "$CHECK" == "" ]; then
     echo "Invalid target '$TARGET'"
@@ -48,7 +48,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-git checkout -b "$TARGET"
+git branch "$TARGET"
 
 if [ $? -ne 0 ]; then
     echo "Failed to create new target branch $TARGET"
@@ -59,13 +59,6 @@ git push -f origin "$TARGET"
 
 if [ $? -ne 0 ]; then
     echo "Failed to push target branch $TARGET" to origin
-    exit 1
-fi
-
-git checkout "$SOURCE"
-
-if [ $? -ne 0 ]; then
-    echo "Failed to checkout source branch $SOURCE"
     exit 1
 fi
 
