@@ -2,7 +2,7 @@
 
 SCRIPT=`basename "$0"`
 
-USAGE="Usage: $SCRIPT branch [ dev | test | stable | demo ]"
+USAGE="Usage: $SCRIPT branch [ test | stable | demo ]"
 
 if [ "$1" == "-h" ]; then
     echo "$USAGE"
@@ -24,7 +24,7 @@ if [ "$TARGET" == "" ]; then
     exit 1
 fi
 
-CHECK=`echo "$TARGET" | grep -e "^dev$" -e "^test$" -e "^stable$" -e "^demo$"`
+CHECK=`echo "$TARGET" | grep -e "^test$" -e "^stable$" -e "^demo$"`
 
 if [ "$CHECK" == "" ]; then
     echo "Invalid target '$TARGET'"
