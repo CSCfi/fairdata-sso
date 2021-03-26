@@ -91,7 +91,7 @@
                     <div class="login-buttons">
                         {% for idp in allowed_idps %}
                         <div name="fdsso-click-action" data-scope="LOGIN / {{ service }} / {{ idp }}">
-                            <a href="/auth?service={{ service }}&redirect_url={{ redirect_url }}&idp={{ idp }}">
+                            <a href="/auth?service={{ service }}&redirect_url={{ redirect_url }}&idp={{ idp }}&language={{ language }}">
                                 {% if language == "fi" %}
                                 <img src="{{ idp }}.png" alt="Kirjaudu sisään {{ idp }}lla" />
                                 {% elif language == "sv" %}

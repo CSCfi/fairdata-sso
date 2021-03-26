@@ -171,6 +171,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -209,6 +210,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -312,6 +314,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "javascript:alert(document.domain)//foo",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -325,6 +328,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": "javascript:alert(document.domain)//foo",
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -338,6 +342,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "javascript:alert(document.domain)//foo",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -351,6 +356,7 @@ class TestSecurity(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "javascript:alert(document.domain)//foo", 
             "testing": "true"
         }

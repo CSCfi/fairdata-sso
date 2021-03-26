@@ -116,7 +116,7 @@ class TestServiceIntegration(unittest.TestCase):
 
                 for idp in idps:
                     print ("     %s should be present" % idp)
-                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=%s&idp=%s\">" % (service_key, urllib.parse.quote(self.config["SSO_API"]), idp), output)
+                    self.assertIn("<a href=\"/auth?service=%s&redirect_url=%s&idp=%s&language=" % (service_key, urllib.parse.quote(self.config["SSO_API"]), idp), output)
                     if (language == 'fi'):
                         self.assertIn("<img src=\"%s.png\" alt=\"Kirjaudu sisään %slla\" />" % (idp, idp), output)
                     elif (language == 'sv'):
@@ -174,6 +174,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_test_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -235,6 +236,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_non_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -254,6 +256,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "ETSIN",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
+            "fd_sso_language": "sv",
             "mockauthfile": "%s/tests/mock/fd_non_ida_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -294,6 +297,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_logindisabled_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -333,6 +337,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "IDA",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_non_csc_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -353,6 +358,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "ETSIN",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "HAKA",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_non_csc_user.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
@@ -373,6 +379,7 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_initiating_service": "PAS",
             "fd_sso_redirect_url": self.config["SSO_API"],
             "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_pas_user_propose.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }

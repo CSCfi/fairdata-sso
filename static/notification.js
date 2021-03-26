@@ -47,10 +47,6 @@ function fdSSOGetNotificationContent(lang) {
 }
 
 function fdSSOGetUserLanguage() {
-    var lang = fdSSOGetCookie('fd_language');
-    if (lang) {
-        return lang.toLocaleLowerCase();
-    }
     lang = navigator.language || navigator.userLanguage;
     if (lang) {
         lang = lang.substr(0, 2).toLocaleLowerCase();

@@ -445,7 +445,7 @@ def get_user_csc_name(saml):
 
     csc_name = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('csc_username', None), False)
 
-    return csc_name[0] if csc_name else not_found('csc_name')
+    return csc_name[0] if csc_name else not_found('csc_name', saml)
 
     return None
 
@@ -466,7 +466,7 @@ def get_user_haka_identifier(saml):
 
     haka_id = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('haka_id', None), False)
 
-    return haka_id[0] if haka_id else not_found('haka_id')
+    return haka_id[0] if haka_id else not_found('haka_id', saml)
 
     return None
 
@@ -513,7 +513,7 @@ def get_user_email(saml):
 
     csc_email = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('email', None), False)
 
-    return csc_email[0] if csc_email else not_found('csc_email')
+    return csc_email[0] if csc_email else not_found('csc_email', saml)
 
     return None
 
@@ -534,7 +534,7 @@ def get_user_lastname(saml):
 
     lastname = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('last_name', None), False)
 
-    return lastname[0] if lastname else not_found('lastname')
+    return lastname[0] if lastname else not_found('lastname', saml)
 
     return None
 
@@ -555,7 +555,7 @@ def get_user_firstname(saml):
 
     first_name = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('first_name', None), False)
 
-    return first_name[0] if first_name else not_found('first_name')
+    return first_name[0] if first_name else not_found('first_name', saml)
 
     return None
 
@@ -597,7 +597,7 @@ def get_user_home_organization_id(saml):
 
     home_organization = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('haka_org_id', None), False)
 
-    return home_organization[0] if home_organization else not_found('home_organization')
+    return home_organization[0] if home_organization else not_found('home_organization', saml)
 
     return None
 
@@ -736,13 +736,10 @@ def get_services(projects):
 
 def get_language(request):
     try:
-        lang_from_cookies = request.cookies.get("%s_fd_language" % prefix)
-        if lang_from_cookies in AVAILABLE_LANGUAGES:
-            return lang_from_cookies
-        lang_from_request = request.accept_languages.best_match(AVAILABLE_LANGUAGES)
+        language = request.accept_languages.best_match(AVAILABLE_LANGUAGES)
         # Normalize the language code
-        lang_from_request = lang_from_request[:2]
-        return lang_from_request if lang_from_request else 'en'
+        language = language[:2]
+        return language if language else 'en'
     except:
         return 'en'
 
@@ -1034,6 +1031,13 @@ def authentication():
 
     log.debug("authentication: IDP: %s" % idp)
 
+    language = request.values.get('language')
+
+    if not language:
+        response = make_response("Required parameter 'language' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
     auth = get_saml_auth(request)
 
     log.debug("authentication: AUTH: %s" % repr(auth.get_settings().get_sp_metadata()))
@@ -1044,15 +1048,19 @@ def authentication():
 
     # Store the requesting service and redirect URL in cookies so we have them after the SAML response
 
+    auth_init = {
+        "initiating_service": service,
+        "idp": idp,
+        "redirect_url": redirect_url,
+        "language": language
+    }
+
+    auth_init_encrypted = jwt.encode(auth_init, app.secret_key, algorithm='HS256')
+
     exp = int(datetime.utcnow().timestamp() + config['MAX_AGE'])
-    service = jwt.encode({ "exp": exp, "service": service }, app.secret_key, algorithm='HS256')
-    idp = jwt.encode({ "exp": exp, "idp": idp }, app.secret_key, algorithm='HS256')
-    redirect_url = jwt.encode({ "exp": exp, "redirect_url": redirect_url }, app.secret_key, algorithm='HS256')
 
     response = make_response(redirect(auth.login(saml_redirect_url, force_authn=True)))
-    response.set_cookie("%s_fd_sso_initiating_service" % prefix, value=service, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
-    response.set_cookie("%s_fd_sso_idp" % prefix, value=idp, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
-    response.set_cookie("%s_fd_sso_redirect_url" % prefix, value=redirect_url, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
+    response.set_cookie("%s_fd_sso_authenticate" % prefix, value=auth_init_encrypted, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
 
     return response
 
@@ -1084,6 +1092,8 @@ def saml_attribute_consumer_service():
     """
     The endpoint used by the SAML library on auth.login call from the AAI proxy after successful authentication.
     """
+
+    language = 'en'
 
     if ((test_environment or demo_environment or debug) and request.values.get('testing') == 'true'):
 
@@ -1135,6 +1145,13 @@ def saml_attribute_consumer_service():
             response.mimetype = "text/plain"
             return response
 
+        language = request.values.get("fd_sso_language")
+
+        if not language:
+            response = make_response("Required parameter 'fd_sso_language' missing", 400)
+            response.mimetype = "text/plain"
+            return response
+
         # mockauthfile corresponds to the full pathname of a mock SAML result dict,
         # simulating the dict constructed below based on the results of the call to
         # auth.process_response() below, encoded as a JSON object file; tests may
@@ -1165,31 +1182,31 @@ def saml_attribute_consumer_service():
 
     else:
 
-        service = request.cookies.get("%s_fd_sso_initiating_service" % prefix)
+        auth_init = request.cookies.get("%s_fd_sso_authenticate" % prefix)
 
-        if not service:
-            response = make_response("Required cookie '%s_fd_sso_initiating_service' missing or has expired" % prefix, 400)
+        if not auth_init:
+            response = make_response("Required cookie '%s_fd_sso_authenticate' missing or has expired" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
         try:
-            service = jwt.decode(service, app.secret_key, algorithms=['HS256']).get('service')
+            auth_init = jwt.decode(auth_init, app.secret_key, algorithms=['HS256'])
         except:
-            response = make_response("Failed to decode cookie '%s_fd_sso_initiating_service'" % prefix, 400)
+            response = make_response("Failed to decode cookie '%s_fd_sso_authenticate'" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
-        redirect_url = request.cookies.get("%s_fd_sso_redirect_url" % prefix)
+        service = auth_init.get('initiating_service')
+    
+        if not service:
+            response = make_response("Required value 'service' missing" % prefix, 400)
+            response.mimetype = "text/plain"
+            return response
+
+        redirect_url = auth_init.get('redirect_url')
     
         if not redirect_url:
-            response = make_response("Required cookie '%s_fd_sso_redirect_url' missing or has expired" % prefix, 400)
-            response.mimetype = "text/plain"
-            return response
-
-        try:
-            redirect_url = jwt.decode(redirect_url, app.secret_key, algorithms=['HS256']).get('redirect_url')
-        except:
-            response = make_response("Failed to decode cookie '%s_fd_sso_redirect_url'" % prefix, 400)
+            response = make_response("Required value 'redirect_url' missing" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
@@ -1197,21 +1214,21 @@ def saml_attribute_consumer_service():
         url_domain = '.'.join(parsed_url.hostname.split('.')[1:])
 
         if not url_domain == domain:
-            response = make_response("Invalid domain for cookie '%s_fd_sso_redirect_url': %s" % (prefix, redirect_url), 400)
+            response = make_response("Invalid domain for value 'redirect_url': %s" % (prefix, redirect_url), 400)
             response.mimetype = "text/plain"
             return response
 
-        idp = request.cookies.get("%s_fd_sso_idp" % prefix)
-
+        idp = auth_init.get('idp')
+    
         if not idp:
-            response = make_response("Required cookie '%s_fd_sso_idp' missing or has expired" % prefix, 400)
+            response = make_response("Required value 'idp' missing" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
-        try:
-            idp = jwt.decode(idp, app.secret_key, algorithms=['HS256']).get('idp')
-        except:
-            response = make_response("Failed to decode cookie '%s_fd_sso_idp'" % prefix, 400)
+        language = auth_init.get('language')
+    
+        if not language:
+            response = make_response("Required value 'language' missing" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
@@ -1233,12 +1250,10 @@ def saml_attribute_consumer_service():
 
     if len(authentication_errors) > 0 or not is_authenticated:
         errorList = ",".join(authentication_errors)
-        url = "%s/login?service=%s&redirect_url=%s&idp=%s&errors=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, urllib.parse.quote(errorList))
+        url = "%s/login?service=%s&redirect_url=%s&idp=%s&errors=%s&language=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, urllib.parse.quote(errorList), language)
         response = make_response(redirect(url))
         response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_idp" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_redirect_url" % prefix, value='', domain=domain, max_age=0)
+        response.set_cookie("%s_fd_sso_authenticate" % prefix, value='', domain=domain, max_age=0)
         response.set_cookie("%s_fd_sso_session" % prefix, value='', domain=domain, max_age=0)
         return response
     
@@ -1258,12 +1273,10 @@ def saml_attribute_consumer_service():
     if (errors):
         messages = ''.join(f'&errors={urllib.parse.quote(error)}' for error in errors)
         log.debug("acs: errors: %s" % messages)
-        url = "%s/login?service=%s&redirect_url=%s&idp=%s&%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, messages)
+        url = "%s/login?service=%s&redirect_url=%s&idp=%s&%s&language=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, messages, language)
         response = make_response(redirect(url))
         response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_idp" % prefix, value='', domain=domain, max_age=0)
-        response.set_cookie("%s_fd_sso_redirect_url" % prefix, value='', domain=domain, max_age=0)
+        response.set_cookie("%s_fd_sso_authenticate" % prefix, value='', domain=domain, max_age=0)
         response.set_cookie("%s_fd_sso_session" % prefix, value='', domain=domain, max_age=0)
         return response
 
@@ -1280,6 +1293,7 @@ def saml_attribute_consumer_service():
     session['initiated'] = generate_timestamp_string(now)
     session['expiration'] = generate_timestamp_string(now, config['MAX_AGE'])
     session['redirect_url'] = redirect_url
+    session['language'] = language
 
     log.debug("acs: services: %s" % services)
 
@@ -1298,12 +1312,9 @@ def saml_attribute_consumer_service():
 
     response = make_response(redirect(redirect_url))
 
+    response.set_cookie("%s_fd_sso_authenticate" % prefix, value='', domain=domain, max_age=0)
     response.set_cookie("%s_fd_sso_session_id" % prefix, value=session['id'], domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
     response.set_cookie("%s_fd_sso_session" % prefix, value=session_encrypted, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
-
-    response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_idp" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_redirect_url" % prefix, value='', domain=domain, max_age=0)
 
     log.debug("acs: session=%s" % json.dumps(session))
 
@@ -1341,15 +1352,10 @@ def saml_single_logout_service():
     session was initiated. If there is no active session, it will redirect to fairdata.fi.
     """
 
-    service = request.cookies.get("%s_fd_sso_initiating_service" % prefix)
-
     redirect_url = "https://fairdata.fi"
 
     response = make_response(redirect(redirect_url))
     response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_idp" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_redirect_url" % prefix, value='', domain=domain, max_age=0)
     response.set_cookie("%s_fd_sso_session" % prefix, value='', domain=domain, max_age=0)
 
     log.info("sls: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
@@ -1396,9 +1402,6 @@ def terminate():
     response = make_response(redirect(redirect_url))
 
     response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_initiating_service" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_idp" % prefix, value='', domain=domain, max_age=0)
-    response.set_cookie("%s_fd_sso_redirect_url" % prefix, value='', domain=domain, max_age=0)
     response.set_cookie("%s_fd_sso_session" % prefix, value='', domain=domain, max_age=0)
 
     log.info("terminate: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
