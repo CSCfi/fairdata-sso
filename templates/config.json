@@ -11,6 +11,5 @@
     "NO_HAKA": false,
     "FDWE_URL": "https://matomo.example.org/fdwe.js",
     "FDWE_MATOMO_API": "https://matomo.example.org/fdwe.php",
-    "FDWE_INTERNAL_SITE_ID": 1,
-    "FDWE_PRODUCTION_SITE_ID": 2
+    "FDWE_SITE_ID": 1
 }
