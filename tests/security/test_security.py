@@ -231,9 +231,10 @@ class TestSecurity(unittest.TestCase):
         self.assertFalse('_csrf_token=' in headers.get('Set-Cookie'))
 
         print ("Verify rejection of arbitrary Host header values")
-        headers = { 'Host': 'bogus.com' }
-        response = requests.get("%s/robots.txt" % self.config["SSO_API"], headers=headers, verify=False)
-        self.assertEqual(response.status_code, 444)
+        if not self.config['DEBUG']:
+            headers = { 'Host': 'bogus.com' }
+            response = requests.get("%s/robots.txt" % self.config["SSO_API"], headers=headers, verify=False)
+            self.assertEqual(response.status_code, 444)
 
         # TODO: add tests for injections
 
