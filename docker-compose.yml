@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  sso-server:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-sso
+    environment:
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_ENV: 'development'
+    volumes:
+      - .:/app
+    configs:
+      - source: sso-server-config
+        target: /app/config.json
+      - source: sso-saml-config
+        target: /app/saml.json
+
+  fairdata-nginx:
+    image: nginx
+    configs:
+      - source: fairdata-nginx-config
+        target: /etc/nginx/nginx.conf
+      - source: fairdata-ssl-certificate
+        target: /etc/pki/tls/certs/ssl.crt.pem
+      - source: fairdata-ssl-certificate-key
+        target: /etc/pki/tls/private/ssl.key.pem
+      - source: sso-nginx-config
+        target: /etc/nginx/sites-enabled/sso
+    ports:
+      - 443:443
+
+configs:
+  sso-server-config:
+    external: True
+  sso-saml-config:
+    external: True
+  sso-nginx-config:
+    external: True
+
+  fairdata-nginx-config:
+    external: True
+  fairdata-ssl-certificate:
+    external: True
+  fairdata-ssl-certificate-key:
+    external: True
