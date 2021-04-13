@@ -361,7 +361,7 @@ def prepare_flask_request_for_saml(request):
         request.host = '30.30.30.30'
 
     return {
-        'https': 'on' if request.scheme == 'https' else 'off',
+        'https': 'on',
         'http_host': request.host,
         'server_port': url_data.port,
         'script_name': request.path,
