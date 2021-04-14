@@ -1,9 +1,18 @@
 #!/bin/bash
 
 SCRIPT="$(realpath $0)"
-SSO_ROOT=`dirname "$SCRIPT"`
 
-export SSO_ROOT
+export SSO_ROOT=`dirname "$SCRIPT"`
+
+if [ -z "$SSO_CONFIG" ]; then
+    SSO_CONFIG="$SSO_ROOT/config.json"
+    export SSO_CONFIG
+fi
+
+if [ -z "$SSO_SAML_CONFIG" ]; then
+    export SSO_SAML_CONFIG="$SSO_ROOT/saml.json"
+fi
+
 source $SSO_ROOT/venv/bin/activate
 
 cd $SSO_ROOT
