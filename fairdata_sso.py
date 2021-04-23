@@ -232,7 +232,6 @@ def initiate_session(service, idp, saml):
         fairdata_user['id'] = fairdata_user_id
         fairdata_user['locked'] = has_locked_CSC_account(saml)
         session['fairdata_user'] = fairdata_user
-        # TODO check for and record other organizations
 
     session['projects'] = get_projects(saml)
     session['services'] = get_services(session['projects'])
@@ -267,8 +266,6 @@ def validate_session(service, session):
 
     if (service == 'IDA' and (not active_user_services or not active_user_services.get('IDA'))):
         errors.append("no_ida_projects") # The authenticated account has no active IDA projects
-
-    # TODO add special handling, if needed, for other services
 
     # If the user does not have rights to use the requested service and there are no other more
     # specific error messages recorded, add a default error message
@@ -481,8 +478,6 @@ def get_user_id(saml):
 
     if haka_id:
         return haka_id
-
-    # TODO add support for other IdPs, e.g. Virtu
 
     return None
 
@@ -735,8 +730,17 @@ def get_language(request):
 
 
 def fdweGetEnvironment():
-    # TODO
-    environment = "DEV"
+    domain = config['DOMAIN']
+    if (domain == 'fairdata.fi'):
+        environment = "PRODUCTION"
+    elif (domain == 'demo.fairdata.fi'):
+        environment = "DEMO"
+    elif (domain == 'fd-stable.csc.fi'):
+        environment = "STABLE"
+    elif (domain == 'fd-test.csc.fi'):
+        environment = "TEST"
+    else:
+        environment = "DEV"
     log.debug("fdweGetEnvironment: environment=%s" % environment)
     return environment
 
