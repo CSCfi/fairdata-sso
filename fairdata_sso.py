@@ -68,7 +68,6 @@ csp = {
         "'self'",
         'metrics.fairdata.fi',
         'metrics.fd-test.csc.fi'
-        'matomo.fd-test.csc.fi'
     ],
     'img-src': '* data:'
 }
