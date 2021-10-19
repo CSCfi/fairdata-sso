@@ -759,7 +759,7 @@ def fdweRecordEvent(scope):
         log.debug("fdweRecordEvent: title=%s" % data['action_name'])
         response = session.post("%s" % config['FDWE_MATOMO_API'], data=data, verify=False)
         if response.status_code != 200:
-            log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name']), resonse.status_code, response.content)
+            log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name']), response.status_code, response.content)
 
 
 @talisman(content_security_policy=csp_swagger)
