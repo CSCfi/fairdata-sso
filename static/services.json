@@ -172,27 +172,39 @@
         },
         "home": "https://manage.fairdata.fi/",
         "guidance_text": {
-            "en": "To use the PAS service, ...",
-            "fi": "Jotta voit käyttää PAS-palvelua, ...",
-            "sv": "För att använda PAS ..."
+            "en": "To use the Digital Preservation Service for Research Data, a CSC user account and access to the DPS service is required.",
+            "fi": "Jotta voit käyttää Fairdata PAS-palvelua, sinulla on oltava CSC-käyttäjätunnus ja pääsy Fairdata PAS-palveluun.",
+            "sv": "För att använda LDB-tjänsten för forskningsdata måste du ha ett CSC-användarkonto samt tillgång till tjänsten ifråga."
         },
         "guidance_links": {
             "en": [
                 {
                     "text": "How to create a CSC user account",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "Becoming a partner organisation with the DPS",
+                    "href": "https://www.fairdata.fi/en/dps-organisations/"
                 }
             ],
             "fi": [
                 {
                     "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "Fairdata PAS-palvelun käyttöönotto",
+                    "href": "https://www.fairdata.fi/fairdata-pas-organisaatioille/"
                 }
             ],
             "sv": [
                 {
                     "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
                     "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                },
+                {
+                    "text": "Hur man tar i bruk LDB-tjänsten för forskningsdata (på finska)",
+                    "href": "https://www.fairdata.fi/fairdata-pas-organisaatioille/"
                 }
             ]
         },
