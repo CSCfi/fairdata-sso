@@ -767,62 +767,48 @@ def fdweRecordEvent(scope):
 @app.route('/swagger', methods=['GET'])
 def swagger():
     """
-    Returns the online Swagger API documentation page if either in a test environment or
-    if debug mode is active.
+    Returns the online Swagger API documentation page
     """
 
-    if (test_environment or demo_environment or debug):
+    pathname = "%s/swagger/swagger.html" % os.environ.get('SSO_ROOT')
+    content = open(pathname).read()
 
-        pathname = "%s/swagger/swagger.html" % os.environ.get('SSO_ROOT')
-        content = open(pathname).read()
-
-        response = make_response(content)
-        response.mimetype = "text/html"
-        return response
-
-    response = make_response("Bad request", 400)
-    response.mimetype = "text/plain"
+    response = make_response(content)
+    response.mimetype = "text/html"
     return response
 
 
 @app.route('/test', methods=['GET'])
 def test():
     """
-    Returns a web page for manually testing SSO functionality if either in a test environment or
-    if debug mode is active.
+    Returns a web page for manually testing SSO functionality
     """
 
-    if (test_environment or demo_environment or debug):
+    fd_sso_session = request.cookies.get("%s_fd_sso_session" % prefix)
 
-        fd_sso_session = request.cookies.get("%s_fd_sso_session" % prefix)
+    if fd_sso_session:
+        try:
+            log.debug("index: fd_sso_session (encrypted): %s" % fd_sso_session)
+            fd_sso_session = jwt.decode(fd_sso_session, app.secret_key, algorithms=['HS256'])
+            log.debug("index: fd_sso_session (decrypted): %s" % fd_sso_session)
+            fd_sso_session = json.dumps(fd_sso_session, indent=4, sort_keys=True)
+        except:
+            fd_sso_session = 'Error: decoding of session object failed'
 
-        if fd_sso_session:
-            try:
-                log.debug("index: fd_sso_session (encrypted): %s" % fd_sso_session)
-                fd_sso_session = jwt.decode(fd_sso_session, app.secret_key, algorithms=['HS256'])
-                log.debug("index: fd_sso_session (decrypted): %s" % fd_sso_session)
-                fd_sso_session = json.dumps(fd_sso_session, indent=4, sort_keys=True)
-            except:
-                fd_sso_session = 'Error: decoding of session object failed'
+    fd_sso_session_id = request.cookies.get("%s_fd_sso_session_id" % prefix)
 
-        fd_sso_session_id = request.cookies.get("%s_fd_sso_session_id" % prefix)
+    if fd_sso_session_id:
+        fd_sso_session_id = html.escape(fd_sso_session_id)
 
-        if fd_sso_session_id:
-            fd_sso_session_id = html.escape(fd_sso_session_id)
+    context = {
+        "sso_api": config.get('SSO_API', "https://sso.%s" % domain),
+        "prefix": prefix,
+        "fd_sso_session_id": fd_sso_session_id,
+        "fd_sso_session": fd_sso_session,
+        "fdwe_url": config.get('FDWE_URL')
+    }
 
-        context = {
-            "sso_api": config.get('SSO_API', "https://sso.%s" % domain),
-            "prefix": prefix,
-            "fd_sso_session_id": fd_sso_session_id,
-            "fd_sso_session": fd_sso_session,
-            "fdwe_url": config.get('FDWE_URL')
-        }
-
-        return render_template('test.html', **context)
-
-    response = make_response("Bad request", 400)
-    response.mimetype = "text/plain"
-    return response
+    return render_template('test.html', **context)
 
 
 @app.route('/login', methods=['GET'])
