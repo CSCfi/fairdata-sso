@@ -91,7 +91,7 @@ talisman = Talisman(
 )
 
 logging.basicConfig(
-    level=logging.ERROR,
+    level=logging.INFO,
     filename="%s/%s.log" % (config['LOG_ROOT'], domain),
     format='%(asctime)s %(name)s %(levelname)s: %(message)s',
     datefmt="%Y-%m-%dT%H:%M:%SZ")
