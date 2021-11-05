@@ -254,9 +254,9 @@ def validate_session(service, session):
     active_user_services = session.get('services')
     fairdata_user = session.get('fairdata_user')
 
-    log.info("validate_session: service_settings=%s" % json.dumps(service_settings))
-    log.info("validate_session: active_user_services=%s" % json.dumps(active_user_services))
-    log.info("validate_session: fairdata_user=%s" % json.dumps(fairdata_user))
+    log.debug("validate_session: service_settings=%s" % json.dumps(service_settings))
+    log.debug("validate_session: active_user_services=%s" % json.dumps(active_user_services))
+    log.debug("validate_session: fairdata_user=%s" % json.dumps(fairdata_user))
 
     if (service_settings.get('cscid_required') == True and not fairdata_user):
         errors.append("no_csc_account") # Not linked to a CSC account
@@ -623,7 +623,7 @@ def get_projects(saml):
 
     groups = get_user_groups(saml) or []
 
-    log.info("get_projects: groups=%s" % json.dumps(groups))
+    log.debug("get_projects: groups=%s" % json.dumps(groups))
 
     for group in groups:
 
@@ -648,29 +648,29 @@ def get_projects(saml):
             else:
                 project_name = group[i+1:]
 
-            log.info("get_projects: profile_name=%s project_name=%s" % (profile_name, project_name))
+            log.debug("get_projects: profile_name=%s project_name=%s" % (profile_name, project_name))
 
             # Iterate over services in service configuration
             for (service_name, service_config) in services.items():
 
-                log.info("get_projects: service_name=%s" % service_name)
+                log.debug("get_projects: service_name=%s" % service_name)
 
                 supported_profiles = service_config.get('cscid_supported_profiles')
 
-                log.info("get_projects: supported_profiles=%s" % json.dumps(supported_profiles))
+                log.debug("get_projects: supported_profiles=%s" % json.dumps(supported_profiles))
 
                 # if profile is in set of allowed profiles, add service to array of services for project
                 if supported_profiles and profile_name in supported_profiles:
-                    log.info("get_projects: supported_profile=%s" % profile_name)
+                    log.debug("get_projects: supported_profile=%s" % profile_name)
                     project_services[service_name] = True
 
-            log.info("get_projects: project_services=%s" % json.dumps(project_services))
+            log.debug("get_projects: project_services=%s" % json.dumps(project_services))
 
             # If project services dict is not empty, record in projects dict
             if len(project_services) > 0:
 
                 project_services_keys = [*project_services]
-                log.info("get_projects: project_services_keys=%s" % json.dumps(project_services_keys))
+                log.debug("get_projects: project_services_keys=%s" % json.dumps(project_services_keys))
 
                 recorded_project = projects.get(project_name, dict())
                 recorded_services_keys = recorded_project.get('services', [])
@@ -680,7 +680,7 @@ def get_projects(saml):
                 # Record new/updated project in set of user projects
                 projects[project_name] = recorded_project
 
-    log.info("get_projects: projects=%s" % json.dumps(projects))
+    log.debug("get_projects: projects=%s" % json.dumps(projects))
 
     return projects
 
@@ -714,7 +714,7 @@ def get_services(projects):
         if (not services.get(service_key)):
             services[service_key] = dict()
 
-    log.info("get_services: services=%s" % json.dumps(services))
+    log.debug("get_services: services=%s" % json.dumps(services))
 
     return services
 
@@ -741,7 +741,7 @@ def fdweGetEnvironment():
         environment = "TEST"
     else:
         environment = "DEV"
-    log.info("fdweGetEnvironment: environment=%s" % environment)
+    log.debug("fdweGetEnvironment: environment=%s" % environment)
     return environment
 
 
@@ -885,7 +885,7 @@ def login():
         "fdwe_url": config.get('FDWE_URL')
     }
 
-    log.info("login: context: %s" % json.dumps(context))
+    log.debug("login: context: %s" % json.dumps(context))
 
     return render_template('login.html', **context)
 
@@ -1313,7 +1313,7 @@ def saml_attribute_consumer_service():
     for service_key in session['services'].keys():
         session['services'][service_key]['projects'] = []
 
-    log.info("acs: session=%s" % json.dumps(session))
+    log.debug("acs: session=%s" % json.dumps(session))
 
     fdweRecordEvent("LOGIN / %s / SUCCESS" % service)
 
@@ -1338,7 +1338,7 @@ def saml_single_logout_service():
     response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
     response.set_cookie("%s_fd_sso_session" % prefix, value='', domain=domain, max_age=0)
 
-    log.info("sls: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
+    log.debug("sls: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
 
     fdweRecordEvent("LOGOUT / AAI / SUCCESS")
 
