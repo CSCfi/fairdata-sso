@@ -300,7 +300,7 @@ def get_saml_auth(flask_request):
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
 
-    log.info("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % saml)
+    log.debug("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % saml)
 
     return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), saml)
 
