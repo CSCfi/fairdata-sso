@@ -67,6 +67,93 @@ info:
     It is recommended that the root URL of the SSO API be stored in a configuration variable and inserted into the snippet at both locations, so that the service code is configurable for each particular domain (i.e. `SSO_API="https://sso.fairdata.csc.fi"`).
 
     The Javascript snippet will check if the user has been notified yet regarding use of cookies, by checking if the `PREFIX_fd_sso_notifiction shown` domain cookie exists, and if not, will present the notification accordingly. When the user closes the notification, the snippet will create the `PREFIX_fd_sso_notification_shown` domain cookie which will expire after one year.
+
+    # SSO Session Object
+
+    The SSO session is encoded as a JSON object containing the following fields:
+
+    - **id**: A string containing the unique idenitifier of the session
+    - **initiating_service**: A string containing the token identifier of the service from which the session was initiated
+    - **language**: A string containing the token identifier of the language in which the session was initiated
+    - **initiated**: A string containing an ISO formatted datetime string indicating when the session was initiated
+    - **expiration**: A string containing an ISO formatted datetime string indicating when the session cookie will expire
+    - **exp**: An integer value corresponding to a unix time value indicating when the session cookie will expire
+    - **redirect_url**: A string containing the URL to which the client should be redirected after a successful authentication
+    - **authenticated_user**: A JSON object with details about the authenticated user containing the following fields:
+       - **id**: A string containing the username of the authenticated user
+       - **firstname**: A string containing the first name of the authenticated user
+       - **lastname**: A string containing the last name of the authenticated user
+       - **email**: A string containing the email address of the authenticated user
+       - **identity_provider**: A string containing the token identifier of the identity provider via which the user was authenticated
+       - **organization**: A JSON object with details about the authenticated user's organization containing the following fields:
+          - **id**: A string containing the authenticated user's organization identifier
+          - **name**: A string containing the authenticated user's organization presentation name
+    - **fairdata_user**: A JSON object with details about the Fairdata / CSC user account containing the following fields:
+       - **id**: A string containing the CSC username of the authenticated user
+       - **locked**: A boolean value indicating whether the user's CSC account is locked
+    - **projects**: A JSON object containing one or more fields corresponding to the names of all projects of which the authenticated user is a member, where the value of each project name field is a JSON object containing zero or more of the following fields:
+       - **services**: An array of service token strings, representing the services for which the project has use rights for the authenticated user
+    - **services**: A JSON object containing one or more fields corresponding to the names of all services which the authenticated user has use rights, where the value of each service name field is a JSON object containing zero or more of the following fields:
+       - **projects**: An array of project name strings, representing the projects which have use rights to the service for the authenticated user
+
+    **NOTE:** Any other fields which may be present in the session object are either experimental, or are for testing or debugging, and should **NOT** be used by any service integrating with the Fairdata SSO.
+
+    Example:
+
+    ```
+    {
+        "id": "2021-12-01-084520e41caf971a8c481bbab5787454b3a196",
+        "initiating_service": "IDA",
+        "language": "en",
+        "initiated": "2021-12-01T08:45:20Z",
+        "expiration": "2021-12-02T08:45:20Z",
+        "exp": 1638434720,
+        "redirect_url": "https://ida.fairdata.fi/",
+        "authenticated_user": {
+            "id": "john_doe",
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@csc.fi",
+            "identity_provider": "CSCID",
+            "organization": {
+                "id": "csc.fi",
+                "name": "CSC - Tieteen tietotekniikan keskus Oy"
+            }
+        },
+        "fairdata_user": {
+            "id": "john_doe",
+            "locked": false
+        },
+        "projects": {
+            "12345": {
+                "services": [
+                    "ETSIN",
+                    "IDA",
+                    "QVAIN"
+                ]
+            }
+        },
+        "services": {
+            "AVAA": {},
+            "ETSIN": {
+                "projects": [
+                    "12345"
+                ]
+            },
+            "IDA": {
+                "projects": [
+                    "12345"
+                ]
+            },
+            "QVAIN": {
+                "projects": [
+                    "12345"
+                ]
+            }
+        }
+    }
+    ```
+
 schemes:
   - https
 basepath: /
