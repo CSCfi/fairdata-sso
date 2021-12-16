@@ -1034,7 +1034,7 @@ def authentication():
 
     log.debug("authentication: AUTH: %s" % repr(auth.get_settings().get_sp_metadata()))
 
-    saml_redirect_url = urllib.parse.quote(request.args.get('relay', request.url))
+    saml_redirect_url = urllib.parse.quote(request.args.get('relay', request.base_url))
 
     log.debug("authentication: SAML REDIRECT URL: %s" % urllib.parse.unquote(saml_redirect_url))
 
