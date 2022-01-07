@@ -33,6 +33,46 @@ The service can be managed using the `systemctl` command. E.g.:
     systemctl stop fairdata-sso
     systemctl restart fairdata-sso
 
+## Managing Python Dependencies
+
+This repository uses Poetry for managing Python dependencies securely. Poetry generates very strict requirements.txt files, while enabling easy update of minor security and bug patches from pip with `pyproject.toml` defined version constraints. Generated requirements.txt is guaranteed to lock all dependencies and sub-dependencies. Poetry file `poetry.lock` stores hashes of all dependencies, if the integrity of the dependency-tree ever needs to be verified. 
+
+For full documentation of Poetry, visit the [official documentation](https://python-poetry.org/docs/)
+
+### Install Poetry
+
+First, install [pipx](https://github.com/pypa/pipx). Pipx is a system-wide Python application installer, that creates virtualenv for every package installed and automatically includes them to path. It can also uninstall any package installed using pipx.  With pipx installed, install Poetry with `pipx install poetry`. After installation, you will have poetry available system-wide. 
+
+### Installing Dependencies
+
+With virtualenv activated, you can install dependencies either with `pip install -r requirements.txt` or `poetry install`, if you have poetry in the system path.
+
+### Adding Dependencies
+
+Use `poetry add <dependency>` to install new dependency. This will also include the dependency into `pyproject.toml` and `poetry.lock` files. 
+
+Use `poetry add -D <dependency>` to install development dependency.
+
+### Removing Dependencies
+
+Use `poetry remove (-D) <dependency>` to remove the dependency from virtualenv and from poetry files.
+
+### Updating Dependencies
+
+Use `poetry update` to update all dependencies, respecting the version constraints set in `pyproject.toml` file.
+
+### Updating the requirements.txt
+
+Whenever the `pyproject.toml` or `poetry.lock` files have any changes, remember to update requirements.txt trough Poetry with
+
+`poetry export --without-hashes -o requirements.txt`
+
+Use the `--dev` option if you want to include developer dependencies in the output file.
+
+### Updating the pyproject.toml manually
+
+If you need to change any definitions in pyproject.toml, run `poetry update` after any changes. This will install any changed package version and update `poetry.lock` file.
+
 # Development with Docker (Linux / Mac)
 
 Repository includes assets for setting up local development environment with
