@@ -21,7 +21,7 @@ from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
 from flask_seasurf import SeaSurf
 from flask_talisman import Talisman
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
+from python3_saml.src.onelogin.saml2.auth import OneLogin_Saml2_Auth
 from subprocess import Popen, PIPE
 
 config = json.load(open(os.environ.get('SSO_CONFIG')))
@@ -1022,7 +1022,7 @@ def authentication():
 
     log.debug("authentication: AUTH: %s" % repr(auth.get_settings().get_sp_metadata()))
 
-    saml_redirect_url = urllib.parse.quote(request.args.get('relay', request.url))
+    saml_redirect_url = urllib.parse.quote(request.args.get('relay', request.base_url))
 
     log.debug("authentication: SAML REDIRECT URL: %s" % urllib.parse.unquote(saml_redirect_url))
 
