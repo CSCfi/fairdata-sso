@@ -351,6 +351,13 @@ class OneLogin_Saml2_Auth(object):
         self.__last_request_id = authn_request.get_id()
 
         saml_request = authn_request.get_request()
+
+        with open("/var/log/fairdata-sso-onelogin.log", "a") as errlog:
+            errlog.write("authn_request.get_xml(): " + str(authn_request.get_xml()) + "\n")
+            errlog.write("authn_request.get_id(): " + str(authn_request.get_id()) +  "\n")
+            errlog.write("authn_request.get_request(): " + str(authn_request.get_request()) +  "\n")
+            errlog.close()
+
         parameters = {'SAMLRequest': saml_request}
 
         if return_to is not None:
