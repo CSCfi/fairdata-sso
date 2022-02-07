@@ -293,9 +293,11 @@ def get_saml_auth(flask_request):
     """
 
     idp = flask_request.values.get('idp')
+    log.debug("1) Inside get_saml_auth, this is idp=%s" % idp)
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
+        log.debug("1) Inside get_saml_auth, this is env=%s" % env)
         saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
@@ -305,21 +307,26 @@ def get_saml_auth(flask_request):
     return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), saml)
 
 
-def init_saml_auth(saml_prepared_flask_request):
+def init_saml_auth(saml_prepared_flask_request, idp):
     """
     Used by saml library.
 
     Arguments:
         saml_prepared_flask_request [] -- []
+        idp -- IDP to be used
 
     Returns:
         [] -- []
     """
 
-    idp = saml_prepared_flask_request.get('idp')
+    # It would appear that this idp variable is always "None"
+    # idp = saml_prepared_flask_request.get('idp')
+
+    log.debug("3) Inside init_saml_auth, this is idp=%s" % idp)
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
+        log.debug("3) Inside init_saml_auth, this is env=%s" % env)
         saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
@@ -1077,6 +1084,8 @@ def saml_attribute_consumer_service():
 
     if ((test_environment or demo_environment or debug) and request.values.get('testing') == 'true'):
 
+        log.debug("In testing, demo, or debug")
+
         service = request.values.get("fd_sso_initiating_service")
 
         if not service:
@@ -1161,6 +1170,7 @@ def saml_attribute_consumer_service():
             return response
 
     else:
+        log.debug("NOT in testing, demo, or debug -> 'production' type environment...")
 
         auth_init = request.cookies.get("%s_fd_sso_authenticate" % prefix)
 
@@ -1205,6 +1215,8 @@ def saml_attribute_consumer_service():
             response.mimetype = "text/plain"
             return response
 
+        log.debug("2) Inside saml_attribute_consumer_service(), idp=%s" % idp)
+
         language = auth_init.get('language')
     
         if not language:
@@ -1212,8 +1224,13 @@ def saml_attribute_consumer_service():
             response.mimetype = "text/plain"
             return response
 
+        log.debug("2) Inside saml_attribute_consumer_service(), before prepare_flask_request_for_saml... request=%s" % request)
+
         req = prepare_flask_request_for_saml(request)
-        auth = init_saml_auth(req)
+
+        log.debug("2) Inside saml_attribute_consumer_service(), will send req to init_saml_auth... req=%s" % req)
+
+        auth = init_saml_auth(req, idp)
         auth.process_response()
 
         # Build SAML authentication result dict
