@@ -75,10 +75,10 @@ csp = {
 csp_swagger = {
     'default-src': [
         "'self'",
+        "'unsafe-inline'",
         'cdnjs.cloudflare.com',
         'fonts.googleapis.com',
-        'fonts.gstatic.com',
-        "'unsafe-inline'"
+        'fonts.gstatic.com'
     ],
     'img-src': '* data:'
 }

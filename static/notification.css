@@ -1,55 +1,44 @@
 .notification-banner {
+    font: 500 16px/25px "Lato" !important;
     display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 999;
-    background-color: #f3f2f1;
-    padding: 1rem 2rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.notification-banner .actions {
-    font-family: Arial, Helvetica, sans-serif;
-    flex-grow: 0;
-    padding: 0;
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
-    cursor: pointer;
-}
-
-.notification-banner .actions svg {
     position: absolute;
-    transition: opacity .15s linear;
-}
-
-.notification-banner .actions #closeHover {
-    opacity: 0;
+    float: left;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 325px;
+    width: 375px;
+    z-index: 999;
+    background-color: #EAF4F8;
+    padding: 1rem 2rem;
+    box-shadow: 2px 2px 16px rgba(0, 117, 163, 0.2), -2px -2px 16px rgba(0, 117, 163, 0.2);
 }
 
 .notification-banner .text-content {
+    padding-top: 15px;
     flex-grow: 3;
     max-width: 730px;
     margin-right: .3rem;
 }
 
-.notification-cls-1,
-.notification-cls-3 {
-    fill: none
+.notification-banner .heading {
+    font-weight: bold;
+    font-size: 150%;
 }
 
-.notification-cls-1 {
-    stroke: #000
+.notification-banner .actions {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    cursor: pointer;
 }
 
-.notification-cls-1-1 {
-    fill: #03881c
-}
-
-.notification-cls-2 {
-    stroke: none
+.notification-banner .actions #closeButton {
+    background-color: #007fad;
+    font-size: 110%;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color: white;
+    border-radius: 5px;
 }
