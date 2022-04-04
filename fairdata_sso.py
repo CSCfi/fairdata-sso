@@ -157,6 +157,11 @@ IDP = {
         'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
         'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
         'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+    },
+    'DEV': {
+        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
+        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
+        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
     }
 }
 
