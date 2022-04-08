@@ -20,11 +20,11 @@ run_integration_tests:
     name: $CI_COMMIT_BRANCH
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test"'
-    - if: '$CI_COMMIT_BRANCH == "stable"'
-    - if: '$CI_COMMIT_BRANCH == "demo"'
-    - if: '$CI_COMMIT_BRANCH == "staging"'
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "test"'
+#    - if: '$CI_COMMIT_BRANCH == "stable"'
+#    - if: '$CI_COMMIT_BRANCH == "demo"'
+#    - if: '$CI_COMMIT_BRANCH == "staging"'
 
 sonarqube-check:
   tags:
