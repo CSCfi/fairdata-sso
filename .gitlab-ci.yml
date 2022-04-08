@@ -21,8 +21,10 @@ run_integration_tests:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|demo|stable|staging|test)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
+    - if: '$CI_COMMIT_BRANCH == "test"'
+    - if: '$CI_COMMIT_BRANCH == "stable"'
+    - if: '$CI_COMMIT_BRANCH == "demo"'
+    - if: '$CI_COMMIT_BRANCH == "staging"'
 
 sonarqube-check:
   tags:
