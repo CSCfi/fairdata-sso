@@ -21,7 +21,7 @@ from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
 from flask_seasurf import SeaSurf
 from flask_talisman import Talisman
-from python3_saml.src.onelogin.saml2.auth import OneLogin_Saml2_Auth
+from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from subprocess import Popen, PIPE
 
 config = json.load(open(os.environ.get('SSO_CONFIG')))
