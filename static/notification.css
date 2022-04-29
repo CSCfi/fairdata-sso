@@ -1,4 +1,5 @@
 .notification-banner {
+    color: black;
     font: 500 16px/25px "Lato" !important;
     display: flex;
     position: absolute;
@@ -41,4 +42,17 @@
     padding-right: 20px;
     color: white;
     border-radius: 5px;
+}
+
+.notification-banner button {
+    border: none;
+    font-weight: bold;
+}
+
+.notification-banner b {
+    font-weight: bold;
+}
+
+.notification-banner a {
+    text-decoration: none;
 }
