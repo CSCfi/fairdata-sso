@@ -27,11 +27,14 @@ After all of the above is done, setup as a service is done once by running the s
 which also will run the `initialize-venv` script.
 
 The service can be managed using the `systemctl` command. E.g.:
+```
+systemctl status fairdata-sso
+systemctl start fairdata-sso
+systemctl stop fairdata-sso
+systemctl restart fairdata-sso
+```
 
-    systemctl status fairdata-sso
-    systemctl start fairdata-sso
-    systemctl stop fairdata-sso
-    systemctl restart fairdata-sso
+# Dependency management
 
 ## Managing Python Dependencies
 
@@ -43,31 +46,45 @@ For full documentation of Poetry, visit the [official documentation](https://pyt
 
 First, install [pipx](https://github.com/pypa/pipx). Pipx is a system-wide Python application installer, that creates virtualenv for every package installed and automatically includes them to path. It can also uninstall any package installed using pipx.  With pipx installed, install Poetry with `pipx install poetry`. After installation, you will have poetry available system-wide. 
 
-### Installing Dependencies
+### Installing dependencies
 
 With virtualenv activated, you can install dependencies either with `pip install -r requirements.txt` or `poetry install`, if you have poetry in the system path.
 
-### Adding Dependencies
+### Adding dependencies
 
-Use `poetry add <dependency>` to install new dependency. This will also include the dependency into `pyproject.toml` and `poetry.lock` files. 
+Adding a dependency will automatically add the dependency to the `pyproject.toml` and `poetry.lock` files. 
 
-Use `poetry add -D <dependency>` to install development dependency.
+#### Adding normal dependency and updating requirements.txt
+```
+# Add new dependency
+poetry add {{ dependency }}
 
-### Removing Dependencies
+# Update requirements.txt
+poetry export --without-hashes -o requirements.txt
+```
 
-Use `poetry remove (-D) <dependency>` to remove the dependency from virtualenv and from poetry files.
+#### Adding development dependency
+```
+# Add development dependency
+poetry add -D {{ dependency }}
 
-### Updating Dependencies
+# Update requirements.txt including dev dependencies
+poetry export --without-hashes -o --dev requirements.txt
+```
+
+### Removing dependencies
+
+```
+# Remove dependency
+poetry remove {{ dependency }}
+
+# Remove development dependency
+poetry remove -D {{ dependency }}
+```
+
+### Updating dependencies
 
 Use `poetry update` to update all dependencies, respecting the version constraints set in `pyproject.toml` file.
-
-### Updating the requirements.txt
-
-Whenever the `pyproject.toml` or `poetry.lock` files have any changes, remember to update requirements.txt trough Poetry with
-
-`poetry export --without-hashes -o requirements.txt`
-
-Use the `--dev` option if you want to include developer dependencies in the output file.
 
 ### Updating the pyproject.toml manually
 
