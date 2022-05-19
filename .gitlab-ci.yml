@@ -3,11 +3,12 @@
 #  INSTANCE: sso-$CI_COMMIT_REF_SLUG
 #  VERSION: $CI_COMMIT_BRANCH
 
-#include:
-#  - project: fairdata/fairdata-ci
-#    ref: staging
-#    file:
-#      - /templates/deploy.yml
+include:
+  - project: fairdata/fairdata-ci
+    ref: master
+    file:
+      - /templates/deploy.yml
+# To include later
 #      - /templates/review.yml
 
 workflow:
@@ -18,16 +19,15 @@ workflow:
 stages:
   - deploy
   - test
-#  - clean
 
-# Deployment of application code
-deploy:
-  stage: deploy
-  environment: $CI_COMMIT_REF_NAME
-  tags:
-    - shell
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version_app=$CI_COMMIT_REF_NAME"
+# Replaced by definition in fairdata/fairdata-ci (branch)
+#deploy:
+#  stage: deploy
+#  environment: $CI_COMMIT_REF_NAME
+#  tags:
+#    - shell
+#  script:
+#    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version_app=$CI_COMMIT_REF_NAME"
 
 # Test of application code
 run_integration_tests:
