@@ -8,6 +8,7 @@ include:
     ref: master
     file:
       - /templates/deploy.yml
+      - /templates/test_fairdata_e2e.yml
 # To include later
 #      - /templates/review.yml
 
@@ -17,8 +18,12 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
 
 stages:
+  # Deploy to target environment
   - deploy
+  # Test
   - test
+  # Test fairdata-e2e tests (Cypress-based)
+  - test_fairdata_e2e
 
 # Replaced by definition in fairdata/fairdata-ci (branch)
 #deploy:
