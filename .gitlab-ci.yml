@@ -38,7 +38,7 @@ stages:
 run_integration_tests:
   stage: test
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK
+    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
 
 sonarqube-check:
   tags:
