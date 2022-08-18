@@ -32,14 +32,13 @@ SSO_SAML_CONFIG="$SSO_ROOT/saml.json"
 TEST_LOG="$SSO_ROOT/tests/test.log"
 
 #--------------------------------------------------------------------------------
-# Verify that we are in a test environment or debug mode is active
+# Verify that we are in a non-production environment or debug mode is active
 
-TEST_ENVIRONMENT=`cat "$SSO_CONFIG" | grep '"ENVIRONMENT"' | grep '"TEST"'`
-DEMO_ENVIRONMENT=`cat "$SSO_CONFIG" | grep '"ENVIRONMENT"' | grep '"DEMO"'`
+PRODUCTION=`cat "$SSO_CONFIG" | grep '"ENVIRONMENT"' | grep '"PRODUCTION"'`
 DEBUG=`cat "$SSO_CONFIG" | grep '"DEBUG"' | grep 'true'`
 
-if [ "${TEST_ENVIRONMENT}${DEMO_ENVIRONMENT}${DEBUG}" == "" ]; then
-    echo "This script can only be run in a test or demo environment or if debug mode is active. Aborting." >&2
+if [ "${PRODUCTION}" -a "${DEBUG}" = "" ]; then
+    echo "This script can only be run in a non-production environment or if debug mode is active. Aborting." >&2
     exit 1
 fi
 

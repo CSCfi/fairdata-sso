@@ -25,7 +25,7 @@ from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from subprocess import Popen, PIPE
 
 config = json.load(open(os.environ.get('SSO_CONFIG')))
-errorMessages = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
+error_messages = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
 saml = json.load(open(os.environ.get('SSO_SAML_CONFIG')))
 
 services = json.load(open("%s/static/services.json" % os.environ.get('SSO_ROOT')))
@@ -36,8 +36,7 @@ AVAILABLE_LANGUAGES = [ 'en', 'fi', 'sv' ]
 domain = config['DOMAIN']
 prefix = re.sub(r'[^a-zA-Z0-9]', '_', domain)
 debug = config.get('DEBUG')
-test_environment = config.get('ENVIRONMENT') == 'TEST'
-demo_environment = config.get('ENVIRONMENT') == 'DEMO'
+not_production = config.get('ENVIRONMENT') != 'PRODUCTION'
 
 
 class localFlask(Flask):
@@ -106,7 +105,6 @@ if debug:
     log.debug("DOMAIN: %s" % domain)
     log.debug("PREFIX: %s" % prefix)
     log.debug("ENVIRONMENT: %s" % config.get('ENVIRONMENT'))
-    log.debug("TEST ENVIRONMENT: %s" % test_environment)
     log.debug("NO_HAKA: %s" % config.get('NO_HAKA'))
 
 # Remove HAKA authentication option if excluded in configuration, e.g. in DEMO environment
@@ -869,7 +867,7 @@ def login():
 
     try:
         for error in request.args.getlist('errors'):
-            errors_data.append(errorMessages[error])
+            errors_data.append(error_messages[error])
     except:
         pass
 
@@ -1087,7 +1085,7 @@ def saml_attribute_consumer_service():
 
     language = 'en'
 
-    if ((test_environment or demo_environment or debug) and request.values.get('testing') == 'true'):
+    if ((not_production or debug) and request.values.get('testing') == 'true'):
 
         log.debug("In testing, demo, or debug")
 
@@ -1175,7 +1173,7 @@ def saml_attribute_consumer_service():
             return response
 
     else:
-        log.debug("NOT in testing, demo, or debug -> 'production' type environment...")
+        log.debug("NOT in dev, testing, demo, or debug -> 'production' type environment...")
 
         auth_init = request.cookies.get("%s_fd_sso_authenticate" % prefix)
 
