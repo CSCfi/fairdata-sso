@@ -8,7 +8,7 @@ include:
     ref: master
     file:
       - /templates/deploy.yml
-      - /templates/test_fairdata_e2e.yml
+#      - /templates/test_fairdata_e2e.yml
 # To include later
 #      - /templates/review.yml
 
@@ -23,7 +23,7 @@ stages:
   # Test
   - test
   # Test fairdata-e2e tests (Cypress-based)
-  - test_fairdata_e2e
+#  - test_fairdata_e2e
 
 # Replaced by definition in fairdata/fairdata-ci (branch)
 #deploy:
