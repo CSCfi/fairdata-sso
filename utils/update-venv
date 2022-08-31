@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PYTHON="/opt/fairdata/python3/bin/python3.8"
+PYTHON="/opt/fairdata/python3/bin/python"
 
 ID=`id -u -n`
 if [ "$ID" != "root" ]; then
