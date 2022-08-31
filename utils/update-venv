@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
 
-PYTHON="/opt/fairdata/python3/bin/python"
-
 ID=`id -u -n`
 if [ "$ID" != "root" ]; then
     echo "You must execute this script as root" >&2
-    exit 1
-fi
-
-if [ ! -x $PYTHON ]; then
-    echo "$PYTHON does not exist!" >&2
     exit 1
 fi
 
