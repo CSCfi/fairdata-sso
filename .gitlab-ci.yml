@@ -1,66 +1,96 @@
-# Disabled for now, but to do: re-enable once working
-#variables:
-#  INSTANCE: sso-$CI_COMMIT_REF_SLUG
-#  VERSION: $CI_COMMIT_BRANCH
+variables:
+  GITLAB_ENV: test
+  SERVICE: ${SERVICE}
 
-include:
-  - project: fairdata/fairdata-ci
-    ref: master
-    file:
-      - /templates/deploy.yml
-#      - /templates/test_fairdata_e2e.yml
-# To include later
-#      - /templates/review.yml
+default:
+  tags:
+    - shell
 
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|demo|stable|staging|test)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
+# ~~~~~~~~~~~~~~~~~~~~~~ #
 
 stages:
-  # Deploy to target environment
-  - deploy
-  # Test
+  # Only for feature branch merge requests, not for master or release
+  - deploy-feature-branch
+  # fairdata-e2e and sonarqube 
   - test
-  # Test fairdata-e2e tests (Cypress-based)
-#  - test_fairdata_e2e
+  # Deploy to environment
+  - deploy
+  # Run integration tests
+  - integration-test
+  # Clean feature branch from staging
+#  - clean
 
-# Replaced by definition in fairdata/fairdata-ci (branch)
-#deploy:
-#  stage: deploy
-#  environment: $CI_COMMIT_REF_NAME
-#  tags:
-#    - shell
-#  script:
-#    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version_app=$CI_COMMIT_REF_NAME"
+# ~~~~~~~~~~~~~~~~~~~~~~ #
 
-# Test of application code
-run_integration_tests:
-  stage: test
+deploy-feature-to-staging:
+  stage: deploy-feature-branch
+  environment: staging
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e repo_version=${CI_COMMIT_REF_NAME} --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+    - if: $CI_PIPELINE_SOURCE !~ /^(web)$/
+
+# ~~~~~~~~~~~~~~~~~~~~~~ #
 
 sonarqube-check:
   tags:
     - docker
   stage: test
-  image: 
+  image:
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
   variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
   cache:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: 
+  script:
     - sonar-scanner
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
+
+fairdata-e2e:
+  stage: test
+  trigger: fairdata/fairdata-ci
   allow_failure: true
-  only:
-    - merge_requests
-    - master
-    - test
-    - staging
-    - stable
-    - demo
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+
+# ~~~~~~~~~~~~~~~~~~~~~~ #
+
+deploy:
+  stage: deploy
+  environment: ${GITLAB_ENV}
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+# ~~~~~~~~~~~~~~~~~~~~~~ #
+
+run-integration-tests:
+  stage: integration-test
+  environment: ${GITLAB_ENV}
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
+    - if: $CI_COMMIT_BRANCH !~ /^(master)$/ && $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+# Re-enable if this is really needed.
+# clean-staging:
+#   stage: clean
+#   needs: ["deploy-feature-to-staging"]
+#   script:
+#     - ansible-playbook -i $ANSIBLE_INVENTORY_STAGING $DELETE_PLAYBOOK -e repo_version=${CI_COMMIT_REF_NAME} --vault-id $ANSIBLE_VAULT_FILE
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master)$/
