@@ -9,7 +9,7 @@ default:
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
 stages:
-  # Only for feature branch merge requests, not for master or release
+  # Only for feature branch merge requests to master or release
   - deploy-feature-branch
   # fairdata-e2e and sonarqube 
   - test
@@ -30,8 +30,9 @@ deploy-feature-to-staging:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
     - if: $CI_PIPELINE_SOURCE !~ /^(web)$/
-    - if: $CI_COMMIT_BRANCH !~ /^(master|release)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
       when: never
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
