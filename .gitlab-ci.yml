@@ -30,6 +30,7 @@ deploy-feature-to-staging:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
     - if: $CI_PIPELINE_SOURCE !~ /^(web)$/
+    - if: $CI_COMMIT_BRANCH !~ /^(master|release)$/
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
