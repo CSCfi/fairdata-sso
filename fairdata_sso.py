@@ -122,8 +122,8 @@ SAML_ATTRIBUTES = {
     'last_name':     'urn:oid:2.5.4.4',
     'email':         'urn:oid:0.9.2342.19200300.100.1.3',
     'haka_id':       'urn:oid:1.3.6.1.4.1.5923.1.1.1.6',
-    'haka_org_id':   'urn:oid:1.3.6.1.4.1.25178.1.2.9',
-    'haka_org_name': 'urn:oid:1.3.6.1.4.1.16161.4.0.88',
+    'home_org_id':   'urn:oid:1.3.6.1.4.1.25178.1.2.9',
+    'home_org_name': 'urn:oid:1.3.6.1.4.1.16161.4.0.88',
     'csc_username':  'urn:oid:1.3.6.1.4.1.16161.4.0.53',
     'idm_groups':    'urn:oid:1.3.6.1.4.1.8057.2.80.26'
 }
@@ -578,7 +578,7 @@ def get_user_groups(saml):
 
 def get_user_home_organization_id(saml):
     """
-    Get the HAKA organization id from the saml userdata.
+    Get the home organization id from the saml userdata.
 
     Arguments:
         saml [dict] -- SAML authentication response details
@@ -590,7 +590,7 @@ def get_user_home_organization_id(saml):
     if not is_authenticated(saml) or 'samlUserdata' not in saml:
         return None
 
-    home_organization = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('haka_org_id', None), False)
+    home_organization = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('home_org_id', None), False)
 
     return home_organization[0] if home_organization else not_found('home_organization', saml)
 
@@ -599,7 +599,7 @@ def get_user_home_organization_id(saml):
 
 def get_user_home_organization_name(saml):
     """
-    Get the HAKA organization name from the saml userdata.
+    Get the home organization name from the saml userdata.
 
     Arguments:
         saml [dict] -- SAML authentication response details
@@ -611,7 +611,7 @@ def get_user_home_organization_name(saml):
     if not is_authenticated(saml) or 'samlUserdata' not in saml:
         return None
 
-    home_organization_id = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('haka_org_name', None), False)
+    home_organization_id = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('home_org_name', None), False)
 
     return home_organization_id[0] if home_organization_id else not_found('home_organization_id', saml)
 
