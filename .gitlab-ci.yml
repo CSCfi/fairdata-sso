@@ -9,8 +9,6 @@ default:
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
 stages:
-  # Only for feature branch merge requests to master or release
-  - deploy-feature-branch
   # fairdata-e2e and sonarqube 
   - test
   # Deploy to environment
@@ -22,18 +20,16 @@ stages:
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
-deploy-feature-to-staging:
-  stage: deploy-feature-branch
-  environment: staging
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e repo_version=${CI_COMMIT_REF_NAME} --vault-id $ANSIBLE_VAULT_FILE
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-      when: never
-    - if: $CI_PIPELINE_SOURCE !~ /^(web)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
-
 # ~~~~~~~~~~~~~~~~~~~~~~ #
+
+include:
+  - project: fairdata/fairdata-ci
+    ref: master
+    file:
+      - /templates/deploy.yml
+    rules:
+      - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+      - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
 sonarqube-check:
   tags:
@@ -65,17 +61,6 @@ fairdata-e2e:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
-
-# ~~~~~~~~~~~~~~~~~~~~~~ #
-
-deploy:
-  stage: deploy
-  environment: ${GITLAB_ENV}
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
-    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
