@@ -13,6 +13,7 @@ project.sublime-project
 *.swp
 tags
 __pycache__/
+/log
 /tmp
 /venv
 /TODO

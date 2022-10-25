@@ -186,6 +186,8 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertIsNotNone(session_data_string)
         session_data = jwt.decode(session_data_string, self.key, algorithms=['HS256'])
         #print(json.dumps(session_data, indent=4, sort_keys=True))
+        qvain_admin_orgs = "_%s_" % '_'.join(sorted(session_data['services']['QVAIN']['admin_organizations']))
+        self.assertEqual(qvain_admin_orgs, '_aalto.fi_csc.fi_')
         services = session_data.get('services')
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))

@@ -26,7 +26,9 @@ include:
   - project: fairdata/fairdata-ci
     ref: master
     file:
-      - /templates/deploy.yml
+      - /templates/deploy/deploy.yml
+    # Can be enabled if needed, but dynamic deployments are done via the above file
+    #  - /templates/deploy/deploy-feature-branch.yml
     rules:
       - if: $CI_COMMIT_BRANCH =~ /^(master)$/
       - if: $CI_PIPELINE_SOURCE =~ /^(web)$/

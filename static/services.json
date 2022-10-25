@@ -53,7 +53,7 @@
         "short_name": "Etsin",
         "name": {
             "en": "Etsin - Research Data Finder",
-            "fi": "Etsin – Tutkimusaineistojen hakupalvelu",
+            "fi": "Etsin - Tutkimusaineistojen hakupalvelu",
             "sv": "Etsin - Söktjänst för forskningsdata"
         },
         "home": "https://etsin.fairdata.fi/",
@@ -91,7 +91,7 @@
         "short_name": "Qvain",
         "name": {
             "en": "Qvain - Research Dataset Description Tool",
-            "fi": "Qvain – Tutkimusaineiston metatietotyökalu",
+            "fi": "Qvain - Tutkimusaineiston metatietotyökalu",
             "sv": "Qvain - Metadataverktyg för forskningsdata"
         },
         "home": "https://qvain.fairdata.fi/",
@@ -128,9 +128,9 @@
     "AVAA": {
         "short_name": "AVAA",
         "name": {
-            "en": "AVAA - ...",
-            "fi": "AVAA - ...",
-            "sv": "AVAA - ..."
+            "en": "AVAA - Open Data Publishing Platform",
+            "fi": "AVAA - Avointen aineistojen julkaisualusta",
+            "sv": "AVAA - Publiceringsplattform för öppen data"
         },
         "home": "https://avaa.fairdata.fi/",
         "guidance_text": {
@@ -166,9 +166,9 @@
     "PAS": {
         "short_name": "PAS",
         "name": {
-            "en": "PAS - ...",
-            "fi": "PAS - ...",
-            "sv": "PAS - ..."
+            "en": "Digital Preservation Service for Research Data",
+            "fi": "Fairdata PAS-palvelu",
+            "sv": "LDB-tjänsten för forskningsdata"
         },
         "home": "https://manage.fairdata.fi/",
         "guidance_text": {

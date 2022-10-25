@@ -89,8 +89,13 @@ talisman = Talisman(
     feature_policy={'geolocation': '\'none\''}
 )
 
+loglevel = logging.INFO
+
+if debug:
+    loglevel = logging.DEBUG
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=loglevel,
     filename="%s/%s.log" % (config['LOG_ROOT'], domain),
     format='%(asctime)s %(name)s %(levelname)s: %(message)s',
     datefmt="%Y-%m-%dT%H:%M:%SZ")
@@ -100,7 +105,6 @@ logging.Formatter.converter = time.gmtime
 log = app.logger
 
 if debug:
-    logging.basicConfig(level=logging.DEBUG)
     log.debug("DEBUG LOGGING ON")
     log.debug("DOMAIN: %s" % domain)
     log.debug("PREFIX: %s" % prefix)
@@ -236,8 +240,16 @@ def initiate_session(service, idp, saml):
         fairdata_user['locked'] = has_locked_CSC_account(saml)
         session['fairdata_user'] = fairdata_user
 
-    session['projects'] = get_projects(saml)
-    session['services'] = get_services(session['projects'])
+    groups = get_user_groups(saml) or []
+
+    projects = get_projects(groups)
+    services = get_services(projects)
+
+    if services.get('QVAIN'):
+        services['QVAIN']['admin_organizations'] = get_qvain_admin_organizations(groups)
+
+    session['projects'] = projects
+    session['services'] = services
 
     log.info("initiate_session: %s" % json.dumps(session))
 
@@ -618,20 +630,18 @@ def get_user_home_organization_name(saml):
     return None
 
 
-def get_projects(saml):
+def get_projects(groups):
     """
     Get all projects to which the user belongs, and for each project, which services the user can access for that project.
 
     Arguments:
-        saml [dict] -- SAML authentication response details
+        groups [list] -- list of groups returned in SAML response
 
     Returns:
         [dict] -- The projects dict
     """
 
     projects = dict()
-
-    groups = get_user_groups(saml) or []
 
     log.debug("get_projects: groups=%s" % json.dumps(groups))
 
@@ -718,7 +728,7 @@ def get_services(projects):
             service['projects'] = projects
             services[service_name] = service
 
-    # Authenticated users are allowed to use Etsin, Qvain, and Metax (there are no special profiles for those)
+    # Authenticated users are allowed to use Etsin, Qvain, and AVAA (there are no special profiles for those)
 
     for service_key in [ 'ETSIN', 'QVAIN', 'AVAA' ]:
         if (not services.get(service_key)):
@@ -727,6 +737,51 @@ def get_services(projects):
     log.debug("get_services: services=%s" % json.dumps(services))
 
     return services
+
+
+def get_qvain_admin_organizations(groups):
+    """
+    Get all organizations for which the user has Qvain admin priveleges, if any
+
+    Arguments:
+        saml [dict] -- SAML authentication response details
+
+    Returns:
+        [list] -- The list of zero or more organizations
+    """
+
+    organizations = list()
+
+    log.debug("get_qvain_admin_organizations: groups=%s" % json.dumps(groups))
+
+    for group in groups:
+
+        log.debug("get_qvain_admin_organizations: group=%s" % json.dumps(group))
+
+        # Check for colon in group string, skip group
+        try:
+            i = group.index(':')
+        except:
+            i = -1
+
+        # We only care about groups with a colon, which separates profile name from project or organization name
+        if i > 0:
+
+            # Extract profile name preceeding colon
+            profile_name = group[:i]
+
+            # If special Qvain Admin profile name, extract organization from group
+            if profile_name == 'QVAINADMIN':
+                organization = group[i+1:]
+
+                log.debug("get_qvain_admin_organizations: profile_name=%s organization=%s" % (profile_name, organization))
+
+                # Add organization to list of organizations
+                organizations.append(organization)
+
+    log.debug("get_qvain_admin_organizations: organizations=%s" % json.dumps(organizations))
+
+    return organizations
 
 
 def get_language(request):
@@ -819,6 +874,7 @@ def test():
     }
 
     return render_template('test.html', **context)
+
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -1082,6 +1138,8 @@ def saml_attribute_consumer_service():
     """
     The endpoint used by the SAML library on auth.login call from the AAI proxy after successful authentication.
     """
+
+    log.debug("saml_attribute_consumer_service")
 
     language = 'en'
 

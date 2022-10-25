@@ -7,7 +7,10 @@
             "IDA01:fd_test_multiproject_a",
             "IDA01:fd_test_multiproject_b",
             "TAITO01:fd_test_multiproject_a",
-            "PUHTI01:fd_test_multiproject_b"
+            "PUHTI01:fd_test_multiproject_b",
+            "QVAINADMIN:csc.fi",
+            "QVAINADMIN:aalto.fi",
+            "FOO:bar"
         ],
         "urn:oid:1.3.6.1.4.1.16161.4.0.53": [
             "fd_test_ida_user"
