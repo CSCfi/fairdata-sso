@@ -95,6 +95,7 @@ info:
        - **services**: An array of service token strings, representing the services for which the project has use rights for the authenticated user
     - **services**: A JSON object containing one or more fields corresponding to the names of all services which the authenticated user has use rights, where the value of each service name field is a JSON object containing zero or more of the following fields:
        - **projects**: An array of project name strings, representing the projects which have use rights to the service for the authenticated user
+       - **admin_organizations**: Only for Qvain. An array of organization domain strings, representing the organizations for which the authenticated user has administrator rights in Qvain
 
     **NOTE:** Any other fields which may be present in the session object are either experimental, or are for testing or debugging, and should **NOT** be used by any service integrating with the Fairdata SSO.
 
@@ -148,6 +149,9 @@ info:
             "QVAIN": {
                 "projects": [
                     "12345"
+                ],
+                "admin_organizations": [
+                    "csc.fi"
                 ]
             }
         }
