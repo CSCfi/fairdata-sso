@@ -6,65 +6,36 @@ default:
   tags:
     - shell
 
-# ~~~~~~~~~~~~~~~~~~~~~~ #
-
 stages:
-  # fairdata-e2e and sonarqube 
   - test
-  # Deploy to environment
   - deploy
-  # Run integration tests
+  - e2e-test
   - integration-test
-  # Clean feature branch from staging
-#  - clean
 
-# ~~~~~~~~~~~~~~~~~~~~~~ #
-
-# ~~~~~~~~~~~~~~~~~~~~~~ #
+# --------
 
 include:
   - project: fairdata/fairdata-ci
     ref: master
     file:
       - /templates/deploy/deploy.yml
-    # Can be enabled if needed, but dynamic deployments are done via the above file
-    #  - /templates/deploy/deploy-feature-branch.yml
+      - /templates/test/sonarqube.yml
     rules:
       - if: $CI_COMMIT_BRANCH =~ /^(master)$/
       - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-sonarqube-check:
-  tags:
-    - docker
-  stage: test
-  image:
-    name: sonarsource/sonar-scanner-cli:latest
-    entrypoint: [""]
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-    GIT_DEPTH: "0"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script:
-    - sonar-scanner
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      allow_failure: true
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
-      allow_failure: true
-    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
+# --------
 
 fairdata-e2e:
-  stage: test
+  stage: e2e-test
   trigger: fairdata/fairdata-ci
   allow_failure: true
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# ~~~~~~~~~~~~~~~~~~~~~~ #
+# --------
 
 run-integration-tests:
   stage: integration-test
@@ -74,12 +45,3 @@ run-integration-tests:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
     - if: $CI_COMMIT_BRANCH !~ /^(master)$/ && $CI_PIPELINE_SOURCE =~ /^(web)$/
-
-# Re-enable if this is really needed.
-# clean-staging:
-#   stage: clean
-#   needs: ["deploy-feature-to-staging"]
-#   script:
-#     - ansible-playbook -i $ANSIBLE_INVENTORY_STAGING $DELETE_PLAYBOOK -e repo_version=${CI_COMMIT_REF_NAME} --vault-id $ANSIBLE_VAULT_FILE
-#   rules:
-#     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master)$/
