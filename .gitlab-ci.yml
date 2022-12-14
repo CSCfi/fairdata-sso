@@ -7,24 +7,50 @@ default:
     - shell
 
 stages:
-  - test
   - deploy
+  - test
   - e2e-test
-  - integration-test
 
-# --------
+# ------------------------
 
 include:
   - project: fairdata/fairdata-ci
     ref: master
     file:
-      - /templates/deploy/deploy.yml
-      - /templates/test/sonarqube.yml
-    rules:
-      - if: $CI_COMMIT_BRANCH =~ /^(master)$/
-      - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+      - /templates/deploy/deploy-jobs.yaml
+      - /templates/test/test-jobs.yaml
 
-# --------
+# ------------------------
+
+deploy:
+  extends: .deploy-job
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+deploy-feature:
+  extends: .deploy-feature-job
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ------------------------
+
+sonarqube:
+  extends: .sonarqube-job
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+integration-test:
+  stage: test
+  environment: $GITLAB_ENV
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+# ------------------------
 
 fairdata-e2e:
   stage: e2e-test
@@ -32,16 +58,13 @@ fairdata-e2e:
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# --------
-
-run-integration-tests:
-  stage: integration-test
-  environment: ${GITLAB_ENV}
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+fairdata-e2e-feature:
+  stage: e2e-test
+  trigger: fairdata/fairdata-ci
+  variables:
+    GITLAB_ENV: staging
+  allow_failure: true
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
-    - if: $CI_COMMIT_BRANCH !~ /^(master)$/ && $CI_PIPELINE_SOURCE =~ /^(web)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
