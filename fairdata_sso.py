@@ -419,6 +419,10 @@ def has_locked_CSC_account(saml):
         [boolean] -- True/False
     """
 
+    # NOTE: currently, the authentication proxy will reject authentication when a user's account
+    # is locked so this function will never be true, but we will leave this functionality as-is
+    # in case the proxy behavior ever changes in the future and we need to handle such cases.
+
     return True if is_authenticated_CSC_user(saml) and saml.get('nsAccountLock', None) == 'true' else False
 
 
