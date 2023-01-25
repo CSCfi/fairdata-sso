@@ -59,7 +59,9 @@ class TestServiceIntegration(unittest.TestCase):
 
         print("--- Testing service integration")
 
-        print ("Verify correct response from /saml_metadata/")
+        # /saml_metadata
+
+        print ("Verify correct response from /saml_metadata")
         response = requests.get("%s/saml_metadata/" % self.config["SSO_API"], verify=False)
         self.assertEqual(response.status_code, 200)
         output = response.content.decode(sys.stdout.encoding)
@@ -167,6 +169,20 @@ class TestServiceIntegration(unittest.TestCase):
                 else:
                     self.assertIn("This will end the active session for <strong>ALL</strong> Fairdata Services, not only for %s" % service_short_name, output)
                     self.assertIn("Logout", output)
+
+        # /auth
+
+        print ("Authenticate via proxy for IDA using CSCID for account fd_test_ida_user")
+        response = requests.get("%s/auth?service=IDA&redirect_url=%s&idp=CSCID&language=en" % (self.config["SSO_API"], urllib.parse.quote(self.config["SSO_API"])), verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        print ("Verify fairdata service is specified in redirect to proxy")
+        location = response.headers.get('Location')
+        self.assertIsNotNone(location)
+        self.assertTrue('/idp/profile/SAML2/Redirect/SSO' in location)
+        self.assertTrue('service=IDA' in location)
+
+        # /acs
+        # /terminate
 
         print ("Initiate mock session for IDA using CSCID for account fd_test_ida_user")
         session = requests.Session()

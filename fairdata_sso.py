@@ -369,7 +369,7 @@ def prepare_flask_request_for_saml(request):
     if request.host == 'localhost':
         request.host = '30.30.30.30'
 
-    return {
+    flask_request = {
         'https': 'on',
         'http_host': request.host,
         'server_port': url_data.port,
@@ -378,6 +378,10 @@ def prepare_flask_request_for_saml(request):
         'post_data': request.form.copy(),
         'idp': request.values.get('idp')
     }
+
+    log.debug("prepare_flask_request_for_saml: flask_request=%s" % json.dumps(flask_request))
+
+    return flask_request
 
 
 def not_found(field, saml):
@@ -1107,9 +1111,11 @@ def authentication():
 
     auth_init_encrypted = jwt.encode(auth_init, app.secret_key, algorithm='HS256')
 
-    exp = int(datetime.utcnow().timestamp() + config['MAX_AGE'])
+    auth_redirect_url = "%s&service=%s" % (auth.login(saml_redirect_url, force_authn=True), service)
 
-    response = make_response(redirect(auth.login(saml_redirect_url, force_authn=True)))
+    log.debug("authentication: AUTH REDIRECT URL: %s" % urllib.parse.unquote(auth_redirect_url))
+
+    response = make_response(redirect(auth_redirect_url))
     response.set_cookie("%s_fd_sso_authenticate" % prefix, value=auth_init_encrypted, domain=domain, max_age=config['MAX_AGE'], secure=True, httponly=True, samesite='Strict')
 
     return response
