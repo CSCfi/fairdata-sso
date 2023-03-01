@@ -819,20 +819,23 @@ def fdweGetEnvironment():
 
 
 def fdweRecordEvent(scope):
-    if 'FDWE_MATOMO_API' in config:
-        log.debug("fdweRecordEvent: scope=%s" % scope)
-        session = requests.Session()
-        data = {
-           "idsite": config['FDWE_SITE_ID'],
-           "rec": 1,
-           "action_name": "%s / SSO / %s" % (fdweGetEnvironment(), scope),
-           "rand": generate_token(),
-           "apiv": 1
-        }
-        log.debug("fdweRecordEvent: title=%s" % data['action_name'])
-        response = session.post("%s" % config['FDWE_MATOMO_API'], data=data, verify=False)
-        if response.status_code != 200:
-            log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name']), response.status_code, response.content)
+    try:
+        if 'FDWE_MATOMO_API' in config:
+            log.debug("fdweRecordEvent: scope=%s" % scope)
+            session = requests.Session()
+            data = {
+               "idsite": config['FDWE_SITE_ID'],
+               "rec": 1,
+               "action_name": "%s / SSO / %s" % (fdweGetEnvironment(), scope),
+               "rand": generate_token(),
+               "apiv": 1
+            }
+            log.debug("fdweRecordEvent: title=%s" % data['action_name'])
+            response = session.post("%s" % config['FDWE_MATOMO_API'], data=data, verify=False)
+            if response.status_code != 200:
+                log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name'], response.status_code, response.content))
+    except Exception as e:
+        log.error("Exception: %s" % str(e))
 
 
 @talisman(content_security_policy=csp_swagger)
