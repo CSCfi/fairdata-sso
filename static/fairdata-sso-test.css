@@ -3,12 +3,9 @@ body {
     padding: 20px;
 }
 
-tr {
-    padding-bottom: 30px;   
-}
-
 td {
-    padding-bottom: 30px;
+    padding-top: 20px;   
+    padding-bottom: 20px;   
     vertical-align: middle;
 }
 
@@ -18,11 +15,6 @@ td {
 
 .td-submit {
     padding-left: 10px;
-}
-
-.td-hr {
-    padding-top: 20px;
-    padding-bottom: 50px;
 }
 
 .td-heading {

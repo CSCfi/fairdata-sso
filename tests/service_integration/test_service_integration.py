@@ -431,6 +431,22 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_session" % self.prefix))
 
+        print ("Attempt to retrieve user status for non-existent user")
+        data = {
+            "id": "no_such_user",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
+
+        print ("Retrieve user status for known user")
+        data = {
+            "id": "fd_multiproject_user_ab",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 200)
+
         # --------------------------------------------------------------------------------
         # If all tests passed, record success, in which case tearDown will be done
 

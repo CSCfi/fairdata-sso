@@ -240,7 +240,7 @@ paths:
             description: "Returns a logout confirmation page warning that the current session will be terminated for all Fairdata services"
         '400':
             description: "Required parameter missing"
-  /:
+  /test:
     get:
       summary: "When in a test environment, returns a web page for manually testing SSO functionality"
       tags:
@@ -257,7 +257,7 @@ paths:
     get:
       summary: "Returns the online Swagger API documentation page"
       tags:
-        - Internal
+        - Informational
       parameters:
       produces:
       - "text/html"
@@ -355,7 +355,7 @@ paths:
     get:
       summary: "Returns the public SAML XML metadata for the SSO service"
       tags:
-        - Internal
+        - Informational
       produces:
       - "text/xml"
       responses:
@@ -379,3 +379,28 @@ paths:
             description: "Terminates the active session, if any, and redirects to the specified redirection URL"
         '400':
             description: "Required parameter missing"
+  /user_status:
+    post:
+      summary: "Return a summary of the current status of the specified user, including project membership and whether the account is disabled (available only to internal trusted services)"
+      tags:
+        - Integration
+      parameters:
+      - name: "id"
+        in: query
+        type: string
+        description: "The user id (cn)"
+        required: true
+      - name: "token"
+        in: query
+        type: string
+        description: "The trusted service token"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        '200':
+            description: "A summary of the specified user, including project membership and whether the account is disabled"
+        '400':
+            description: "Required parameter missing"
+        '401':
+            description: "Invalid token"

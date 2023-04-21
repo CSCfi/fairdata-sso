@@ -369,6 +369,35 @@ class TestSecurity(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'mockauthfile': javascript:alert(document.domain)//foo", output)
 
+        print ("Attempt retrieval of user status with missing trusted service token")
+        data = {
+            "id": "fd_multiproject_user_ab"
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Required parameter 'token' missing", output)
+
+        print ("Attempt retrieval of user status with invalid trusted service token")
+        data = {
+            "id": "fd_multiproject_user_ab",
+            "token": "invalidtoken"
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 401)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid token", output)
+
+        print ("Attempt retrieval of user status for known user with injection of invalid markup in user name")
+        data = {
+            "id": "fd_multiproject_user_ab=Invalid{markup}in user name value",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("No user found with the specified id: fd_multiproject_user_abInvalidmarkupinusernamevalue", output)
+
         # --------------------------------------------------------------------------------
         # If all tests passed, record success, in which case tearDown will be done
 

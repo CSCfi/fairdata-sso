@@ -23,6 +23,7 @@ from flask_seasurf import SeaSurf
 from flask_talisman import Talisman
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from subprocess import Popen, PIPE
+from ldap3 import Server, ServerPool, Connection, ALL, FIRST
 
 config = json.load(open(os.environ.get('SSO_CONFIG')))
 error_messages = json.load(open("%s/static/errors.json" % os.environ.get('SSO_ROOT')))
@@ -166,6 +167,14 @@ IDP = {
         'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
     }
 }
+
+ldap_servers = []
+for ldap_server_url in config.get('LDAP_HOSTS'):
+    ldap_servers.append(Server(ldap_server_url, use_ssl=True, get_info=ALL))
+ldap_server_pool = ServerPool(ldap_servers, FIRST, active=True, exhaust=True)
+
+
+#--------------------------------------------------------------------------------
 
 
 def generate_token():
@@ -1480,6 +1489,111 @@ def terminate():
     fdweRecordEvent("LOGOUT / %s / SUCCESS" % service)
 
     return response
+
+
+@csrf.exempt
+@app.route('/user_status', methods=['POST'])
+def user_status():
+    """
+    Return a summary of the current status of the specified user, including project membership and whether the account is disabled
+    """
+
+    user_id = request.values.get('id')
+
+    if not user_id:
+        response = make_response("Required parameter 'id' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    # sanitize input to protect against injections that could carry over into LDAP queries
+    user_id = re.sub(r'[^\w\@\.\-]', '', user_id)
+
+    token = request.values.get('token')
+
+    if not token:
+        response = make_response("Required parameter 'token' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    if token != config.get('TRUSTED_SERVICE_TOKEN'):
+        response = make_response("Invalid token", 401)
+        response.mimetype = "text/plain"
+        return response
+
+    ldap_connection = Connection(ldap_server_pool, config.get('LDAP_READ_USER'), config.get('LDAP_READ_PASSWORD'), auto_bind=True)
+
+    if ldap_connection and ldap_connection.bound:
+
+        log.debug("LDAP initialization successful: %s" % str(ldap_connection))
+
+        ldap_search_base = "ou=idm,dc=csc,dc=fi"
+
+        ldap_query = "(&(objectClass=person)(cn=%s))" % user_id
+
+        ldap_connection.search(ldap_search_base, ldap_query, attributes=['cn', 'nsaccountlock', 'memberOf'])
+
+        count = len(ldap_connection.entries)
+
+        if count < 1:
+            response = make_response("No user found with the specified id: %s" % user_id, 404)
+            response.mimetype = "text/plain"
+            return response
+
+        if count > 1:
+            # Presumably this should never happen, but we will check for it anyway to be sure
+            response = make_response("Multiple user accounts found with specified id: %s" % user_id, 500)
+            response.mimetype = "text/plain"
+            return response
+
+        entry = ldap_connection.entries[0]
+
+        user = {}
+        user['id'] = str(entry.cn)
+        user['locked'] = (str(entry.nsaccountlock) == 'true')
+
+        projects = []
+
+        try:
+            groups = json.loads(str(entry.memberOf).replace("'", '"'))
+        except:
+            groups = []
+
+        for group in groups:
+
+            i = group.find(',')
+            project = group[3:i]
+
+            # If project is not 'csc' and not personal (internal/academic), add normalized project number / name
+
+            if project != 'csc':
+
+                ldap_query = "(&(objectClass=CSCProject)(!(CSCPrjScope=personal))(|(CSCPrjNum=%s)(cn=%s)))" % (project, project)
+                ldap_connection.search(ldap_search_base, ldap_query, attributes=['CSCPrjNum'])
+    
+                if len(ldap_connection.entries) > 0:
+                    entry = ldap_connection.entries[0]
+                    try:
+                        project = str(entry.CSCPrjNum)
+                    except:
+                        if project.startswith('project_'):
+                            project = project[8:]
+                    projects.append(project)
+    
+        user['projects'] = projects
+
+        # TODO: query for any Qvain admin privileges and add to user summary if any
+        # c.f. https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=cscfairdata&title=Proxy+Attributes#ProxyAttributes-QvainAdminOrganizations
+
+
+        ldap_connection.unbind()
+
+        return user
+
+    else:
+        log.error("LDAP initialization failed: %s" % str(ldap_connection))
+        response = make_response("LDAP initialization failed", 500)
+        response.mimetype = "text/plain"
+        return response
 
 
 @app.before_request
