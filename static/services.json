@@ -44,7 +44,7 @@
                 }
             ]
         },
-        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
         "cscid_required": true,
         "cscid_locked_ok": false,
         "cscid_supported_profiles": [ "IDA01" ]
@@ -82,7 +82,7 @@
                 }
             ]
         },
-        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
         "cscid_required": true,
         "cscid_locked_ok": false,
         "cscid_supported_profiles": [ "IDA01" ]
@@ -120,7 +120,7 @@
                 }
             ]
         },
-        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
         "cscid_required": true,
         "cscid_locked_ok": false,
         "cscid_supported_profiles": [ "IDA01" ]
@@ -158,7 +158,7 @@
                 }
             ]
         },
-        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
         "cscid_required": false,
         "cscid_locked_ok": true,
         "cscid_supported_profiles": [ ]
@@ -208,7 +208,7 @@
                 }
             ]
         },
-        "allowed_identity_providers": [ "CSCID", "HAKA" ],
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
         "cscid_required": false,
         "cscid_locked_ok": false,
         "cscid_supported_profiles": [ "FPAS-MGMT" ]
