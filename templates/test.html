@@ -99,8 +99,22 @@
             <tr><td colspan="4"><div class="td-hr"><hr></div></td></tr>
             <form action="/user_status" method="post">
             <tr>
-                <td colspan="4">
-                    User status:&nbsp;&nbsp;
+                <td>
+                    User status summary:
+                </td>
+                <td colspan="3">
+                    <input name="id" placeholder="User ID">&nbsp;&nbsp;
+                    <input name="token" placeholder="Trusted Service Token">&nbsp;&nbsp;
+                    <input name="submit" type="submit" value="Retrieve">
+                </td>
+            </tr>
+            </form>
+            <form action="/preservation_agreements" method="post">
+            <tr>
+                <td>
+                    Preservation agreements:
+                </td>
+                <td colspan="3">
                     <input name="id" placeholder="User ID">&nbsp;&nbsp;
                     <input name="token" placeholder="Trusted Service Token">&nbsp;&nbsp;
                     <input name="submit" type="submit" value="Retrieve">

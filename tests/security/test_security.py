@@ -398,6 +398,35 @@ class TestSecurity(unittest.TestCase):
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("No user found with the specified id: fd_multiproject_user_abInvalidmarkupinusernamevalue", output)
 
+        print ("Attempt retrieval of preservation agreement privileges with missing trusted service token")
+        data = {
+            "id": "fd_pas_user_fetch"
+        }
+        response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Required parameter 'token' missing", output)
+
+        print ("Attempt retrieval of preservation agreement privileges with invalid trusted service token")
+        data = {
+            "id": "fd_pas_user_fetch",
+            "token": "invalidtoken"
+        }
+        response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 401)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid token", output)
+
+        print ("Attempt retrieval of preservation agreement privileges for known user with injection of invalid markup in user name")
+        data = {
+            "id": "fd_pas_user_fetch=Invalid{markup}in user name value",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("No preservation agreements found for specified id: fd_pas_user_fetchInvalidmarkupinusernamevalue", output)
+
         # --------------------------------------------------------------------------------
         # If all tests passed, record success, in which case tearDown will be done
 

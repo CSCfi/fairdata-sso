@@ -1596,6 +1596,107 @@ def user_status():
         return response
 
 
+@csrf.exempt
+@app.route('/preservation_agreements', methods=['POST'])
+def preservation_agreements():
+    """
+    Return a summary of user-specific preservation agreement privileges of the specified user, if any
+    """
+
+    user_id = request.values.get('id')
+
+    if not user_id:
+        response = make_response("Required parameter 'id' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    # sanitize input to protect against injections that could carry over into LDAP queries
+    user_id = re.sub(r'[^\w\@\.\-]', '', user_id)
+
+    token = request.values.get('token')
+
+    if not token:
+        response = make_response("Required parameter 'token' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    if token != config.get('TRUSTED_SERVICE_TOKEN'):
+        response = make_response("Invalid token", 401)
+        response.mimetype = "text/plain"
+        return response
+
+    ldap_connection = Connection(ldap_server_pool, config.get('LDAP_READ_USER'), config.get('LDAP_READ_PASSWORD'), auto_bind=True)
+
+    if ldap_connection and ldap_connection.bound:
+
+        log.debug("LDAP initialization successful: %s" % str(ldap_connection))
+
+        ldap_search_base = "ou=idm,dc=csc,dc=fi"
+
+        ldap_query = "(&(objectClass=CSCDPSClass)(|(CSCDPSWatchDN=cn=%s,*)(CSCDPSApproveDN=cn=%s,*)(CSCDPSFetchDN=cn=%s,*)(CSCDPSSuggestDN=cn=%s,*)))" % (user_id, user_id, user_id, user_id)
+
+        ldap_connection.search(ldap_search_base, ldap_query, attributes=['+', '*'])
+
+        agreements = {}
+
+        print(len(ldap_connection.entries))
+
+        for entry in ldap_connection.entries:
+
+            print(str(entry))
+
+            agreement_id = str(entry.CSCDPSUID)
+            privileges = []
+
+            try:
+                attval = str(entry.CSCDPSWatchDN)
+                if attval and "cn=%s," % user_id in attval:
+                    privileges.append('view')
+            except:
+                pass
+
+            try:
+                attval = str(entry.CSCDPSApproveDN)
+                if attval and "cn=%s," % user_id in attval:
+                    privileges.append('approve')
+            except:
+                pass
+
+            try:
+                attval = str(entry.CSCDPSFetchDN)
+                if attval and "cn=%s," % user_id in attval:
+                    privileges.append('fetch')
+            except:
+                pass
+
+            try:
+                attval = str(entry.CSCDPSSuggestDN)
+                if attval and "cn=%s," % user_id in attval:
+                    privileges.append('propose')
+            except:
+                pass
+
+            if len(privileges) > 0:
+                agreements[agreement_id] = privileges
+
+        if len(agreements) == 0:
+            response = make_response("No preservation agreements found for specified id: %s" % user_id, 404)
+            response.mimetype = "text/plain"
+            return response
+
+        user = {'id': user_id, 'agreements': agreements}
+
+        ldap_connection.unbind()
+
+        return user
+
+    else:
+        log.error("LDAP initialization failed: %s" % str(ldap_connection))
+        response = make_response("LDAP initialization failed", 500)
+        response.mimetype = "text/plain"
+        return response
+
+
 @app.before_request
 def checkForArbitraryHostHeader():
     headers = dict(request.headers)
