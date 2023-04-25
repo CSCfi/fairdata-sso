@@ -439,13 +439,35 @@ class TestServiceIntegration(unittest.TestCase):
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
 
-        print ("Retrieve user status for known user")
+        print ("Retrieve user status for known user without Qvain admin privileges")
         data = {
-            "id": "fd_multiproject_user_ab",
+            "id": "fd_test_multiproject_user_ab",
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 200)
+        user = response.json()
+        projects = user.get('projects', [])
+        organizations = user.get('qvain_admin_organizations', [])
+        self.assertTrue(len(projects) == 2)
+        self.assertTrue('fd_test_multiproject_a' in projects)
+        self.assertTrue('fd_test_multiproject_b' in projects)
+        self.assertTrue(len(organizations) == 0)
+
+        print ("Retrieve user status for known user with Qvain admin privileges")
+        data = {
+            "id": "fd_test_qvain_user",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 200)
+        user = response.json()
+        projects = user.get('projects', [])
+        organizations = user.get('qvain_admin_organizations', [])
+        self.assertTrue(len(projects) == 1)
+        self.assertTrue('fd_test_qvain_project' in projects)
+        self.assertTrue(len(organizations) == 1)
+        self.assertTrue('csc.fi' in organizations)
 
         print ("Attempt to retrieve preservation agreement privileges for non-existent user")
         data = {

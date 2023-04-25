@@ -61,6 +61,8 @@ app.config['CSRF_COOKIE_HTTPONLY'] = True
 app.config['CSRF_COOKIE_SECURE'] = True
 app.config['CSRF_COOKIE_SAMESITE'] = 'Strict'
 
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
 csrf = SeaSurf(app)
 
 csp = {
@@ -1581,9 +1583,32 @@ def user_status():
     
         user['projects'] = projects
 
-        # TODO: query for any Qvain admin privileges and add to user summary if any
-        # c.f. https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=cscfairdata&title=Proxy+Attributes#ProxyAttributes-QvainAdminOrganizations
+        # Query for any Qvain admin privileges and add to user summary
 
+        organizations = []
+
+        ldap_search_base = "ou=organizations,ou=idm,dc=csc,dc=fi"
+
+        ldap_query = "(CSCOrgQvainMainUsers=cn=%s,*)" % user_id
+
+        ldap_connection.search(ldap_search_base, ldap_query, attributes=['eduOrgHomePageURI'])
+
+        for entry in ldap_connection.entries:
+
+            dn = str(entry.eduOrgHomePageURI)
+        
+            fields = dn.split('.')
+        
+            total = len(fields)
+        
+            if total > 2:
+                orgdomain = "%s.%s" % (fields[total-2], fields[total-1])
+            else:
+                orgdomain = fields[total-1]
+
+            organizations.append(orgdomain)
+
+        user['qvain_admin_organizations'] = organizations
 
         ldap_connection.unbind()
 

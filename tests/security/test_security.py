@@ -371,7 +371,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Attempt retrieval of user status with missing trusted service token")
         data = {
-            "id": "fd_multiproject_user_ab"
+            "id": "fd_test_multiproject_user_ab"
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 400)
@@ -380,7 +380,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Attempt retrieval of user status with invalid trusted service token")
         data = {
-            "id": "fd_multiproject_user_ab",
+            "id": "fd_test_multiproject_user_ab",
             "token": "invalidtoken"
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
@@ -390,13 +390,13 @@ class TestSecurity(unittest.TestCase):
 
         print ("Attempt retrieval of user status for known user with injection of invalid markup in user name")
         data = {
-            "id": "fd_multiproject_user_ab=Invalid{markup}in user name value",
+            "id": "fd_test_multiproject_user_ab=Invalid{markup}in user name value",
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
         output = response.content.decode(sys.stdout.encoding)
-        self.assertEqual("No user found with the specified id: fd_multiproject_user_abInvalidmarkupinusernamevalue", output)
+        self.assertEqual("No user found with the specified id: fd_test_multiproject_user_abInvalidmarkupinusernamevalue", output)
 
         print ("Attempt retrieval of preservation agreement privileges with missing trusted service token")
         data = {
