@@ -404,6 +404,31 @@ paths:
             description: "Required parameter missing"
         '401':
             description: "Invalid token"
+  /project_status:
+    post:
+      summary: "Return a summary of the current status of the specified project, including user membership (available only to internal trusted services)"
+      tags:
+        - Integration
+      parameters:
+      - name: "id"
+        in: query
+        type: string
+        description: "The project id (cn)"
+        required: true
+      - name: "token"
+        in: query
+        type: string
+        description: "The trusted service token"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        '200':
+            description: "A summary of the specified project, including user membership"
+        '400':
+            description: "Required parameter missing"
+        '401':
+            description: "Invalid token"
   /preservation_agreements:
     post:
       summary: "Return a summary of user-specific preservation agreement privileges of the specified user"

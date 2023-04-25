@@ -396,7 +396,36 @@ class TestSecurity(unittest.TestCase):
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
         output = response.content.decode(sys.stdout.encoding)
-        self.assertEqual("No user found with the specified id: fd_test_multiproject_user_abInvalidmarkupinusernamevalue", output)
+        self.assertEqual("No user found for the specified id: fd_test_multiproject_user_abInvalidmarkupinusernamevalue", output)
+
+        print ("Attempt retrieval of project summary with missing trusted service token")
+        data = {
+            "id": "fd_test_qvain_project"
+        }
+        response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 400)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Required parameter 'token' missing", output)
+
+        print ("Attempt retrieval of project summary with invalid trusted service token")
+        data = {
+            "id": "fd_test_qvain_project",
+            "token": "invalidtoken"
+        }
+        response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 401)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("Invalid token", output)
+
+        print ("Attempt retrieval of project summary for known project with injection of invalid markup in project name")
+        data = {
+            "id": "fd_test_qvain_project=Invalid{markup}in project name value",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual("No project found for the specified id: fd_test_qvain_projectInvalidmarkupinprojectnamevalue", output)
 
         print ("Attempt retrieval of preservation agreement privileges with missing trusted service token")
         data = {
@@ -425,7 +454,7 @@ class TestSecurity(unittest.TestCase):
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
         output = response.content.decode(sys.stdout.encoding)
-        self.assertEqual("No preservation agreements found for specified id: fd_pas_user_fetchInvalidmarkupinusernamevalue", output)
+        self.assertEqual("No preservation agreements found for the specified id: fd_pas_user_fetchInvalidmarkupinusernamevalue", output)
 
         # --------------------------------------------------------------------------------
         # If all tests passed, record success, in which case tearDown will be done

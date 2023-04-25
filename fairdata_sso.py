@@ -17,6 +17,7 @@ import validators
 from os import path
 from datetime import datetime
 from datetime import timedelta
+from dateutil import parser
 from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
 from flask_seasurf import SeaSurf
@@ -813,7 +814,7 @@ def get_language(request):
         return 'en'
 
 
-def fdweGetEnvironment():
+def fdwe_get_environment():
     domain = config['DOMAIN']
     if (domain == 'fairdata.fi'):
         environment = "PRODUCTION"
@@ -825,28 +826,191 @@ def fdweGetEnvironment():
         environment = "TEST"
     else:
         environment = "DEV"
-    log.debug("fdweGetEnvironment: environment=%s" % environment)
+    log.debug("fdwe_get_environment: environment=%s" % environment)
     return environment
 
 
-def fdweRecordEvent(scope):
+def fdwe_record_event(scope):
     try:
         if 'FDWE_MATOMO_API' in config:
-            log.debug("fdweRecordEvent: scope=%s" % scope)
+            log.debug("fdwe_record_event: scope=%s" % scope)
             session = requests.Session()
             data = {
                "idsite": config['FDWE_SITE_ID'],
                "rec": 1,
-               "action_name": "%s / SSO / %s" % (fdweGetEnvironment(), scope),
+               "action_name": "%s / SSO / %s" % (fdwe_get_environment(), scope),
                "rand": generate_token(),
                "apiv": 1
             }
-            log.debug("fdweRecordEvent: title=%s" % data['action_name'])
+            log.debug("fdwe_record_event: title=%s" % data['action_name'])
             response = session.post("%s" % config['FDWE_MATOMO_API'], data=data, verify=False)
             if response.status_code != 200:
                 log.error("Error: Failed to record web event: %s  Response: %d %s" % (data['action_name'], response.status_code, response.content))
     except Exception as e:
         log.error("Exception: %s" % str(e))
+
+
+def fetch_user_details_from_ldap(ldap_connection, user_id, full=True):
+
+    ldap_search_base = "ou=idm,dc=csc,dc=fi"
+
+    ldap_query = "(&(objectClass=person)(cn=%s))" % user_id
+
+    ldap_connection.search(ldap_search_base, ldap_query, attributes=[
+        'cn',
+        'modifyTimestamp',
+        'CSCUserName',
+        'nsaccountlock',
+        'memberOf',
+        'sn',
+        'givenName',
+        'uid',
+        'mail'
+    ])
+
+    count = len(ldap_connection.entries)
+
+    if count < 1:
+        response = make_response("No user found for the specified id: %s" % user_id, 404)
+        response.mimetype = "text/plain"
+        return response
+
+    if count > 1:
+        # Presumably this should never happen, but we will check for it anyway to be sure
+        response = make_response("Multiple user accounts found with specified id: %s" % user_id, 500)
+        response.mimetype = "text/plain"
+        return response
+
+    entry = ldap_connection.entries[0]
+
+    user = {}
+    user['name'] = "%s %s" % (str(entry.givenName), str(entry.sn))
+    user['email'] = str(entry.mail)
+    user['locked'] = (str(entry.nsaccountlock) == 'true')
+
+    if full:
+
+        user['modified'] = generate_timestamp_string(parser.parse(str(entry.modifyTimestamp)))
+
+        user_id = str(entry.CSCUserName)
+
+        if user_id == '':
+            user_id = str(entry.uid)
+
+        if user_id == '':
+            user_id = str(entry.cn)
+
+        user['id'] = user_id
+
+        projects = []
+
+        try:
+            groups = json.loads(str(entry.memberOf).replace("'", '"'))
+        except:
+            groups = []
+
+        for group in groups:
+
+            i = group.find(',')
+            project = group[3:i]
+
+            # If project is not 'csc' and not personal (internal/academic), add normalized project number / name
+
+            if project != 'csc':
+
+                ldap_query = "(&(objectClass=CSCProject)(!(CSCPrjScope=personal))(|(CSCPrjNum=%s)(cn=%s)))" % (project, project)
+                ldap_connection.search(ldap_search_base, ldap_query, attributes=['CSCPrjNum'])
+    
+                if len(ldap_connection.entries) > 0:
+                    entry = ldap_connection.entries[0]
+                    try:
+                        project = str(entry.CSCPrjNum)
+                    except:
+                        if project.startswith('project_'):
+                            project = project[8:]
+                    projects.append(project)
+    
+        user['projects'] = projects
+
+        organizations = []
+
+        ldap_search_base = "ou=organizations,ou=idm,dc=csc,dc=fi"
+
+        ldap_query = "(CSCOrgQvainMainUsers=cn=%s,*)" % user_id
+
+        ldap_connection.search(ldap_search_base, ldap_query, attributes=['eduOrgHomePageURI'])
+
+        for entry in ldap_connection.entries:
+
+            dn = str(entry.eduOrgHomePageURI)
+        
+            fields = dn.split('.')
+        
+            total = len(fields)
+        
+            if total > 2:
+                orgdomain = "%s.%s" % (fields[total-2], fields[total-1])
+            else:
+                orgdomain = fields[total-1]
+
+            organizations.append(orgdomain)
+
+        user['qvain_admin_organizations'] = organizations
+
+    return user
+
+
+def fetch_project_details_from_ldap(ldap_connection, project_id):
+
+    ldap_search_base = "ou=idm,dc=csc,dc=fi"
+
+    ldap_query = "(&(objectClass=CSCProject)(|(CSCPrjNum=%s)(cn=%s)))" % (project_id, project_id)
+
+    ldap_connection.search(ldap_search_base, ldap_query, attributes=[
+        'cn',
+        'CSCPrjTitle',
+        'CSCPrjScope',
+        'CSCPrjState',
+        'CSCPrjtype',
+        'modifyTimestamp',
+        'memberUid'
+    ])
+
+    count = len(ldap_connection.entries)
+
+    if count < 1:
+        response = make_response("No project found for the specified id: %s" % project_id, 404)
+        response.mimetype = "text/plain"
+        return response
+
+    if count > 1:
+        # Presumably this should never happen, but we will check for it anyway to be sure
+        response = make_response("Multiple projects found with specified id: %s" % project_id, 500)
+        response.mimetype = "text/plain"
+        return response
+
+    entry = ldap_connection.entries[0]
+
+    project = {}
+    project['id'] = str(entry.cn)
+    project['title'] = str(entry.CSCPrjTitle)
+    project['scope'] = str(entry.CSCPrjScope)
+    project['state'] = str(entry.CSCPrjState)
+    project['modified'] = generate_timestamp_string(parser.parse(str(entry.modifyTimestamp)))
+
+    project_types = []
+    for project_type in entry.CSCPrjType:
+        project_types.append(str(project_type))
+    project['types'] = project_types
+
+    project_users = {}
+    for project_user in entry.memberUid:
+        user_id = str(project_user)
+        user_summary = fetch_user_details_from_ldap(ldap_connection, user_id, full=False)
+        project_users[user_id] = user_summary
+    project['users'] = project_users
+
+    return project
 
 
 @talisman(content_security_policy=csp_swagger)
@@ -1417,7 +1581,7 @@ def saml_attribute_consumer_service():
 
     log.debug("acs: session=%s" % json.dumps(session))
 
-    fdweRecordEvent("LOGIN / %s / SUCCESS" % service)
+    fdwe_record_event("LOGIN / %s / SUCCESS" % service)
 
     return response
 
@@ -1442,7 +1606,7 @@ def saml_single_logout_service():
 
     log.debug("sls: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
 
-    fdweRecordEvent("LOGOUT / AAI / SUCCESS")
+    fdwe_record_event("LOGOUT / AAI / SUCCESS")
 
     return response
 
@@ -1488,7 +1652,7 @@ def terminate():
 
     log.info("terminate: session=%s" % request.cookies.get("%s_fd_sso_session_id" % prefix))
     
-    fdweRecordEvent("LOGOUT / %s / SUCCESS" % service)
+    fdwe_record_event("LOGOUT / %s / SUCCESS" % service)
 
     return response
 
@@ -1528,91 +1692,59 @@ def user_status():
 
         log.debug("LDAP initialization successful: %s" % str(ldap_connection))
 
-        ldap_search_base = "ou=idm,dc=csc,dc=fi"
-
-        ldap_query = "(&(objectClass=person)(cn=%s))" % user_id
-
-        ldap_connection.search(ldap_search_base, ldap_query, attributes=['cn', 'nsaccountlock', 'memberOf'])
-
-        count = len(ldap_connection.entries)
-
-        if count < 1:
-            response = make_response("No user found with the specified id: %s" % user_id, 404)
-            response.mimetype = "text/plain"
-            return response
-
-        if count > 1:
-            # Presumably this should never happen, but we will check for it anyway to be sure
-            response = make_response("Multiple user accounts found with specified id: %s" % user_id, 500)
-            response.mimetype = "text/plain"
-            return response
-
-        entry = ldap_connection.entries[0]
-
-        user = {}
-        user['id'] = str(entry.cn)
-        user['locked'] = (str(entry.nsaccountlock) == 'true')
-
-        projects = []
-
-        try:
-            groups = json.loads(str(entry.memberOf).replace("'", '"'))
-        except:
-            groups = []
-
-        for group in groups:
-
-            i = group.find(',')
-            project = group[3:i]
-
-            # If project is not 'csc' and not personal (internal/academic), add normalized project number / name
-
-            if project != 'csc':
-
-                ldap_query = "(&(objectClass=CSCProject)(!(CSCPrjScope=personal))(|(CSCPrjNum=%s)(cn=%s)))" % (project, project)
-                ldap_connection.search(ldap_search_base, ldap_query, attributes=['CSCPrjNum'])
-    
-                if len(ldap_connection.entries) > 0:
-                    entry = ldap_connection.entries[0]
-                    try:
-                        project = str(entry.CSCPrjNum)
-                    except:
-                        if project.startswith('project_'):
-                            project = project[8:]
-                    projects.append(project)
-    
-        user['projects'] = projects
-
-        # Query for any Qvain admin privileges and add to user summary
-
-        organizations = []
-
-        ldap_search_base = "ou=organizations,ou=idm,dc=csc,dc=fi"
-
-        ldap_query = "(CSCOrgQvainMainUsers=cn=%s,*)" % user_id
-
-        ldap_connection.search(ldap_search_base, ldap_query, attributes=['eduOrgHomePageURI'])
-
-        for entry in ldap_connection.entries:
-
-            dn = str(entry.eduOrgHomePageURI)
-        
-            fields = dn.split('.')
-        
-            total = len(fields)
-        
-            if total > 2:
-                orgdomain = "%s.%s" % (fields[total-2], fields[total-1])
-            else:
-                orgdomain = fields[total-1]
-
-            organizations.append(orgdomain)
-
-        user['qvain_admin_organizations'] = organizations
+        user = fetch_user_details_from_ldap(ldap_connection, user_id)
 
         ldap_connection.unbind()
 
         return user
+
+    else:
+        log.error("LDAP initialization failed: %s" % str(ldap_connection))
+        response = make_response("LDAP initialization failed", 500)
+        response.mimetype = "text/plain"
+        return response
+
+
+@csrf.exempt
+@app.route('/project_status', methods=['POST'])
+def project_status():
+    """
+    Return a summary of the current status of the specified project, including project membership
+    """
+
+    project_id = request.values.get('id')
+
+    if not project_id:
+        response = make_response("Required parameter 'id' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    # sanitize input to protect against injections that could carry over into LDAP queries
+    project_id = re.sub(r'[^\w\@\.\-]', '', project_id)
+
+    token = request.values.get('token')
+
+    if not token:
+        response = make_response("Required parameter 'token' missing", 400)
+        response.mimetype = "text/plain"
+        return response
+
+    if token != config.get('TRUSTED_SERVICE_TOKEN'):
+        response = make_response("Invalid token", 401)
+        response.mimetype = "text/plain"
+        return response
+
+    ldap_connection = Connection(ldap_server_pool, config.get('LDAP_READ_USER'), config.get('LDAP_READ_PASSWORD'), auto_bind=True)
+
+    if ldap_connection and ldap_connection.bound:
+
+        log.debug("LDAP initialization successful: %s" % str(ldap_connection))
+
+        project = fetch_project_details_from_ldap(ldap_connection, project_id)
+
+        ldap_connection.unbind()
+
+        return project
 
     else:
         log.error("LDAP initialization failed: %s" % str(ldap_connection))
@@ -1705,7 +1837,7 @@ def preservation_agreements():
                 agreements[agreement_id] = privileges
 
         if len(agreements) == 0:
-            response = make_response("No preservation agreements found for specified id: %s" % user_id, 404)
+            response = make_response("No preservation agreements found for the specified id: %s" % user_id, 404)
             response.mimetype = "text/plain"
             return response
 
