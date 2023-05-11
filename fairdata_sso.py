@@ -159,12 +159,27 @@ IDP = {
         'HAKA':  'https://fd-auth-demo.fairdata.fi/loginHaka',
         'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
     },
-    'TEST': {
+    'REWORK': {
+        'CSCID': 'https://fd-auth-demo.fairdata.fi/loginCSC',
+        'HAKA':  'https://fd-auth-demo.fairdata.fi/loginHaka',
+        'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
+    },
+    'DEV': {
         'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
         'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
         'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
     },
-    'DEV': {
+    'STABLE': {
+        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
+        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
+        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+    },
+    'STAGING': {
+        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
+        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
+        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+    },
+    'TEST': {
         'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
         'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
         'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
@@ -822,8 +837,12 @@ def fdwe_get_environment():
         environment = "DEMO"
     elif (domain == 'fd-stable.csc.fi'):
         environment = "STABLE"
+    elif (domain == 'fd-staging.csc.fi'):
+        environment = "STAGING"
     elif (domain == 'fd-test.csc.fi'):
         environment = "TEST"
+    elif (domain == 'rework.fairdata.fi'):
+        environment = "REWORK"
     else:
         environment = "DEV"
     log.debug("fdwe_get_environment: environment=%s" % environment)

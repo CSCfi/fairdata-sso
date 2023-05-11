@@ -65,13 +65,17 @@ sonarqube:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
 
 integration-test:
-  stage: test
-  environment: $GITLAB_ENV
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  extends: .ansible-test-playbook
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+integration-test-feature:
+  extends: .ansible-test-playbook
+  variables:
+    GITLAB_ENV: 'staging'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 # ------------------------
 
