@@ -2,7 +2,8 @@
 
 SCRIPT="$(realpath $0)"
 
-export SSO_ROOT=`dirname "$SCRIPT"`
+SSO_ROOT=`dirname "$SCRIPT"`
+export SSO_ROOT
 
 if [ -z "$SSO_CONFIG" ]; then
     SSO_CONFIG="$SSO_ROOT/config.json"

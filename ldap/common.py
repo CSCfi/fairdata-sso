@@ -1,10 +1,31 @@
 import os
 import json
-from datetime import datetime
-from datetime import timedelta
 from dateutil import parser
-from os import path
 from ldap3 import Server, ServerPool, Connection, ALL, FIRST
+
+
+def initialize_ldap_connection():
+    """
+    Initialize an LDAP connection per the defined configuration
+    """
+
+    config = json.load(open("%s/config.json" % os.environ['SSO_ROOT']))
+    
+    ldap_hosts = config['LDAP_HOSTS']
+    ldap_read_user = config['LDAP_READ_USER']
+    ldap_read_password = config['LDAP_READ_PASSWORD']
+    ldap_servers = []
+    
+    for ldap_server_url in ldap_hosts:
+        ldap_servers.append(Server(ldap_server_url, use_ssl=True, get_info=ALL))
+    
+    ldap_server_pool = ServerPool(ldap_servers, FIRST, active=True, exhaust=True)
+    ldap_connection = Connection(ldap_server_pool, ldap_read_user, ldap_read_password, auto_bind=True)
+
+    if ldap_connection and ldap_connection.bound:
+        return ldap_connection
+    else:
+        raise Exception("LDAP initialization failed: %s" % str(ldap_connection))
 
 
 def normalize_timestamp_string(timestamp):
