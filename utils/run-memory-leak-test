@@ -2,7 +2,7 @@
 
 while true; do
     date
-    curl -s -k "https://psdev.fd-dev.csc.fi:4443" >/dev/null
+    curl -X POST -s -k "https://psdev.fd-dev.csc.fi:4443/project_status?id=fd_multiuser_project&token=secret" >/dev/null
     ps -eo size,pid,user,command --sort -size | grep fairdata-sso | \
         awk '{ hr=$1/1024 ; printf("%13.2f Mb ",hr) } { for ( x=4 ; x<=NF ; x++) { printf("%s ",$x) } print "" }' | \
         cut -d "" -f2 | grep -v grep | sed -e 's/--workers.*$//' 
