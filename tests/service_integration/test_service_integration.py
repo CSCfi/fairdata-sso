@@ -109,10 +109,13 @@ class TestServiceIntegration(unittest.TestCase):
                 for guidance_link in service['guidance_links'][language]:
                     self.assertIn("<li><a href=\"%s\" target=\"_blank\">%s</a></li>" % (guidance_link['href'], guidance_link['text']), output)
 
-                idps = service['allowed_identity_providers']
+                allowed_idps = service['allowed_identity_providers']
+                available_idps = self.config.get('IDENTITY_PROVIDERS', ['CSCID', 'HAKA', 'VIRTU'])
 
-                if (self.config['NO_HAKA'] and 'HAKA' in idps):
-                    idps.remove('HAKA')
+                idps = []
+                for idp in allowed_idps:
+                    if idp in available_idps:
+                        idps.append(idp)
 
                 print ("- verify supported authentication options present")
 

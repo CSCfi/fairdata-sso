@@ -7,7 +7,7 @@
     "SSO_HOST": "0.0.0.0",
     "SSO_API": "https://sso.example.org",
     "AAI_PROXY": "aai.example.org",
-    "NO_HAKA": false,
+    "IDENTITY_PROVIDERS": [ "CSCID", "HAKA", "VIRTU" ],
     "FDWE_URL": "https://matomo.example.org/fdwe.js",
     "FDWE_MATOMO_API": "https://matomo.example.org/fdwe.php",
     "FDWE_SITE_ID": 1,

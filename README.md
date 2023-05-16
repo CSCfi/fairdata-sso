@@ -34,6 +34,19 @@ systemctl stop fairdata-sso
 systemctl restart fairdata-sso
 ```
 
+## Enabled Identity Providers
+
+An optional variable IDENTITY_PROVIDERS can be defined in config.json, which takes an array of identity provider token strings.
+
+If not defined, it defaults to the array [ "CSCID", "HAKA", "VIRTU" ]
+
+In environments which only support a subset of identity providers, e.g. DEMO, the variable can be defined in config.json accordingly, e.g.
+```
+    "IDENTITY_PROVIDERS": [ "CSCID" ],
+```
+
+The allowed identity providers for each service, as defined in services.json, need not be modified in order to enable a subset of identity providers for a given environment. Even if a service allows an identity provider, if it is not defined in the IDENTITY_PROVIDERS array in config.json, it will not be offered to the user for validation.
+
 # Dependency management
 
 ## Managing Python Dependencies

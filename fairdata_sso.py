@@ -32,14 +32,13 @@ saml = json.load(open(os.environ.get('SSO_SAML_CONFIG')))
 
 services = json.load(open("%s/static/services.json" % os.environ.get('SSO_ROOT')))
 AVAILABLE_SERVICES = services.keys()
-AVAILABLE_IDENTITY_PROVIDERS = [ 'CSCID', 'HAKA', 'VIRTU' ]
+AVAILABLE_IDENTITY_PROVIDERS = config.get('IDENTITY_PROVIDERS', [ 'CSCID', 'HAKA', 'VIRTU' ])
 AVAILABLE_LANGUAGES = [ 'en', 'fi', 'sv' ]
 
 domain = config['DOMAIN']
 prefix = re.sub(r'[^a-zA-Z0-9]', '_', domain)
 debug = config.get('DEBUG')
 not_production = config.get('ENVIRONMENT') != 'PRODUCTION'
-
 
 class localFlask(Flask):
     def process_response(self, response):
@@ -113,17 +112,22 @@ if debug:
     log.debug("DOMAIN: %s" % domain)
     log.debug("PREFIX: %s" % prefix)
     log.debug("ENVIRONMENT: %s" % config.get('ENVIRONMENT'))
-    log.debug("NO_HAKA: %s" % config.get('NO_HAKA'))
+    log.debug("IDENTITY_PROVIDERS: %s" % json.dumps(AVAILABLE_IDENTITY_PROVIDERS))
 
-# Remove HAKA authentication option if excluded in configuration, e.g. in DEMO environment
-if config.get('NO_HAKA'):
-    for service in AVAILABLE_SERVICES:
-        allowed_identity_providers = services[service].get('allowed_identity_providers')
-        if allowed_identity_providers:
-            allowed_identity_providers.remove('HAKA')
-            services[service]['allowed_identity_providers'] = allowed_identity_providers
+#--------------------------------------------------------------------------------
 
-#log.debug("SERVICES: %s" % json.dumps(services))
+# Remove authentication options if not enabled for environment, e.g. in DEMO environment
+for service in AVAILABLE_SERVICES:
+    allowed_identity_providers = services[service]['allowed_identity_providers']
+    idps = []
+    for identity_provider in allowed_identity_providers:
+        if identity_provider in AVAILABLE_IDENTITY_PROVIDERS:
+            idps.append(identity_provider)
+    services[service]['allowed_identity_providers'] = idps
+
+log.debug("SERVICES: %s" % json.dumps(services))
+
+#--------------------------------------------------------------------------------
 
 SAML_ATTRIBUTES = {
     'first_name':    'urn:oid:2.5.4.42',
@@ -186,11 +190,12 @@ IDP = {
     }
 }
 
+#--------------------------------------------------------------------------------
+
 ldap_servers = []
 for ldap_server_url in config.get('LDAP_HOSTS'):
     ldap_servers.append(Server(ldap_server_url, use_ssl=True, get_info=ALL))
 ldap_server_pool = ServerPool(ldap_servers, FIRST, active=True, exhaust=True)
-
 
 #--------------------------------------------------------------------------------
 
