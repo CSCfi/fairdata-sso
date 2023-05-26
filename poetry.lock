@@ -167,6 +167,17 @@ MarkupSafe = ">=0.23"
 i18n = ["Babel (>=0.8)"]
 
 [[package]]
+name = "ldap3"
+version = "2.9.1"
+description = "A strictly RFC 4510 conforming LDAP V3 pure Python client library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pyasn1 = ">=0.4.6"
+
+[[package]]
 name = "lxml"
 version = "4.6.4"
 description = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
@@ -182,11 +193,11 @@ source = ["Cython (>=0.29.7)"]
 
 [[package]]
 name = "markupsafe"
-version = "2.1.2"
+version = "2.0.1"
 description = "Safely add untrusted strings to HTML/XML markup."
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 
 [[package]]
 name = "psutil"
@@ -206,6 +217,14 @@ description = "psycopg2 - Python-PostgreSQL Database Adapter"
 category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+
+[[package]]
+name = "pyasn1"
+version = "0.5.0"
+description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 
 [[package]]
 name = "pycparser"
@@ -375,7 +394,7 @@ lxml = ">=3.8"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "583ea761cbf80c98b2d8b65fffa30a294f39572253e0149026870d9a2027ff72"
+content-hash = "1c5af24253d3480247beef58ecb4c02d8906c4dc6812634021572f5df16a1f78"
 
 [metadata.files]
 certifi = []
@@ -393,10 +412,12 @@ idna = []
 isodate = []
 itsdangerous = []
 jinja2 = []
+ldap3 = []
 lxml = []
 markupsafe = []
 psutil = []
 psycopg2-binary = []
+pyasn1 = []
 pycparser = []
 pyjwt = []
 pyopenssl = []
