@@ -159,9 +159,9 @@ IDP = {
         'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
     },
     'REWORK': {
-        'CSCID': 'https://fd-auth-demo.fairdata.fi/loginCSC',
-        'HAKA':  'https://fd-auth-demo.fairdata.fi/loginHaka',
-        'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
+        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
+        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
+        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
     },
     'DEV': {
         'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
