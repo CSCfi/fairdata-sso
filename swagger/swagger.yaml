@@ -23,7 +23,7 @@ info:
 
     # Domain Cookies
 
-    During authentication via the Fairdata AAI proxy, the SSO will define the following temporary domain cookies with a prefix derived from the domain of the SSO instance, where all non-alphanumeric characters are replaced with underscores (i.e. the prefix will be one of fairdata_fi, demo_fairdata_fi, fd_stable_csc_fi, fd_test_csc_fi, or fd_dev_csc_fi):
+    During authentication via the Fairdata AAI proxy, the SSO will define the following temporary domain cookies with a prefix derived from the domain of the SSO instance, where all non-alphanumeric characters are replaced with underscores (i.e. the prefix will be one of fairdata_fi, demo_fairdata_fi, fd_rework_csc_fi, fd_stable_csc_fi, fd_test_csc_fi, or fd_dev_csc_fi):
 
     `PREFIX_fd_sso_redirect_url`: JWT encoded URL to be redirected back to upon successful authentication
 
