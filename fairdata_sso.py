@@ -834,7 +834,7 @@ def fdwe_get_environment():
         environment = "STAGING"
     elif (domain == 'fd-test.csc.fi'):
         environment = "TEST"
-    elif (domain == 'rework.fairdata.fi'):
+    elif (domain == 'fd-rework.csc.fi'):
         environment = "REWORK"
     else:
         environment = "DEV"
