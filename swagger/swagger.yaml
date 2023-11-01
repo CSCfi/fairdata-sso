@@ -180,7 +180,7 @@ paths:
         type: string
         description: "The canonical identifier of the service from which login is being initiated"
         required: true
-        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+        enum: [ "IDA", "ETSIN", "QVAIN", "METAX", "PAS", "AVAA" ]
       - name: "redirect_url"
         in: query
         type: string
@@ -221,7 +221,7 @@ paths:
         type: string
         description: "The canonical identifier of the service from which logout is being initiated"
         required: true
-        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+        enum: [ "IDA", "ETSIN", "QVAIN", "METAX", "PAS", "AVAA" ]
       - name: "redirect_url"
         in: query
         type: string
@@ -275,7 +275,7 @@ paths:
         type: string
         description: "The canonical identifier of the service via which login is being initiated"
         required: true
-        enum: [ "IDA", "ETSIN", "QVAIN", "PAS", "AVAA" ]
+        enum: [ "IDA", "ETSIN", "QVAIN", "METAX", "PAS", "AVAA" ]
       - name: "redirect_url"
         in: query
         type: string

@@ -210,7 +210,7 @@ class TestServiceIntegration(unittest.TestCase):
         services = session_data.get('services')
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))
-        self.assertEqual(services, '_AVAA_ETSIN_IDA_QVAIN_')
+        self.assertEqual(services, '_AVAA_ETSIN_IDA_METAX_QVAIN_')
         projects = session_data.get('projects')
         if projects:
             projects = "_%s_" % '_'.join(sorted(projects.keys()))
@@ -292,7 +292,7 @@ class TestServiceIntegration(unittest.TestCase):
         services = session_data.get('services')
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))
-        self.assertEqual(services, '_AVAA_ETSIN_QVAIN_')
+        self.assertEqual(services, '_AVAA_ETSIN_METAX_QVAIN_')
         authenticated_user = session_data.get('authenticated_user')
         self.assertIsNotNone(authenticated_user)
         self.assertEqual(authenticated_user.get('id'), 'fd_non_ida_user')
@@ -332,7 +332,7 @@ class TestServiceIntegration(unittest.TestCase):
         services = session_data.get('services')
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))
-        self.assertEqual(services, '_AVAA_ETSIN_IDA_QVAIN_')
+        self.assertEqual(services, '_AVAA_ETSIN_IDA_METAX_QVAIN_')
         authenticated_user = session_data.get('authenticated_user')
         self.assertIsNotNone(authenticated_user)
         self.assertEqual(authenticated_user.get('id'), 'fd_logindisabled_user')
@@ -414,7 +414,7 @@ class TestServiceIntegration(unittest.TestCase):
         services = session_data.get('services')
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))
-        self.assertEqual(services, '_AVAA_ETSIN_PAS_QVAIN_')
+        self.assertEqual(services, '_AVAA_ETSIN_METAX_PAS_QVAIN_')
         authenticated_user = session_data.get('authenticated_user')
         self.assertIsNotNone(authenticated_user)
         self.assertEqual(authenticated_user.get('id'), 'fd_pas_user_propose')

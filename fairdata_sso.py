@@ -756,9 +756,9 @@ def get_services(projects):
             service['projects'] = projects
             services[service_name] = service
 
-    # Authenticated users are allowed to use Etsin, Qvain, and AVAA (there are no special profiles for those)
+    # Authenticated users are allowed to use Etsin, Qvain, Metax, and AVAA (there are no special profiles for those)
 
-    for service_key in [ 'ETSIN', 'QVAIN', 'AVAA' ]:
+    for service_key in [ 'ETSIN', 'QVAIN', 'METAX', 'AVAA' ]:
         if (not services.get(service_key)):
             services[service_key] = dict()
 

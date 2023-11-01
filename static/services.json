@@ -125,6 +125,44 @@
         "cscid_locked_ok": false,
         "cscid_supported_profiles": [ "IDA01" ]
     },
+    "METAX": {
+        "short_name": "Metax",
+        "name": {
+            "en": "Metax",
+            "fi": "Metax",
+            "sv": "Metax"
+        },
+        "home": "https://metax.fairdata.fi/",
+        "guidance_text": {
+            "en": "To use Metax, you must have a CSC user account.",
+            "fi": "Jotta voit käyttää Metaxia, sinulla on oltava CSC-käyttäjätunnus.",
+            "sv": "För att använda Metax måste du ha ett CSC-användarkonto."
+        },
+        "guidance_links": {
+            "en": [
+                {
+                    "text": "How to create a CSC user account",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "fi": [
+                {
+                    "text": "CSC-käyttäjätunnuksen luominen (englanniksi)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ],
+            "sv": [
+                {
+                    "text": "Hur man skapar ett CSC-användarkonto (på engelska)",
+                    "href": "https://docs.csc.fi/accounts/how-to-create-new-user-account/"
+                }
+            ]
+        },
+        "allowed_identity_providers": [ "CSCID", "HAKA", "VIRTU" ],
+        "cscid_required": true,
+        "cscid_locked_ok": false,
+        "cscid_supported_profiles": [ "IDA01" ]
+    },
     "AVAA": {
         "short_name": "AVAA",
         "name": {

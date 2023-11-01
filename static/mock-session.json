@@ -30,6 +30,7 @@
             "projects": [ "test_project", "31234567" ]
         },
         "ETSIN": {},
+        "METAX": {},
         "PAS": {
             "projects": [ "test_project" ]
         },
