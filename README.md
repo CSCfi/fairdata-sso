@@ -138,7 +138,7 @@ docker build --no-cache . -t fairdata-docker.artifactory.ci.csc.fi/fairdata-sso
 ## Docker configs
 
 Once certificates and nginx configuration are available, create needed docker
-configs in repository `fairdata-secrets`:
+configs in repository `fairdata-docker`:
 
 ```
 docker stack deploy -c sso/docker-compose.dev.yml fairdata-conf
