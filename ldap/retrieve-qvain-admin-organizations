@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+SCRIPT="$(realpath $0)"
+LDAPDIR=`dirname "$SCRIPT"`
+SSO_ROOT=`dirname "$LDAPDIR"`
+
+# Parameters can be provided either as command line arguments or via pre-defined environment variables
+# LDAP_USER: A name name
+
+if [ "$1" ]; then
+    LDAP_USER="$1"
+fi
+
+if [ -z "$LDAP_USER" ]; then
+    echo "Missing required parameter LDAP_USER" >&2
+    exit 1
+fi
+
+export LDAP_USER
+export SSO_ROOT
+
+source $SSO_ROOT/venv/bin/activate
+
+python $LDAPDIR/retrieve_qvain_admin_organizations.py

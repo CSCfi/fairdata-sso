@@ -265,8 +265,21 @@ def initiate_session(service, idp, saml):
     projects = get_projects(groups)
     services = get_services(projects)
 
-    if services.get('QVAIN'):
-        services['QVAIN']['admin_organizations'] = get_qvain_admin_organizations(groups)
+    qvain_admin_organizations = get_qvain_admin_organizations(groups)
+
+    if qvain_admin_organizations:
+        if services.get('QVAIN'):
+            services['QVAIN']['admin_organizations'] = qvain_admin_organizations
+        else:
+            services['QVAIN'] = { "admin_organizations": qvain_admin_organizations }
+
+    pas_agreements = fetch_pas_agreements_from_ldap(fairdata_user_id).get('agreements')
+
+    if pas_agreements:
+        if services.get('PAS'):
+            services['PAS']['agreements'] = pas_agreements
+        else:
+            services['PAS'] = { "agreements": pas_agreements }
 
     session['projects'] = projects
     session['services'] = services
@@ -885,6 +898,19 @@ def fetch_project_details_from_ldap(project_id):
     except Exception as e:
         error = "LDAP query failed: %s" % str(e)
         log.error("fetch_project_details_from_ldap: %s" % error)
+        return { 'error': error }
+
+
+def fetch_qvain_admin_organizations_from_ldap(user_id):
+    try:
+        env = os.environ.copy()
+        env["LDAP_USER"] = user_id
+        cmd = "%s/ldap/retrieve-qvain-admin-organizations 2>&1" % os.environ['SSO_ROOT']
+        output = subprocess.check_output(cmd, shell=True, env=env, stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
+        return json.loads(output)
+    except Exception as e:
+        error = "LDAP query failed: %s" % str(e)
+        log.error("fetch_qvain_admin_organizations_from_ldap: %s" % error)
         return { 'error': error }
 
 

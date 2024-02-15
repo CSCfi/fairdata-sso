@@ -113,32 +113,40 @@ def fetch_user_details_from_ldap(ldap_connection, user_id, full=True):
     
         user['projects'] = projects
 
-        organizations = []
+        organizations = fetch_qvain_admin_organizations_from_ldap(ldap_connection, user_id)
 
-        ldap_search_base = "ou=organizations,ou=idm,dc=csc,dc=fi"
-
-        ldap_query = "(CSCOrgQvainMainUsers=cn=%s,*)" % user_id
-
-        ldap_connection.search(ldap_search_base, ldap_query, attributes=['eduOrgHomePageURI'])
-
-        for entry in ldap_connection.entries:
-
-            dn = str(entry.eduOrgHomePageURI)
-        
-            fields = dn.split('.')
-        
-            total = len(fields)
-        
-            if total > 2:
-                orgdomain = "%s.%s" % (fields[total-2], fields[total-1])
-            else:
-                orgdomain = fields[total-1]
-
-            organizations.append(orgdomain)
-
-        user['qvain_admin_organizations'] = organizations
+        if len(organizations) > 0:
+            user['qvain_admin_organizations'] = organizations
 
     return user
+
+
+def fetch_qvain_admin_organizations_from_ldap(ldap_connection, user_id):
+
+    organizations = []
+
+    ldap_search_base = "ou=organizations,ou=idm,dc=csc,dc=fi"
+
+    ldap_query = "(CSCOrgQvainMainUsers=cn=%s,*)" % user_id
+
+    ldap_connection.search(ldap_search_base, ldap_query, attributes=['eduOrgHomePageURI'])
+
+    for entry in ldap_connection.entries:
+
+        dn = str(entry.eduOrgHomePageURI)
+        
+        fields = dn.split('.')
+        
+        total = len(fields)
+        
+        if total > 2:
+            orgdomain = "%s.%s" % (fields[total-2], fields[total-1])
+        else:
+            orgdomain = fields[total-1]
+
+        organizations.append(orgdomain)
+
+    return organizations
 
 
 def fetch_project_details_from_ldap(ldap_connection, project_id):
@@ -192,53 +200,48 @@ def fetch_project_details_from_ldap(ldap_connection, project_id):
 
 def fetch_pas_agreements_from_ldap(ldap_connection, user_id):
 
-        ldap_search_base = "ou=idm,dc=csc,dc=fi"
+    ldap_search_base = "ou=idm,dc=csc,dc=fi"
 
-        ldap_query = "(&(objectClass=CSCDPSClass)(|(CSCDPSWatchDN=cn=%s,*)(CSCDPSApproveDN=cn=%s,*)(CSCDPSFetchDN=cn=%s,*)(CSCDPSSuggestDN=cn=%s,*)))" % (user_id, user_id, user_id, user_id)
+    ldap_query = "(&(objectClass=CSCDPSClass)(|(CSCDPSWatchDN=cn=%s,*)(CSCDPSApproveDN=cn=%s,*)(CSCDPSFetchDN=cn=%s,*)(CSCDPSSuggestDN=cn=%s,*)))" % (user_id, user_id, user_id, user_id)
 
-        ldap_connection.search(ldap_search_base, ldap_query, attributes=['+', '*'])
+    ldap_connection.search(ldap_search_base, ldap_query, attributes=['+', '*'])
 
-        agreements = {}
+    agreements = {}
 
-        for entry in ldap_connection.entries:
+    for entry in ldap_connection.entries:
 
-            agreement_id = str(entry.CSCDPSUID)
-            privileges = []
+        agreement_id = str(entry.CSCDPSUID)
+        privileges = []
 
-            try:
-                attval = str(entry.CSCDPSWatchDN)
-                if attval and "cn=%s," % user_id in attval:
-                    privileges.append('view')
-            except:
-                pass
+        try:
+            attval = str(entry.CSCDPSWatchDN)
+            if attval and "cn=%s," % user_id in attval:
+                privileges.append('view')
+        except:
+            pass
 
-            try:
-                attval = str(entry.CSCDPSApproveDN)
-                if attval and "cn=%s," % user_id in attval:
-                    privileges.append('approve')
-            except:
-                pass
+        try:
+            attval = str(entry.CSCDPSApproveDN)
+            if attval and "cn=%s," % user_id in attval:
+                privileges.append('approve')
+        except:
+            pass
 
-            try:
-                attval = str(entry.CSCDPSFetchDN)
-                if attval and "cn=%s," % user_id in attval:
-                    privileges.append('fetch')
-            except:
-                pass
+        try:
+            attval = str(entry.CSCDPSFetchDN)
+            if attval and "cn=%s," % user_id in attval:
+                privileges.append('fetch')
+        except:
+            pass
 
-            try:
-                attval = str(entry.CSCDPSSuggestDN)
-                if attval and "cn=%s," % user_id in attval:
-                    privileges.append('propose')
-            except:
-                pass
+        try:
+            attval = str(entry.CSCDPSSuggestDN)
+            if attval and "cn=%s," % user_id in attval:
+                privileges.append('propose')
+        except:
+            pass
 
-            if len(privileges) > 0:
-                agreements[agreement_id] = privileges
+        if len(privileges) > 0:
+            agreements[agreement_id] = privileges
 
-        if len(agreements) == 0:
-            raise Exception("No preservation agreements found for the specified id: %s" % user_id)
-
-        user = {'id': user_id, 'agreements': agreements}
-
-        return user
+    return agreements

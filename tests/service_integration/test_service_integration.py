@@ -500,14 +500,29 @@ class TestServiceIntegration(unittest.TestCase):
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual(output, 'No preservation agreements found for the specified id: no_such_user')
 
-        print ("Retrieve preservation agreement privileges for known user")
+        print ("Attempt to retrieve preservation agreement privileges for known user with no agreements")
+        data = {
+            "id": "fd_test_ida_user",
+            "token": self.config["TRUSTED_SERVICE_TOKEN"]
+        }
+        response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertEqual(output, 'No preservation agreements found for the specified id: fd_test_ida_user')
+
+        print ("Retrieve preservation agreement privileges for known user with agreement")
         data = {
             "id": "fd_pas_user_fetch",
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 200)
+        output = response.json()
+        self.assertFalse('error' in output)
+        self.assertTrue('agreements' in output)
 
         # --------------------------------------------------------------------------------
         # If all tests passed, record success, in which case tearDown will be done
