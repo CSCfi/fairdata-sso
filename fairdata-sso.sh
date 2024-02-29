@@ -14,15 +14,25 @@ if [ -z "$SSO_SAML_CONFIG" ]; then
     export SSO_SAML_CONFIG="$SSO_ROOT/saml.json"
 fi
 
-source $SSO_ROOT/venv/bin/activate
-
-cd $SSO_ROOT
+GUNICORN_ARGS="--workers 3 --timeout 60 --bind unix:/run/fairdata-sso.sock -u root -g nginx" 
 
 DEBUG=`cat $SSO_CONFIG | grep "DEBUG" | grep "true"`
 
-if [ "$DEBUG" ]; then
-    export FLASK_ENV=development
+LOG_ROOT=`cat $SSO_CONFIG | grep "LOG_ROOT" | sed -e 's/\",.*$//' | sed -e 's/^.*\"//'`
+
+if [ ! -d "$LOG_ROOT" ]; then
+    LOG_ROOT="$SSO_ROOT"
 fi
 
-gunicorn --workers 3 --bind unix:/run/fairdata-sso.sock -u root -g nginx wsgi 
+GUNICORN_ARGS="$GUNICORN_ARGS --error-logfile $LOG_ROOT/gunicorn_error.log"
 
+if [ "$DEBUG" ]; then
+    export FLASK_ENV=development
+    GUNICORN_ARGS="$GUNICORN_ARGS --log-level=debug"
+fi
+
+cd $SSO_ROOT
+
+source $SSO_ROOT/venv/bin/activate
+
+gunicorn $GUNICORN_ARGS wsgi

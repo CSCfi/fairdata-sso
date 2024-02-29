@@ -185,6 +185,8 @@ IDP = {
     }
 }
 
+log.debug("INITIALIZED")
+
 #--------------------------------------------------------------------------------
 
 
@@ -1021,11 +1023,16 @@ def login():
     errors_data = []
     error_codes = request.args.get('errors')
 
-    try:
-        for error in request.args.getlist('errors'):
-            errors_data.append(error_messages[error])
-    except:
-        pass
+    if error_codes:
+        try:
+            for error in error_codes.split(','):
+                errors_data.append(error_messages.get(error, {
+                    "en": { "text": error, "link": "", "href": "" },
+                    "fi": { "text": error, "link": "", "href": "" },
+                    "sv": { "text": error, "link": "", "href": "" }
+                }))
+        except:
+            pass
 
     language = request.values.get('language')
 
@@ -1431,9 +1438,9 @@ def saml_attribute_consumer_service():
     errors = session.get('errors')
 
     if (errors):
-        messages = ''.join(f'&errors={urllib.parse.quote(error)}' for error in errors)
-        log.warning("acs: errors: %s" % messages)
-        url = "%s/login?service=%s&redirect_url=%s&idp=%s&%s&language=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, messages, language)
+        error_codes = ','.join(errors)
+        log.warning("acs: errors: %s" % error_codes)
+        url = "%s/login?service=%s&redirect_url=%s&idp=%s&language=%s&errors=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, language, error_codes)
         response = make_response(redirect(url))
         response.set_cookie("%s_fd_sso_session_id" % prefix, value='', domain=domain, max_age=0)
         response.set_cookie("%s_fd_sso_authenticate" % prefix, value='', domain=domain, max_age=0)
