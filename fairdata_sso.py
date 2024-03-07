@@ -135,16 +135,6 @@ SAML_ATTRIBUTES = {
     'idm_groups':    'urn:oid:1.3.6.1.4.1.8057.2.80.26'
 }
 
-PAS_GROUPS = {
-    'FPAS-MGMT:Admin':           '2001465',
-    'FPAS-MGMT:UserOrg:Propose': '2001466',
-    'FPAS-MGMT:UserOrg:Approve': '2001467',
-    'FPAS-MGMT:UserOrg:View':    '2001468',
-    'FPAS-MGMT:Orgs:Propose':    '2001469',
-    'FPAS-MGMT:Orgs:Approve':    '2001470',
-    'FPAS-MGMT:Orgs:View':       '2001471'
-}
-
 # IdP URLs per the specified 'ENVIRONMENT' defined in config.json:
 
 IDP = {
@@ -321,7 +311,10 @@ def validate_session(service, session):
     # specific error messages recorded, add a default error message
 
     if (len(errors) == 0 and (not active_user_services or active_user_services.get(service) == None)):
-        errors.append("no_service_rights") # Service agnostic fallback error message
+        if service == 'PAS':
+            errors.append("no_pas_service_rights") 
+        else:
+            errors.append("no_service_rights") # Service agnostic fallback error message
 
     if (len(errors) > 0):
         session['errors'] = errors
@@ -704,9 +697,12 @@ def get_projects(groups):
             # Extract profile name preceeding colon
             profile_name = group[:i]
 
-            # If special PAS profile name, fetch project from dict
+            # If special PAS admin group name, define virtual PAS project
             if profile_name == 'FPAS-MGMT':
-                project_name = PAS_GROUPS.get(group)
+                if group == 'FPAS-MGMT:Admin':
+                    project_name = '2001465'
+                else:
+                    continue
             # Else, extract project name following colon
             else:
                 project_name = group[i+1:]

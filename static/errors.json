@@ -50,6 +50,23 @@
             "href": "mailto:servicedesk@csc.fi"
         }
     },
+    "no_pas_service_rights": {
+        "en": {
+            "text": "You do not have sufficient rights to use the requested service.",
+            "link": "Please contact the DPS support for assistance",
+            "href": "mailto:pas-support@csc.fi"
+        },
+        "fi": {
+            "text": "Sinulla ei ole riittäviä oikeuksia palvelun käyttämiseen.",
+            "link": "Saat apua ottamalla yhteyttä PAS-tukeen",
+            "href": "mailto:pas-support@csc.fi"
+        },
+        "sv": {
+            "text": "Du har inte tillräckliga rättigheter för att använda tjänsten.",
+            "link": "Var god, kontakta vår stödadress",
+            "href": "mailto:pas-support@csc.fi"
+        }
+    },
     "no_ida_projects": {
         "en": {
             "text": "You are not a member of any project in IDA or you have not yet accepted the IDA terms of use in MyCSC.",

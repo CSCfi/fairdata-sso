@@ -394,7 +394,7 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertIn("Logging into this service requires a CSC account.", output)
         self.assertIn("To be able to download data from Etsin that require you to log in, you must have a CSC user account.", output)
 
-        print ("Initiate mock session for PAS using CSCID for account fd_pas_user_propose")
+        print ("Attempt to initiate mock session for PAS using CSCID for account fd_pas_user_propose_test")
         session = requests.Session()
         data = {
             "fd_sso_initiating_service": "PAS",
@@ -402,6 +402,27 @@ class TestServiceIntegration(unittest.TestCase):
             "fd_sso_idp": "CSCID",
             "fd_sso_language": "en",
             "mockauthfile": "%s/tests/mock/fd_pas_user_propose.json" % os.environ.get('SSO_ROOT'),
+            "testing": "true"
+        }
+        response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
+        self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
+        self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
+        self.assertIsNone(session.cookies.get("%s_fd_sso_session" % self.prefix))
+        output = response.content.decode(sys.stdout.encoding)
+        self.assertIn("<title>Fairdata SSO Login</title>", output)
+        self.assertIn("You do not have sufficient rights to use the requested service.", output)
+        self.assertIn("Please contact the DPS support for assistance", output)
+
+        print ("Initiate mock session for PAS using CSCID for account fd_pas_user_admin")
+        session = requests.Session()
+        data = {
+            "fd_sso_initiating_service": "PAS",
+            "fd_sso_redirect_url": self.config["SSO_API"],
+            "fd_sso_idp": "CSCID",
+            "fd_sso_language": "en",
+            "mockauthfile": "%s/tests/mock/fd_pas_user_admin.json" % os.environ.get('SSO_ROOT'),
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
@@ -417,12 +438,12 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertEqual(services, '_AVAA_ETSIN_METAX_PAS_QVAIN_')
         authenticated_user = session_data.get('authenticated_user')
         self.assertIsNotNone(authenticated_user)
-        self.assertEqual(authenticated_user.get('id'), 'fd_pas_user_propose')
+        self.assertEqual(authenticated_user.get('id'), 'fd_pas_user_admin')
         self.assertEqual(authenticated_user.get('identity_provider'), 'CSCID')
         self.assertEqual(session_data.get('initiating_service'), 'PAS')
         fairdata_user = session_data.get('fairdata_user')
         self.assertIsNotNone(fairdata_user)
-        self.assertEqual(fairdata_user.get('id'), 'fd_pas_user_propose')
+        self.assertEqual(fairdata_user.get('id'), 'fd_pas_user_admin')
         self.assertFalse(fairdata_user.get('locked', False))
 
         print ("Terminate current session using /sls endpoint")

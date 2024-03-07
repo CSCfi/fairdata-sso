@@ -3,10 +3,10 @@
     "errors": [],
     "samlUserdata": {
         "urn:oid:1.3.6.1.4.1.8057.2.80.26": [
-            "FPAS-MGMT:UserOrg:Propose"
+            "FPAS-MGMT:Admin"
         ],
         "urn:oid:1.3.6.1.4.1.16161.4.0.53": [
-            "fd_pas_user_propose_test"
+            "fd_pas_user_admin"
         ],
         "urn:oid:2.16.840.1.113730.3.1.610": [
             "false"
@@ -15,7 +15,7 @@
             "helpdesk@csc.fi"
         ],
         "urn:oid:2.5.4.42": [
-            "fd_pas_user_propose_first"
+            "fd_pas_user_admin_first"
         ],
         "urn:oid:1.3.6.1.4.1.16161.4.0.88": [
             "CSC - Tieteen tietotekniikan keskus Oy"
@@ -24,7 +24,7 @@
             "csc.fi"
         ],
         "urn:oid:2.5.4.4": [
-            "fd_pas_user_propose_l\u00e4st"
+            "fd_pas_user_admin_l\u00e4st"
         ]
     }
 }
