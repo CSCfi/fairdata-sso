@@ -492,8 +492,6 @@ def get_user_csc_name(saml):
 
     return csc_name[0] if csc_name else not_found('csc_name', saml)
 
-    return None
-
 
 def get_user_haka_identifier(saml):
     """
@@ -512,8 +510,6 @@ def get_user_haka_identifier(saml):
     haka_id = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('haka_id', None), False)
 
     return haka_id[0] if haka_id else not_found('haka_id', saml)
-
-    return None
 
 
 def get_user_id(saml):
@@ -558,8 +554,6 @@ def get_user_email(saml):
 
     return csc_email[0] if csc_email else not_found('csc_email', saml)
 
-    return None
-
 
 def get_user_lastname(saml):
     """
@@ -578,8 +572,6 @@ def get_user_lastname(saml):
     lastname = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('last_name', None), False)
 
     return lastname[0] if lastname else not_found('lastname', saml)
-
-    return None
 
 
 def get_user_firstname(saml):
@@ -600,8 +592,6 @@ def get_user_firstname(saml):
 
     return first_name[0] if first_name else not_found('first_name', saml)
 
-    return None
-
 
 def get_user_groups(saml):
     """
@@ -620,8 +610,6 @@ def get_user_groups(saml):
     groups = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('idm_groups', None), False)
 
     return [group for group in groups] if groups else not_found('groups', saml)
-
-    return None
 
 
 def get_user_home_organization_id(saml):
@@ -642,8 +630,6 @@ def get_user_home_organization_id(saml):
 
     return home_organization[0] if home_organization else not_found('home_organization', saml)
 
-    return None
-
 
 def get_user_home_organization_name(saml):
     """
@@ -662,8 +648,6 @@ def get_user_home_organization_name(saml):
     home_organization_id = saml.get('samlUserdata', {}).get(SAML_ATTRIBUTES.get('home_org_name', None), False)
 
     return home_organization_id[0] if home_organization_id else not_found('home_organization_id', saml)
-
-    return None
 
 
 def get_projects(groups):
@@ -1248,6 +1232,8 @@ def saml_attribute_consumer_service():
 
     language = 'en'
 
+    authentication_errors = []
+
     if ((not_production or debug) and request.values.get('testing') == 'true'):
 
         log.debug("In testing, demo, or debug")
@@ -1336,6 +1322,7 @@ def saml_attribute_consumer_service():
             return response
 
     else:
+
         log.debug("NOT in dev, testing, demo, or debug -> 'production' type environment...")
 
         auth_init = request.cookies.get("%s_fd_sso_authenticate" % prefix)
@@ -1397,21 +1384,26 @@ def saml_attribute_consumer_service():
         log.debug("2) Inside saml_attribute_consumer_service(), will send req to init_saml_auth... req=%s" % req)
 
         auth = init_saml_auth(req, idp)
+
+        log.debug("SAML RESPONSE: %s" % auth.get_last_response_xml())
+
         auth.process_response()
 
-        # Build SAML authentication result dict
+        authentication_errors = auth.get_errors()
+
+        if len(authentication_errors) > 0:
+            saml_last_error_reason = auth.get_last_error_reason()
+            if saml_last_error_reason:
+                authentication_errors.append(saml_last_error_reason)
 
         saml = dict()
         saml['isAuthenticated'] = auth.is_authenticated()
-        saml['errors'] = auth.get_errors()
+        saml['errors'] = authentication_errors
         saml['samlUserdata'] = auth.get_attributes()
-
-    is_authenticated = saml['isAuthenticated']
-    authentication_errors = saml['errors']
 
     log.debug("acs: SAML AUTHENTICATION RESULT: %s" % json.dumps(saml))
 
-    if len(authentication_errors) > 0 or not is_authenticated:
+    if not saml['isAuthenticated'] or len(authentication_errors) > 0:
         errorList = ",".join(authentication_errors)
         url = "%s/login?service=%s&redirect_url=%s&idp=%s&errors=%s&language=%s" % (config['SSO_API'], service, urllib.parse.quote(redirect_url), idp, urllib.parse.quote(errorList), language)
         response = make_response(redirect(url))

@@ -27,7 +27,7 @@ fi
 GUNICORN_ARGS="$GUNICORN_ARGS --error-logfile $LOG_ROOT/gunicorn_error.log"
 
 if [ "$DEBUG" ]; then
-    export FLASK_ENV=development
+    export FLASK_DEBUG=1
     GUNICORN_ARGS="$GUNICORN_ARGS --log-level=debug"
 fi
 

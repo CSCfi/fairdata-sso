@@ -5,7 +5,7 @@ services:
     image: fairdata-docker.artifactory.ci.csc.fi/fairdata-sso
     environment:
       FLASK_RUN_HOST: 0.0.0.0
-      FLASK_ENV: 'development'
+      FLASK_DEBUG: true
     volumes:
       - .:/app
     configs:
@@ -30,15 +30,15 @@ services:
 
 configs:
   sso-server-config:
-    external: True
+    external: true
   sso-saml-config:
-    external: True
+    external: true
   sso-nginx-config:
-    external: True
+    external: true
 
   fairdata-nginx-config:
-    external: True
+    external: true
   fairdata-ssl-certificate:
-    external: True
+    external: true
   fairdata-ssl-certificate-key:
-    external: True
+    external: true

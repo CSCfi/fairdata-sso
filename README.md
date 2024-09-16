@@ -76,15 +76,6 @@ poetry add {{ dependency }}
 poetry export --without-hashes -o requirements.txt
 ```
 
-#### Adding development dependency
-```
-# Add development dependency
-poetry add -D {{ dependency }}
-
-# Update requirements.txt including dev dependencies
-poetry export --without-hashes -o --dev requirements.txt
-```
-
 ### Removing dependencies
 
 ```
