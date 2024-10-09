@@ -64,7 +64,7 @@ class TestSecurity(unittest.TestCase):
 
         print("--- Testing security")
 
-        cspHeader = "default-src 'self' metrics.fairdata.fi metrics.fd-test.csc.fi; img-src * data:"
+        cspHeader = "default-src 'self' 'unsafe-inline' metrics.fairdata.fi metrics.fd-dev.csc.fi metrics.fd-test.csc.fi; img-src * data:"
         cspSwaggerHeader = "default-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com; img-src * data:"
 
         print ("Verify correct security headers for /robots.txt")

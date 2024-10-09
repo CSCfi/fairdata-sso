@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -18,16 +19,18 @@
     <div>
         <table align="left">
             <tr>
-                <td>
+                <td style="width: 250px">
                     <a href="/">Online&nbsp;SSO&nbsp;API&nbsp;documentation</a>
                 </td>
-                <td align="center">
+                <td style="text-align: center; width: 250px">
                     <a href="/saml_metadata/">Retrieve&nbsp;SAML&nbsp;metadata</a>
                 </td>
-                <td align="center">
+                <td style="text-align: center; width: 250px">
                     <a href="/robots.txt">Retrieve&nbsp;<tt>robots.txt</tt></a>
                 </td>
-                <td></td>
+                <td style="text-align: right; width: 250px">
+                    <a href="/test">Test Referrer URL</tt></a>
+                </td>
             </tr>
             <tr><td colspan="4"><div class="td-hr"><hr></div></td></tr>
             <form action="/login" method="get">
@@ -51,9 +54,7 @@
                         <option value="en" default>English</option>
                         <option value="fi">Finnish</option>
                         <option value="sv">Swedish</option>
-                    </select>
-                    &nbsp;&nbsp;&nbsp;
-                    <select name="errors" id="errors">
+                    </select>&nbsp;&nbsp;&nbsp;<select name="errors" id="errors">
                         <option value="" default>No errors</option>
                         <option value="no_csc_account">No CSC account</option>
                         <option value="csc_account_locked">CSC account locked</option>

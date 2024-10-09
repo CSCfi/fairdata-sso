@@ -63,7 +63,9 @@ csrf = SeaSurf(app)
 csp = {
     'default-src': [
         "'self'",
+        "'unsafe-inline'",
         'metrics.fairdata.fi',
+        'metrics.fd-dev.csc.fi',
         'metrics.fd-test.csc.fi'
     ],
     'img-src': '* data:'
