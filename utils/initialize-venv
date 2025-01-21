@@ -1,29 +1,35 @@
 #!/usr/bin/env bash
-
 PYTHON="/opt/fairdata/python3/bin/python"
-
 ID=`id -u -n`
 if [ "$ID" != "root" ]; then
     echo "You must execute this script as root" >&2
     exit 1
 fi
-
 if [ ! -x $PYTHON ]; then
     echo "$PYTHON does not exist!" >&2
     exit 1
 fi
-
 SCRIPT="$(realpath $0)"
 UTILS=`dirname "$SCRIPT"`
 ROOT=`dirname "$UTILS"`
+VENV_LINK="$ROOT/venv"
+VENV_TARGET="/usr/local/venvs/fairdata-sso"
 
-rm -fr $ROOT/venv 2>/dev/null
+# Remove old venv if it exists
+rm -fr "$VENV_TARGET" 2>/dev/null
+rm -f "$VENV_LINK" 2>/dev/null
 
-$PYTHON -m venv $ROOT/venv
+# Create parent directory if it doesn't exist
+mkdir -p /usr/local/venvs
 
-source $ROOT/venv/bin/activate
+# Create new venv
+$PYTHON -m venv "$VENV_TARGET"
 
+# Create symlink and set ownership to sso:sso
+ln -s "$VENV_TARGET" "$VENV_LINK"
+chown -h sso:sso "$VENV_LINK"
+
+source "$VENV_LINK/bin/activate"
 pip install --upgrade pip
 pip install 'wheel>=0.34.2' --force-reinstall
 pip install -r $ROOT/requirements.txt
-

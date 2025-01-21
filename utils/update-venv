@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
-
 ID=`id -u -n`
 if [ "$ID" != "root" ]; then
     echo "You must execute this script as root" >&2
     exit 1
 fi
-
 SCRIPT="$(realpath $0)"
 UTILS=`dirname "$SCRIPT"`
 ROOT=`dirname "$UTILS"`
+VENV_LINK="$ROOT/venv"
+VENV_TARGET="/usr/local/venvs/fairdata-sso"
 
-if [ ! -d $ROOT/venv ]; then
-    echo "Could not find virtual environment!" >&2
+# Check both symlink and target directory exist
+if [ ! -L "$VENV_LINK" ] || [ ! -d "$VENV_TARGET" ]; then
+    echo "Could not find virtual environment or symlink!" >&2
     exit 1
 fi
 
-source $ROOT/venv/bin/activate
-
+source $VENV_LINK/bin/activate
 pip install --upgrade pip
 pip install -r $ROOT/requirements.txt
-

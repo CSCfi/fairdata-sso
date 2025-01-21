@@ -37,6 +37,6 @@ ROOT=`dirname "$UTILS"`
 
 PERMS="g+rwX,o-rwx"
 
-chown -R root:nginx $ROOT
+chown -R sso:sso $ROOT
 chmod -R $PERMS $ROOT
 
