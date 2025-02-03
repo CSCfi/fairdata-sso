@@ -455,6 +455,11 @@ class TestServiceIntegration(unittest.TestCase):
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_session" % self.prefix))
 
+        # Skip remaining tests requiring integration with fd-auth-dev if in production or demo environment
+        if self.config["ENVIRONMENT"] in [ 'PRODUCTION', 'DEMO' ]:
+            self.success = True
+            return
+
         print ("Attempt to retrieve user status for non-existent user")
         data = {
             "id": "no_such_user",
