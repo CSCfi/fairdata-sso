@@ -69,7 +69,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /robots.txt")
         response = requests.get("%s/robots.txt" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("User-agent: * Disallow: /", output)
         headers = dict(response.headers)
@@ -84,7 +84,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /saml_metadata/")
         response = requests.get("%s/saml_metadata/" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         headers = dict(response.headers)
         self.assertEqual(headers.get('Content-Type'), 'text/xml')
         self.assertEqual(headers.get('Feature-Policy'), "geolocation 'none'")
@@ -97,7 +97,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /swagger")
         response = requests.get("%s/" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Swagger UI</title>", output)
         headers = dict(response.headers)
@@ -112,7 +112,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /test")
         response = requests.get("%s/test" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Test Page</title>", output)
         headers = dict(response.headers)
@@ -127,7 +127,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /login")
         response = requests.get("%s/login?service=IDA&redirect_url=%s&errors=csc_account_locked&language=en" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Login</title>", output)
         headers = dict(response.headers)
@@ -142,7 +142,7 @@ class TestSecurity(unittest.TestCase):
 
         print ("Verify correct security headers for /logout")
         response = requests.get("%s/logout?service=IDA&redirect_url=%s&language=en" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Logout</title>", output)
         headers = dict(response.headers)
@@ -167,7 +167,7 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         headers = dict(response.headers)
         self.assertEqual(headers.get('Content-Type'), 'text/html; charset=utf-8')
         self.assertEqual(headers.get('Feature-Policy'), "geolocation 'none'")
@@ -181,7 +181,7 @@ class TestSecurity(unittest.TestCase):
         print ("Verify correct security headers for /terminate")
         data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         headers = dict(response.headers)
         self.assertEqual(headers.get('Content-Type'), 'text/html; charset=utf-8')
         self.assertEqual(headers.get('Feature-Policy'), "geolocation 'none'")
@@ -202,9 +202,9 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         response = session.post("%s/sls/" % self.config["SSO_API"], verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         headers = dict(response.headers)
         self.assertEqual(headers.get('Content-Type'), 'text/html; charset=utf-8')
         self.assertEqual(headers.get('Feature-Policy'), "geolocation 'none'")
@@ -219,79 +219,79 @@ class TestSecurity(unittest.TestCase):
         if not self.config['DEBUG']:
             headers = { 'Host': 'bogus.com' }
             response = requests.get("%s/robots.txt" % self.config["SSO_API"], headers=headers, verify=False)
-            self.assertEqual(response.status_code, 444)
+            self.assertEqual(response.status_code, 444, response.content.decode(sys.stdout.encoding))
 
         # TODO: add tests for injections
 
         print ("Attempt login with injection into service name parameter")
         response = requests.get("%s/login?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=https://foo.bar.com" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'service': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt login with injection into redirect URL parameter")
         response = requests.get("%s/login?service=IDA&redirect_url=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt login with invalid domain for redirect URL parameter")
         response = requests.get("%s/login?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
 
         print ("Attempt login with injection into language parameter")
         response = requests.get("%s/login?service=IDA&redirect_url=%s&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'language': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt logout with injection into service name parameter")
         response = requests.get("%s/logout?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=%s" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'service': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt logout with injection into redirect URL parameter")
         response = requests.get("%s/logout?service=IDA&redirect_url=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt logout with invalid domain for redirect URL parameter")
         response = requests.get("%s/logout?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
 
         print ("Attempt logout with injection into language parameter")
         response = requests.get("%s/logout?service=IDA&redirect_url=%s&language=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'language': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt authentication initiation with injection into service name parameter")
         response = requests.get("%s/auth?service=javascript%%3aalert(document.domain)%%2f%%2ffoo&redirect_url=%s" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'service': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt authentication initiation with injection into redirect URL parameter")
         response = requests.get("%s/auth?service=IDA&redirect_url=javascript%%3aalert(document.domain)%%2f%%2ffoo" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'redirect_url': javascript:alert(document.domain)//foo", output)
 
         print ("Attempt authentication initiation with invalid domain for redirect URL parameter")
         response = requests.get("%s/auth?service=IDA&redirect_url=https://foo.com" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid domain for parameter 'redirect_url': https://foo.com", output)
 
         print ("Attempt authentication initiation with injection into IDP parameter")
         response = requests.get("%s/auth?service=IDA&redirect_url=%s&idp=javascript%%3aalert(document.domain)%%2f%%2ffoo" % (self.config["SSO_API"], self.config["SSO_API"]), verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'idp': javascript:alert(document.domain)//foo", output)
 
@@ -305,7 +305,7 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'fd_sso_initiating_service': javascript:alert(document.domain)//foo", output)
 
@@ -319,7 +319,7 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'fd_sso_redirect_url': javascript:alert(document.domain)//foo", output)
 
@@ -333,7 +333,7 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'fd_sso_idp': javascript:alert(document.domain)//foo", output)
 
@@ -347,7 +347,7 @@ class TestSecurity(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid value for parameter 'mockauthfile': javascript:alert(document.domain)//foo", output)
 
@@ -356,7 +356,7 @@ class TestSecurity(unittest.TestCase):
             "id": "fd_test_multiproject_user_ab"
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Required parameter 'token' missing", output)
 
@@ -366,7 +366,7 @@ class TestSecurity(unittest.TestCase):
             "token": "invalidtoken"
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 401, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid token", output)
 
@@ -376,7 +376,7 @@ class TestSecurity(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("No user found for the specified id: fd_test_multiproject_user_abInvalidmarkupinusernamevalue", output)
 
@@ -385,7 +385,7 @@ class TestSecurity(unittest.TestCase):
             "id": "fd_test_qvain_project"
         }
         response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Required parameter 'token' missing", output)
 
@@ -395,7 +395,7 @@ class TestSecurity(unittest.TestCase):
             "token": "invalidtoken"
         }
         response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 401, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid token", output)
 
@@ -405,7 +405,7 @@ class TestSecurity(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("No project found for the specified id: fd_test_qvain_projectInvalidmarkupinprojectnamevalue", output)
 
@@ -414,7 +414,7 @@ class TestSecurity(unittest.TestCase):
             "id": "fd_pas_user_fetch"
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Required parameter 'token' missing", output)
 
@@ -424,7 +424,7 @@ class TestSecurity(unittest.TestCase):
             "token": "invalidtoken"
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 401, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("Invalid token", output)
 
@@ -434,7 +434,7 @@ class TestSecurity(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("No preservation agreements found for the specified id: fd_pas_user_fetchInvalidmarkupinusernamevalue", output)
 

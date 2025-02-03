@@ -53,19 +53,19 @@ class TestInternalOperations(unittest.TestCase):
 
         print("Retrieve Swagger documentation")
         response = requests.get("%s/" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Swagger UI</title>", output)
 
         print("Retrieve test page")
         response = requests.get("%s/test" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("<title>Fairdata SSO Test Page</title>", output)
 
         print("Retrieve robots.txt")
         response = requests.get("%s/robots.txt" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual("User-agent: * Disallow: /", output)
 

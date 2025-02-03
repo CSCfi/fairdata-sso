@@ -63,7 +63,7 @@ class TestServiceIntegration(unittest.TestCase):
 
         print ("Verify correct response from /saml_metadata")
         response = requests.get("%s/saml_metadata/" % self.config["SSO_API"], verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertTrue('<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"' in output)
 
@@ -79,7 +79,7 @@ class TestServiceIntegration(unittest.TestCase):
                 print ("Request login from %s service (language=%s)" % (service['short_name'], language))
 
                 response = requests.get("%s/login?service=%s&redirect_url=%s&errors=csc_account_locked&language=%s" % (self.config["SSO_API"], service_key, urllib.parse.quote(self.config["SSO_API"]), language), verify=False)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Login</title>", output)
 
@@ -153,7 +153,7 @@ class TestServiceIntegration(unittest.TestCase):
                 print ("Request logout from %s service (language=%s)" % (service['short_name'], language))
 
                 response = requests.get("%s/logout?service=%s&redirect_url=%s&language=%s" % (self.config["SSO_API"], service_key, urllib.parse.quote(self.config["SSO_API"]), language), verify=False)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
                 output = response.content.decode(sys.stdout.encoding)
                 self.assertIn("<title>Fairdata SSO Logout</title>", output)
 
@@ -177,7 +177,7 @@ class TestServiceIntegration(unittest.TestCase):
 
         print ("Authenticate via proxy for IDA using CSCID for account fd_test_ida_user")
         response = requests.get("%s/auth?service=IDA&redirect_url=%s&idp=CSCID&language=en" % (self.config["SSO_API"], urllib.parse.quote(self.config["SSO_API"])), verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         print ("Verify fairdata service is specified in redirect to proxy")
         location = response.headers.get('Location')
         self.assertIsNotNone(location)
@@ -198,7 +198,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
 
         print ("Validate current session details stored in cookies")
         session_data_string = session.cookies.get("%s_fd_sso_session" % self.prefix)
@@ -231,21 +231,21 @@ class TestServiceIntegration(unittest.TestCase):
         print ("Attempt to terminate current session without specifying redirect URL")
         data = {"service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("Required parameter 'redirect_url' missing", output)
 
         print ("Attempt to terminate current session without specifying service")
         data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertIn("Required parameter 'service' missing", output)
 
         print ("Terminate current session")
         data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -262,7 +262,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -282,7 +282,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
 
         print ("Validate current session details stored in cookies")
         output = response.content.decode(sys.stdout.encoding)
@@ -306,7 +306,7 @@ class TestServiceIntegration(unittest.TestCase):
         print ("Terminate current session")
         data = {"redirect_url": self.config["SSO_API"], "service": "ETSIN"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -323,7 +323,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
 
         print ("Validate current session details stored in cookies")
         session_data_string = session.cookies.get("%s_fd_sso_session" % self.prefix)
@@ -346,7 +346,7 @@ class TestServiceIntegration(unittest.TestCase):
         print ("Terminate current session")
         data = {"redirect_url": self.config["SSO_API"], "service": "IDA"}
         response = session.post("%s/terminate" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -363,7 +363,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -384,7 +384,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -405,7 +405,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -426,7 +426,7 @@ class TestServiceIntegration(unittest.TestCase):
             "testing": "true"
         }
         response = session.post("%s/acs/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
 
         print ("Validate current session details stored in cookies")
         session_data_string = session.cookies.get("%s_fd_sso_session" % self.prefix)
@@ -449,7 +449,7 @@ class TestServiceIntegration(unittest.TestCase):
         print ("Terminate current session using /sls endpoint")
         data = {"redirect_url": self.config["SSO_API"]}
         response = session.post("%s/sls/" % self.config["SSO_API"], data=data, verify=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         self.assertIsNone(session.cookies.get("%s_fd_sso_idp" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_redirect_url" % self.prefix))
         self.assertIsNone(session.cookies.get("%s_fd_sso_initiating_service" % self.prefix))
@@ -461,7 +461,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
 
         print ("Retrieve user status for known user without Qvain admin privileges")
         data = {
@@ -469,7 +469,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         user = response.json()
         projects = user.get('projects', [])
         organizations = user.get('qvain_admin_organizations', [])
@@ -484,7 +484,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         user = response.json()
         projects = user.get('projects', [])
         organizations = user.get('qvain_admin_organizations', [])
@@ -499,7 +499,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
 
         print ("Retrieve project status for known project")
         data = {
@@ -507,7 +507,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/project_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         project = response.json()
         users = project.get('users', {})
         self.assertTrue(len(users) == 2)
@@ -520,7 +520,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual(output, 'No preservation agreements found for the specified id: no_such_user')
 
@@ -530,7 +530,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404, response.content.decode(sys.stdout.encoding))
         output = response.content.decode(sys.stdout.encoding)
         self.assertEqual(output, 'No preservation agreements found for the specified id: fd_test_ida_user')
 
@@ -540,7 +540,7 @@ class TestServiceIntegration(unittest.TestCase):
             "token": self.config["TRUSTED_SERVICE_TOKEN"]
         }
         response = session.post("%s/preservation_agreements" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         output = response.json()
         self.assertFalse('error' in output)
         self.assertTrue('agreements' in output)

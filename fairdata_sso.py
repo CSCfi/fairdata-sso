@@ -1714,9 +1714,15 @@ def checkForArbitraryHostHeader():
         host, sep, port = host.partition(':')
         hostname = socket.gethostname()
         log.debug("checkForArbitraryHostHeader: Host=%s hostname=%s" % (host, hostname))
-        if not debug and not host in [ 'localhost', '127.0.0.1', '0.0.0.0', 'sso.fairdata.fi', 'fdsso1.csc.fi', 'fdsso2.csc.fi', hostname ]:
-            return make_response('Connection Closed Without Response', 444, {})
-
+        if not debug and not host in [
+            'localhost',
+            '127.0.0.1',
+            '0.0.0.0',
+            'sso.fairdata.fi',
+            'sso1.fairdata.fi',
+            'sso2.fairdata.fi',
+            hostname
+         ]: return make_response('Connection Closed Without Response', 444, {})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
