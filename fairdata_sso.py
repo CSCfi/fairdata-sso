@@ -139,6 +139,11 @@ SAML_ATTRIBUTES = {
 
 # IdP URLs per the specified 'ENVIRONMENT' defined in config.json:
 
+# Define constants for the development/testing IdP URLs
+DEV_IDP_CSC_URL = 'https://fd-auth-dev.csc.fi/LoginCSC'
+DEV_IDP_HAKA_TEST_URL = 'https://fd-auth-dev.csc.fi/LoginHakaTest'
+DEV_IDP_VIRTU_TEST_URL = 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+
 IDP = {
     'PRODUCTION': {
         'CSCID': 'https://fd-auth.fairdata.fi/loginCSC',
@@ -151,29 +156,34 @@ IDP = {
         'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
     },
     'REWORK': {
-        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
-        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
-        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
     },
     'DEV': {
-        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
-        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
-        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
     },
     'STABLE': {
-        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
-        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
-        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
     },
     'STAGING': {
-        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
-        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
-        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
     },
     'TEST': {
-        'CSCID': 'https://fd-auth-dev.csc.fi/LoginCSC',
-        'HAKA':  'https://fd-auth-dev.csc.fi/LoginHakaTest',
-        'VIRTU': 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
+    },
+    'SANDBOX': {
+        'CSCID': DEV_IDP_CSC_URL,
+        'HAKA':  DEV_IDP_HAKA_TEST_URL,
+        'VIRTU': DEV_IDP_VIRTU_TEST_URL
     }
 }
 
@@ -833,6 +843,8 @@ def fdwe_get_environment():
         environment = "TEST"
     elif (domain == 'fd-rework.csc.fi'):
         environment = "REWORK"
+    elif (domain == 'fd-sandbox.csc.fi'):
+        environment = "SANDBOX"
     else:
         environment = "DEV"
     log.debug("fdwe_get_environment: environment=%s" % environment)
