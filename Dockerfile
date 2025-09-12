@@ -1,4 +1,4 @@
-FROM python:3.8-buster
+FROM python:3.8-bullseye
 
 RUN apt-get update -y
 RUN apt-get install --fix-missing -y libxml2-dev libxmlsec1-dev libxmlsec1-openssl
@@ -16,8 +16,8 @@ ENV SSO_SAML_CONFIG="/etc/fairdata-sso/saml.json"
 
 WORKDIR /app
 
-COPY requirements-dev.txt .
-RUN pip install -r requirements-dev.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 COPY . .
 

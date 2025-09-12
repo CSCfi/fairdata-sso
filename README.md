@@ -110,7 +110,7 @@ the workstation. See section `Docker configs` below.
 Append the following entry to your workstations `/etc/hosts` file:
 
 ```
-0.0.0.0 sso.fd-dev.csc.fi
+127.0.0.1 sso.fd-dev.csc.fi
 ```
 
 ## Docker image

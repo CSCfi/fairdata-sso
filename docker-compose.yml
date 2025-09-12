@@ -5,7 +5,7 @@ services:
     image: fairdata-docker.artifactory.ci.csc.fi/fairdata-sso
     environment:
       FLASK_RUN_HOST: 0.0.0.0
-      FLASK_DEBUG: true
+      FLASK_DEBUG: 'true'
     volumes:
       - .:/app
     configs:
