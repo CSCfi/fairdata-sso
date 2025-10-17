@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
-PYTHON="/opt/fairdata/python3/bin/python"
+
+# Only use the core os versions of commands
+    
+PATH="/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH
+
+# Ensure the required version of python exists
+
+PYTHON=$(which python3.12)
+
+if [ ! -x "$PYTHON" ]; then
+    echo "Could not find python executable" >&2
+    exit 1
+fi
+
 ID=`id -u -n`
 if [ "$ID" != "root" ]; then
     echo "You must execute this script as root" >&2
     exit 1
 fi
-if [ ! -x $PYTHON ]; then
-    echo "$PYTHON does not exist!" >&2
-    exit 1
-fi
+
 SCRIPT="$(realpath $0)"
 UTILS=`dirname "$SCRIPT"`
 ROOT=`dirname "$UTILS"`
@@ -27,9 +38,12 @@ $PYTHON -m venv "$VENV_TARGET"
 
 # Create symlink and set ownership to sso:sso
 ln -s "$VENV_TARGET" "$VENV_LINK"
-chown -h sso:sso "$VENV_LINK"
 
 source "$VENV_LINK/bin/activate"
 pip install --upgrade pip
 pip install 'wheel>=0.34.2' --force-reinstall
 pip install -r $ROOT/requirements.txt
+
+chown -h sso:sso "$VENV_LINK"
+chown -R sso:sso "$VENV_TARGET"
+

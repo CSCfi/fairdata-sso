@@ -15,8 +15,10 @@ tags
 __pycache__/
 /log
 /tmp
+/venv/
 /venv
 /TODO
+/NOTES
 /saml.json
 /config.json
 /config.tgz
