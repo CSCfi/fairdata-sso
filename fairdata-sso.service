@@ -5,8 +5,8 @@ After=network.target
 [Service]
 User=root
 Group=nginx
-WorkingDirectory=/opt/fairdata/fairdata-sso
-ExecStart=/opt/fairdata/fairdata-sso/fairdata-sso.sh
+WorkingDirectory=/usr/local/fd/fairdata-sso
+ExecStart=/usr/local/fd/fairdata-sso/fairdata-sso.sh
 
 [Install]
 WantedBy=multi-user.target
