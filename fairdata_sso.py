@@ -146,14 +146,14 @@ DEV_IDP_VIRTU_TEST_URL = 'https://fd-auth-dev.csc.fi/LoginVirtuTest'
 
 IDP = {
     'PRODUCTION': {
-        'CSCID': 'https://fd-auth.fairdata.fi/loginCSC',
-        'HAKA':  'https://fd-auth.fairdata.fi/loginHaka',
-        'VIRTU': 'https://fd-auth.fairdata.fi/loginVirtu'
+        'CSCID': 'https://fd-auth.fairdata.fi/LoginCSC',
+        'HAKA':  'https://fd-auth.fairdata.fi/LoginHaka',
+        'VIRTU': 'https://fd-auth.fairdata.fi/LoginVirtu'
     },
     'DEMO': {
-        'CSCID': 'https://fd-auth-demo.fairdata.fi/loginCSC',
-        'HAKA':  'https://fd-auth-demo.fairdata.fi/loginHaka',
-        'VIRTU': 'https://fd-auth-demo.fairdata.fi/loginVirtu'
+        'CSCID': 'https://fd-auth-demo.fairdata.fi/LoginCSC',
+        'HAKA':  'https://fd-auth-demo.fairdata.fi/LoginHaka',
+        'VIRTU': 'https://fd-auth-demo.fairdata.fi/LoginVirtu'
     },
     'REWORK': {
         'CSCID': DEV_IDP_CSC_URL,
@@ -349,14 +349,21 @@ def get_saml_auth(flask_request):
     """
 
     idp = flask_request.values.get('idp')
-    log.debug("1) Inside get_saml_auth, this is idp=%s" % idp)
+    log.debug("1: Inside get_saml_auth, idp=%s" % idp)
+
+    mfa = flask_request.values.get('mfa')
+    log.debug("1: Inside get_saml_auth, mfa=%s" % mfa)
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
-        log.debug("1) Inside get_saml_auth, this is env=%s" % env)
-        saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
+        log.debug("1: Inside get_saml_auth, env=%s" % env)
+        idpurl = IDP[env][idp]
+        if mfa and mfa == 'true':
+            idpurl = f"{idpurl}MFA"
+        log.debug("1: Inside get_saml_auth, idpurl=%s" % idpurl)
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
+        saml['security']['requestedAuthnContext'] = [idpurl]
 
     log.debug("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % saml)
 
