@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 #--------------------------------------------------------------------------------
+# Ensure script is run as root
+
+ID=$(id -u -n)
+if [ "$ID" != "root" ]; then
+    sudo "$0" "$@"
+    exit
+fi
 
 # Only use the core os versions of commands + pipx/poetry local bin
 

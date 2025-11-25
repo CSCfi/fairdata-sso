@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Ensure script is run as root
+
+ID=$(id -u -n)
+if [ "$ID" != "root" ]; then
+    sudo "$0" "$@"
+    exit
+fi
+
 SCRIPT="$(realpath $0)"
 UTILS=`dirname "$SCRIPT"`
 ROOT=`dirname "$UTILS"`
@@ -15,4 +23,4 @@ ln -s $ROOT/fairdata-sso.service /usr/lib/systemd/system/fairdata-sso.service
 systemctl daemon-reload
 systemctl enable fairdata-sso
 systemctl start fairdata-sso
-systemctl status fairdata-sso
+systemctl status --no-pager --plain --no-legend fairdata-sso

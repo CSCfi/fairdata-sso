@@ -9,18 +9,12 @@
 
 import requests
 import urllib
-import subprocess
 import unittest
-import time
 import os
 import re
 import sys
-import shutil
 import json
-import base64
 import jwt
-from pathlib import Path
-from datetime import datetime
 
 class TestServiceIntegration(unittest.TestCase):
     @classmethod
@@ -179,8 +173,8 @@ class TestServiceIntegration(unittest.TestCase):
         response = requests.get("%s/auth?service=IDA&redirect_url=%s&idp=CSCID&language=en" % (self.config["SSO_API"], urllib.parse.quote(self.config["SSO_API"])), verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 302, response.content.decode(sys.stdout.encoding))
         print ("Verify fairdata service is specified in redirect to proxy")
-        location = response.headers.get('Location')
-        self.assertIsNotNone(location)
+        location = response.headers.get('Location', '')
+        self.assertNotEqual(location, '')
         self.assertTrue('/idp/profile/SAML2/Redirect/SSO' in location)
         self.assertTrue('service=IDA' in location)
 
@@ -211,9 +205,9 @@ class TestServiceIntegration(unittest.TestCase):
         if services:
             services = "_%s_" % '_'.join(sorted(services.keys()))
         self.assertEqual(services, '_AVAA_ETSIN_IDA_METAX_QVAIN_SMARTSMEAR_')
-        projects = session_data.get('projects')
+        projects = session_data['services']['QVAIN']['projects']
         if projects:
-            projects = "_%s_" % '_'.join(sorted(projects.keys()))
+            projects = "_%s_" % '_'.join(sorted(projects))
         self.assertEqual(projects, '_fd_test_ida_project_fd_test_multiproject_a_fd_test_multiproject_b_')
         projects = session_data['services']['IDA']['projects']
         projects = "_%s_" % '_'.join(projects)
@@ -476,12 +470,12 @@ class TestServiceIntegration(unittest.TestCase):
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         user = response.json()
-        projects = user.get('projects', [])
         organizations = user.get('qvain_admin_organizations', [])
+        self.assertTrue(len(organizations) == 0)
+        projects = user['projects']
         self.assertTrue(len(projects) == 2)
         self.assertTrue('fd_test_multiproject_a' in projects)
         self.assertTrue('fd_test_multiproject_b' in projects)
-        self.assertTrue(len(organizations) == 0)
 
         print ("Retrieve user status for known user with Qvain admin privileges")
         data = {
@@ -491,12 +485,12 @@ class TestServiceIntegration(unittest.TestCase):
         response = session.post("%s/user_status" % self.config["SSO_API"], data=data, verify=False, allow_redirects=False)
         self.assertEqual(response.status_code, 200, response.content.decode(sys.stdout.encoding))
         user = response.json()
-        projects = user.get('projects', [])
         organizations = user.get('qvain_admin_organizations', [])
-        self.assertTrue(len(projects) == 1)
-        self.assertTrue('fd_test_qvain_project' in projects)
         self.assertTrue(len(organizations) == 1)
         self.assertTrue('csc.fi' in organizations)
+        projects = user['projects']
+        self.assertTrue(len(projects) == 1)
+        self.assertTrue('fd_test_qvain_project' in projects)
 
         print ("Attempt to retrieve project status for non-existent project")
         data = {

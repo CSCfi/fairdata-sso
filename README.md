@@ -8,7 +8,7 @@ after successful deployment, or `swagger/swagger.html` locally.
 
 # Configuration
 
-Standard practice is for the repository to be cloned into the directory `/var/fairdata-sso`.
+Standard practice is for the repository to be cloned into the directory `/usr/local/fd/fairdata-sso`.
 
 Python3 must be installed, and a virtual environment initialized by running the script
 

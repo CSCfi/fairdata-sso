@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Ensure script is run as root
+
+ID=$(id -u -n)
+if [ "$ID" != "root" ]; then
+    sudo "$0" "$@"
+    exit
+fi
+
 # Only use the core os versions of commands
     
 PATH="/usr/bin:/bin:/usr/sbin:/sbin"
@@ -11,12 +19,6 @@ PYTHON=$(which python3.12)
 
 if [ ! -x "$PYTHON" ]; then
     echo "Could not find python executable" >&2
-    exit 1
-fi
-
-ID=`id -u -n`
-if [ "$ID" != "root" ]; then
-    echo "You must execute this script as root" >&2
     exit 1
 fi
 
@@ -41,7 +43,6 @@ ln -s "$VENV_TARGET" "$VENV_LINK"
 
 source "$VENV_LINK/bin/activate"
 pip install --upgrade pip
-pip install 'wheel>=0.34.2' --force-reinstall
 pip install -r $ROOT/requirements.txt
 
 chown -h sso:sso "$VENV_LINK"

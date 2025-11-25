@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Ensure script is run as root
+
+ID=$(id -u -n)
+if [ "$ID" != "root" ]; then
+    sudo "$0" "$@"
+    exit
+fi
+
 while true; do
     date
     curl -X POST -s -k "https://psdev.fd-dev.csc.fi:4443/project_status?id=fd_multiuser_project&token=secret" >/dev/null

@@ -285,7 +285,8 @@ def initiate_session(service, idp, saml):
         else:
             services['PAS'] = { "agreements": pas_agreements }
 
-    session['projects'] = projects
+    #session['projects'] = projects  # No longer include root projects field in session object
+
     session['services'] = services
 
     log.info("initiate_session: %s" % json.dumps(session))
@@ -1478,6 +1479,28 @@ def saml_attribute_consumer_service():
     session_encrypted = jwt.encode(session, app.secret_key, algorithm='HS256')
 
     log.debug("acs: session (encrypted): %s" % session_encrypted)
+    log.debug("acs: session (encrypted) length: %d" % len(session_encrypted))
+
+    # If the encrypted session string is too long, remove the projects and user groups and re-encode...
+    if (len(session_encrypted) > 4096):
+        # Note: To date, the only account that this has ever happened with is the Fairdata test account fd_power_user. As no
+        # service relies on the projects dict for authentication or authorization decisions, it should be safe to exclude it
+        # from the session object for such corner cases, and it shouldn't affect service behavior. We may decide to entirely
+        # remove the projects dict from the session object in future. The user groups list is only for debugging and is 
+        # always excluded in production.
+        session.pop('projects', None)  # No longer include root projects field in session object
+        if debug:
+            session['user_groups'] = [ "user groups omitted due to overly large session cookie size" ]
+        session_encrypted = jwt.encode(session, app.secret_key, algorithm='HS256')
+        log.debug("acs: session (encrypted, reduced): %s" % session_encrypted)
+        log.debug("acs: session (encrypted, reduced) length: %d" % len(session_encrypted))
+
+    # If the encrypted session is still too long, report an error, else the cookie will simply not be set and the login
+    # will appear to have succeeded, but the user will not be able to access any services.
+    if (len(session_encrypted) > 4096):
+        response = make_response("Session cookie is too large: %d" % len(session_encrypted), 400)
+        response.mimetype = "text/plain"
+        return response
 
     response = make_response(redirect(redirect_url))
 
@@ -1497,7 +1520,7 @@ def saml_attribute_consumer_service():
     if (session.get('fairdata_user')):
         session['fairdata_user']['id'] = None
 
-    session['projects'] = dict()
+    session.pop('projects', None)  # No longer include root projects field in session object
 
     for service_key in session['services'].keys():
         session['services'][service_key]['projects'] = []

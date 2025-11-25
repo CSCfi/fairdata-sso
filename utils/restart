@@ -1,7 +1,15 @@
+# Ensure script is run as root
+
+ID=$(id -u -n)
+if [ "$ID" != "root" ]; then
+    sudo "$0" "$@"
+    exit
+fi
+
 systemctl daemon-reload
 systemctl stop nginx
 systemctl stop fairdata-sso
 systemctl start fairdata-sso
 systemctl start nginx
-systemctl status fairdata-sso
-systemctl status nginx
+systemctl status --no-pager --plain --no-legend fairdata-sso
+systemctl status --no-pager --plain --no-legend nginx
