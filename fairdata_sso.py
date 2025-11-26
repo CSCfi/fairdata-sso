@@ -361,22 +361,23 @@ def get_saml_auth(flask_request):
         if mfa and mfa == 'true':
             idpurl = f"{idpurl}MFA"
         log.debug("1: Inside get_saml_auth, idpurl=%s" % idpurl)
+        saml['security']['requestedAuthnContext'] = [idpurl]
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
-        saml['security']['requestedAuthnContext'] = [idpurl]
 
     log.debug("get_saml_auth: SAML AUTHENTICATION SETTINGS: %s" % saml)
 
     return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), saml)
 
 
-def init_saml_auth(saml_prepared_flask_request, idp):
+def init_saml_auth(saml_prepared_flask_request, idp, mfa):
     """
     Used by saml library.
 
     Arguments:
         saml_prepared_flask_request [] -- []
         idp -- IDP to be used
+        mfa -- whether MFA was used
 
     Returns:
         [] -- []
@@ -385,14 +386,22 @@ def init_saml_auth(saml_prepared_flask_request, idp):
     # It would appear that this idp variable is always "None"
     # idp = saml_prepared_flask_request.get('idp')
 
-    log.debug("3) Inside init_saml_auth, this is idp=%s" % idp)
+    log.debug("3) Inside init_saml_auth, idp=%s" % idp)
+    log.debug("3) Inside init_saml_auth, mfa=%s" % mfa)
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
-        log.debug("3) Inside init_saml_auth, this is env=%s" % env)
-        saml['security']['requestedAuthnContext'] = [IDP[env][idp]]
+        log.debug("3: Inside init_saml_auth, env=%s" % env)
+        log.debug("3: Inside init_saml_auth, idp=%s" % idp)
+        log.debug("3: Inside init_saml_auth, mfa=%s" % mfa)
+        idpurl = IDP[env][idp]
+        if mfa and mfa == 'true':
+            idpurl += "MFA"
+        log.debug("3: Inside init_saml_auth, idpurl=%s" % idpurl)
+        saml['security']['requestedAuthnContext'] = [idpurl]
         saml['security']['requestedAuthnContextComparison'] = 'exact'
         saml['security']['failOnAuthnContextMismatch'] = True
+        log.debug("3: Inside init_saml_auth, saml=%s" % json.dumps(saml))
 
     return OneLogin_Saml2_Auth(saml_prepared_flask_request, saml)
 
@@ -1186,6 +1195,10 @@ def authentication():
 
     log.debug("authentication: IDP: %s" % idp)
 
+    mfa = request.values.get('mfa', 'false')
+
+    log.debug("authentication: MFA: %s" % mfa)
+
     language = request.values.get('language')
 
     if not language:
@@ -1206,6 +1219,7 @@ def authentication():
     auth_init = {
         "initiating_service": service,
         "idp": idp,
+        "mfa": mfa,
         "redirect_url": redirect_url,
         "language": language
     }
@@ -1384,13 +1398,14 @@ def saml_attribute_consumer_service():
             return response
 
         idp = auth_init.get('idp')
+        mfa = auth_init.get('mfa')
     
         if not idp:
             response = make_response("Required value 'idp' missing" % prefix, 400)
             response.mimetype = "text/plain"
             return response
 
-        log.debug("2) Inside saml_attribute_consumer_service(), idp=%s" % idp)
+        log.debug("2: Inside saml_attribute_consumer_service(), idp=%s" % idp)
 
         language = auth_init.get('language')
     
@@ -1399,13 +1414,13 @@ def saml_attribute_consumer_service():
             response.mimetype = "text/plain"
             return response
 
-        log.debug("2) Inside saml_attribute_consumer_service(), before prepare_flask_request_for_saml... request=%s" % request)
+        log.debug("2: Inside saml_attribute_consumer_service(), before prepare_flask_request_for_saml... request=%s" % request)
 
         req = prepare_flask_request_for_saml(request)
 
-        log.debug("2) Inside saml_attribute_consumer_service(), will send req to init_saml_auth... req=%s" % req)
+        log.debug("2: Inside saml_attribute_consumer_service(), will send req to init_saml_auth... req=%s" % req)
 
-        auth = init_saml_auth(req, idp)
+        auth = init_saml_auth(req, idp, mfa)
 
         log.debug("SAML RESPONSE: %s" % auth.get_last_response_xml())
 
