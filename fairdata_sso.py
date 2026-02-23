@@ -351,14 +351,15 @@ def get_saml_auth(flask_request):
     idp = flask_request.values.get('idp')
     log.debug("1: Inside get_saml_auth, idp=%s" % idp)
 
-    mfa = flask_request.values.get('mfa')
+    mfa = config.get('USE_MFA', False)
+
     log.debug("1: Inside get_saml_auth, mfa=%s" % mfa)
 
     if idp:
         env = config.get('ENVIRONMENT', 'TEST')
         log.debug("1: Inside get_saml_auth, env=%s" % env)
         idpurl = IDP[env][idp]
-        if mfa and mfa == 'true':
+        if mfa:
             idpurl = f"{idpurl}MFA"
         log.debug("1: Inside get_saml_auth, idpurl=%s" % idpurl)
         saml['security']['requestedAuthnContext'] = [idpurl]
@@ -395,7 +396,7 @@ def init_saml_auth(saml_prepared_flask_request, idp, mfa):
         log.debug("3: Inside init_saml_auth, idp=%s" % idp)
         log.debug("3: Inside init_saml_auth, mfa=%s" % mfa)
         idpurl = IDP[env][idp]
-        if mfa and mfa == 'true':
+        if mfa:
             idpurl += "MFA"
         log.debug("3: Inside init_saml_auth, idpurl=%s" % idpurl)
         saml['security']['requestedAuthnContext'] = [idpurl]
@@ -1398,7 +1399,7 @@ def saml_attribute_consumer_service():
             return response
 
         idp = auth_init.get('idp')
-        mfa = auth_init.get('mfa')
+        mfa = auth_init.get('mfa', False)
     
         if not idp:
             response = make_response("Required value 'idp' missing" % prefix, 400)

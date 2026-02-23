@@ -88,18 +88,6 @@
                     Select authentication method:
                     {% endif %}
                 </p>
-                <div id="mfa-container" style="display: none; margin-bottom: 15px;">
-                    <input type="checkbox" id="mfa-checkbox" name="useMFA">
-                    <label for="mfa-checkbox" style="font-weight: normal;">
-                        {% if language == "fi" %}
-                        Käytä MFA
-                        {% elif language == "sv" %}
-                        Använd MFA
-                        {% else %}
-                        Use MFA
-                        {% endif %}
-                    </label>
-                </div>
                 <div class="login-buttons">
                     {% for idp in allowed_idps %}
                     <div name="fdsso-click-action" data-scope="LOGIN / {{ service }} / {{ idp }}">
@@ -118,38 +106,5 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-
-            var mfaContainer = document.getElementById('mfa-container');
-            var mfaCheckbox = document.getElementById('mfa-checkbox');
-
-            // Select all <a> tags inside the login-buttons div
-            var loginLinks = document.querySelectorAll('.login-buttons a');
-
-            // Only show MFA checkbox if not *.fairdata.fi, i.e. sso.fairdata.fi and sso.demo.fairdata.fi
-            if (! window.location.hostname.endsWith('fairdata.fi')) {
-                mfaContainer.style.display = 'block';
-            }
-
-            mfaCheckbox.addEventListener('change', function() {
-                var isChecked = this.checked;
-
-                loginLinks.forEach(function(link) {
-                    var href = link.getAttribute('href');
-                
-                    if (isChecked) {
-                        // Append parameter if it doesn't exist
-                        if (href.indexOf('&mfa=true') === -1) {
-                            link.setAttribute('href', href + '&mfa=true');
-                        }
-                    } else {
-                        // Remove parameter if it exists
-                        link.setAttribute('href', href.replace('&mfa=true', ''));
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
