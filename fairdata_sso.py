@@ -351,7 +351,7 @@ def get_saml_auth(flask_request):
     idp = flask_request.values.get('idp')
     log.debug("1: Inside get_saml_auth, idp=%s" % idp)
 
-    mfa = config.get('USE_MFA', False)
+    mfa = config.get('USE_MFA', False) == True
 
     log.debug("1: Inside get_saml_auth, mfa=%s" % mfa)
 
@@ -359,7 +359,7 @@ def get_saml_auth(flask_request):
         env = config.get('ENVIRONMENT', 'TEST')
         log.debug("1: Inside get_saml_auth, env=%s" % env)
         idpurl = IDP[env][idp]
-        if mfa:
+        if mfa == True:
             idpurl = f"{idpurl}MFA"
         log.debug("1: Inside get_saml_auth, idpurl=%s" % idpurl)
         saml['security']['requestedAuthnContext'] = [idpurl]
@@ -371,7 +371,7 @@ def get_saml_auth(flask_request):
     return OneLogin_Saml2_Auth(prepare_flask_request_for_saml(flask_request), saml)
 
 
-def init_saml_auth(saml_prepared_flask_request, idp, mfa):
+def init_saml_auth(saml_prepared_flask_request, idp):
     """
     Used by saml library.
 
@@ -387,6 +387,8 @@ def init_saml_auth(saml_prepared_flask_request, idp, mfa):
     # It would appear that this idp variable is always "None"
     # idp = saml_prepared_flask_request.get('idp')
 
+    mfa = config.get('USE_MFA', False) == True
+
     log.debug("3) Inside init_saml_auth, idp=%s" % idp)
     log.debug("3) Inside init_saml_auth, mfa=%s" % mfa)
 
@@ -396,7 +398,7 @@ def init_saml_auth(saml_prepared_flask_request, idp, mfa):
         log.debug("3: Inside init_saml_auth, idp=%s" % idp)
         log.debug("3: Inside init_saml_auth, mfa=%s" % mfa)
         idpurl = IDP[env][idp]
-        if mfa:
+        if mfa == True:
             idpurl += "MFA"
         log.debug("3: Inside init_saml_auth, idpurl=%s" % idpurl)
         saml['security']['requestedAuthnContext'] = [idpurl]
@@ -1196,7 +1198,7 @@ def authentication():
 
     log.debug("authentication: IDP: %s" % idp)
 
-    mfa = request.values.get('mfa', 'false')
+    mfa = request.values.get('mfa', False) == True
 
     log.debug("authentication: MFA: %s" % mfa)
 
@@ -1421,7 +1423,7 @@ def saml_attribute_consumer_service():
 
         log.debug("2: Inside saml_attribute_consumer_service(), will send req to init_saml_auth... req=%s" % req)
 
-        auth = init_saml_auth(req, idp, mfa)
+        auth = init_saml_auth(req, idp)
 
         log.debug("SAML RESPONSE: %s" % auth.get_last_response_xml())
 
